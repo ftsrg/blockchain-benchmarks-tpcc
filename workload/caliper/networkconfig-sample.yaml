@@ -1,0 +1,142 @@
+name: Fabric
+version: "1.0"
+mutual-tls: false
+
+caliper:
+  blockchain: fabric
+
+info:
+  Version: 1.4.4
+  Size: 2 Orgs with 2 Peers each
+  Orderer: 3 Raft nodes
+  Distribution: Docker Swarm
+  StateDB: GoLevelDB
+
+# TODO: update/add client credentials according to your setup
+clients:
+  client0.org1.example.com:
+    client:
+      organization: Org1
+      credentialStore:
+        path: /tmp/hfc-kvs/org1
+        cryptoStore:
+          path: /tmp/hfc-cvs/org1
+      clientPrivateKey:
+        path: fabric/crypto-config/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/keystore/key.pem
+      clientSignedCert:
+        path: fabric/crypto-config/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem
+
+  client0.org2.example.com:
+    client:
+      organization: Org2
+      credentialStore:
+        path: /tmp/hfc-kvs/org2
+        cryptoStore:
+          path: /tmp/hfc-cvs/org2
+      clientPrivateKey:
+        path: fabric/crypto-config/peerOrganizations/org2.example.com/users/User1@org2.example.com/msp/keystore/key.pem
+      clientSignedCert:
+        path: fabric/crypto-config/peerOrganizations/org2.example.com/users/User1@org2.example.com/msp/signcerts/User1@org2.example.com-cert.pem
+
+# TODO: update channel and chaincode IDs according to your network
+channels:
+  tpcc-channel:
+    created: true
+    orderers:
+    - orderer0
+    - orderer1
+    - orderer2
+    peers:
+      peer0org1:
+        eventSource: true
+      peer1org1:
+        eventSource: true
+      peer0org2:
+        eventSource: true
+      peer1org2:
+        eventSource: true
+
+    chaincodes:
+    # Currently, contractID must be "tpcc"
+    # But you can deploy the chaincode with any id (e.g., mytpcc) on your network 
+    # Caliper will do the tpcc->mytpcc mapping internally
+    - contractID: tpcc
+      id: tpcc
+      version: v0
+      
+# TODO: update organization data as needed
+organizations:
+  Org1:
+    mspid: Org1MSP
+    peers:
+    - peer0org1
+    - peer1org1
+    adminPrivateKey:
+      path: fabric/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp/keystore/key.pem
+    signedCert:
+      path: fabric/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp/signcerts/Admin@org1.example.com-cert.pem
+
+  Org2:
+    mspid: Org2MSP
+    peers:
+    - peer0org2
+    - peer1org2
+    adminPrivateKey:
+      path: fabric/crypto-config/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp/keystore/key.pem
+    signedCert:
+      path: fabric/crypto-config/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp/signcerts/Admin@org2.example.com-cert.pem
+
+# TODO: update node data as needed
+orderers:
+  orderer0:
+    url: grpcs://orderer0:7050
+    grpcOptions:
+      ssl-target-name-override: orderer0.example.com
+    tlsCACerts:
+      path: fabric/crypto-config/ordererOrganizations/example.com/orderers/orderer0.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
+  orderer1:
+    url: grpcs://orderer1:7050
+    grpcOptions:
+      ssl-target-name-override: orderer1.example.com
+    tlsCACerts:
+      path: fabric/crypto-config/ordererOrganizations/example.com/orderers/orderer1.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
+  orderer2:
+    url: grpcs://orderer2:7050
+    grpcOptions:
+      ssl-target-name-override: orderer2.example.com
+    tlsCACerts:
+      path: fabric/crypto-config/ordererOrganizations/example.com/orderers/orderer2.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
+
+# TODO: update node data as needed
+peers:
+  peer0org1:
+    url: grpcs://peer0org1:7051
+    grpcOptions:
+      ssl-target-name-override: peer0.org1.example.com
+      grpc.keepalive_time_ms: 600000
+    tlsCACerts:
+      path: fabric/crypto-config/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/msp/tlscacerts/tlsca.org1.example.com-cert.pem
+
+  peer1org1:
+    url: grpcs://peer1org1:7051
+    grpcOptions:
+      ssl-target-name-override: peer1.org1.example.com
+      grpc.keepalive_time_ms: 600000
+    tlsCACerts:
+      path: fabric/crypto-config/peerOrganizations/org1.example.com/peers/peer1.org1.example.com/msp/tlscacerts/tlsca.org1.example.com-cert.pem
+
+  peer0org2:
+    url: grpcs://peer0org2:7051
+    grpcOptions:
+      ssl-target-name-override: peer0.org2.example.com
+      grpc.keepalive_time_ms: 600000
+    tlsCACerts:
+      path: fabric/crypto-config/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/msp/tlscacerts/tlsca.org2.example.com-cert.pem
+
+  peer1org2:
+    url: grpcs://peer1org2:7051
+    grpcOptions:
+      ssl-target-name-override: peer1.org2.example.com
+      grpc.keepalive_time_ms: 600000
+    tlsCACerts:
+      path: fabric/crypto-config/peerOrganizations/org2.example.com/peers/peer1.org2.example.com/msp/tlscacerts/tlsca.org2.example.com-cert.pem

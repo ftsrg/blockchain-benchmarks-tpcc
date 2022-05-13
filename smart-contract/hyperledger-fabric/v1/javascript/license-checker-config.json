@@ -1,0 +1,25 @@
+{
+    "ignore": [
+        "code-license-text.txt",
+        "LICENSE",
+        "*.md",
+        "*.json",
+        ".gitignore"
+    ],
+    "license": "./../../../../code-license-text.txt",
+    "licenseFormats": {
+        "ts|js": {
+            "prepend": "/*",
+            "append": " */",
+            "eachLine": {
+                "prepend": " * "
+            }
+        },
+        "dotfile|^Dockerfile|yaml|yml|sh": {
+            "eachLine": {
+                "prepend": "# "
+            }
+        }
+    },
+    "trailingWhitespace": "TRIM"
+}

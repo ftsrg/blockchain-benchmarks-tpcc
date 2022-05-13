@@ -1,0 +1,36 @@
+{
+    "name": "tpcc-fabric-js",
+    "description": "The TPC-C JavaScript smart contract implementation for Hyperledger Fabric.",
+    "version": "1.0.0",
+    "license": "Apache-2.0",
+    "author": "Attila Klenik (@aklenik)",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/ftsrg/blockchain-benchmarks-tpcc",
+        "directory": "smart-contract/hyperledger-fabric/v1/javascript"
+    },
+    "keywords": [
+        "hyperledger",
+        "fabric",
+        "chaincode",
+        "smart contract",
+        "benchmark",
+        "TPC-C",
+        "performance"
+    ],
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"No tests to run\" && exit 0",
+        "pretest": "npm run license-check",
+        "license-check": "license-check-and-add check -f ./license-checker-config.json",
+        "license-fix": "license-check-and-add add -f ./license-checker-config.json",
+        "start": "fabric-chaincode-node start"
+    },
+    "dependencies": {
+        "fabric-contract-api": "~1.4.0",
+        "fabric-shim": "~1.4.0"
+    },
+    "devDependencies": {
+        "license-check-and-add": "4.0.3"
+    }
+}
