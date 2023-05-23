@@ -15,20 +15,17 @@
 SPDX-License-Identifier: Apache-2.0
 */
 
-package main.java.org.example;
+package org.example;
 
-import org.hyperledger.fabric.shim.ChaincodeStub;
-import org.hyperledger.fabric.shim.Loggable;
+import org.hyperledger.fabric.contract.Context;
+import org.hyperledger.fabric.contract.annotation.DataType;
 
-import com.owlike.genson.Genson;
-
-import java.util.logging.Logger;
 
 @DataType()
 
 public class common {
 
-    private static final Loggable logger = new ChaincodeLogger("tpcc");
+    //public static final org.hyperledger.fabric.Logger logger = new Logger("tpcc");
 
     /**
      * Enumerates the tables of the TPC-C benchmark.
