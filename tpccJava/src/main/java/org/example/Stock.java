@@ -3,7 +3,8 @@
  */
 
 package main.java.org.example;
-
+import org.hyperledger.fabric.contract.annotation.DataType;
+import org.hyperledger.fabric.contract.annotation.Property;
 
 @DataType()
 public class Stock {
@@ -76,7 +77,7 @@ public class Stock {
     //Stock information.
     public String s_data;
 
-    public stock(){
+    public void stock(){
         
     }
 

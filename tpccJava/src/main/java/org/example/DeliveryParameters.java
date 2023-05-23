@@ -22,4 +22,10 @@ public class DeliveryParameters {
         
     }
 
+    // public DeliveryParameters(int w_id, int o_carrier_id, int ol_delivery_d){
+    //     this.w_id = w_id;
+    //     this.o_carrier_id = o_carrier_id;
+    //     this.ol_delivery_d = ol_delivery_d;
+    // }
+
 }

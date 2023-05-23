@@ -17,11 +17,20 @@ SPDX-License-Identifier: Apache-2.0
 
 package main.java.org.example;
 
-import ParseUtils;
+import main.java.org.example.ParseUtils;
 import main.java.org.example.common;
+import main.java.org.example.common.TABLES;
+import main.java.org.example.Warehouse;
+
+
 import org.hyperledger.fabric.contract.Context;
 
+
 import static java.nio.charset.StandardCharsets.UTF_8;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
 
 /**
  * Utility functions for accessing the state database.
@@ -235,7 +244,7 @@ public class LedgerUtils {
     public static void createDistrict(Context ctx, String entry) throws Exception {
         District district = ParseUtils.parseDistrict(entry);
         //District district = entry instanceof String ? ParseUtils.parseDistrict(entry) : (District) entry;
-        LedgerUtils.createEntry(ctx, TABLES.DISTRICT, new String[]{pad(district.d_w_id), pad(district.d_id)}, entry);
+        LedgerUtils.createEntry(ctx, TABLES.DISTRICT, new String[]{String.format("%03d", district.d_w_id), String.format("%03d", district.d_id)}, entry);
     }
 
     /**
@@ -349,12 +358,27 @@ public class LedgerUtils {
             // C_FIRST, C_MIDDLE, and C_LAST are retrieved from the row at position n/ 2 rounded up
             // in the sorted set of selected rows from the CUSTOMER table.
             List<Customer> customerList = LedgerUtils.getCustomersByLastName(ctx, c_w_id, c_d_id, c_last).get();
-            customerList.sort((c1, c2) -> c1.getC_first().compareTo(c2.getC_first()));
+            customerList.sort((c1, c2) -> c1.c_first.compareTo(c2.c_first));
             int position = (int) Math.ceil(customerList.size() / 2.0);
             return customerList.get(position - 1);
         } else {
             throw new Exception("Neither the customer ID nor the customer last name parameter is supplied");
         }
+        //////////////////////////////////////////////
+        // static Customer getCustomersByIdOrLastName(Context ctx, int c_w_id, int c_d_id, int c_id, String c_last) throws Exception {
+        //     if (c_id != null) {
+        //         return LedgerUtils.getCustomer(ctx, c_w_id, c_d_id, c_id).get();
+        //     } else if (c_last != null) {
+        //         CompletableFuture<List<Customer>> customerListFuture = LedgerUtils.getCustomersByLastName(ctx, c_w_id, c_d_id, c_last);
+        //         List<Customer> customerList = customerListFuture.get();
+        //         customerList.sort((c1, c2) -> c1.getC_first().compareTo(c2.getC_first()));
+        //         int position = (int) Math.ceil(customerList.size() / 2.0);
+        //         return customerList.get(position - 1);
+        //     } else {
+        //         throw new Exception("Neither the customer ID nor the customer last name parameter is supplied");
+        //     }
+        // }
+///////////////////////////////////////////////        
 
     }
 
@@ -381,7 +405,7 @@ public class LedgerUtils {
      * @throws Exception
      */
     public static void createHistory(Context ctx, String entry) throws Exception {
-        History history = entry instanceof String ? ParseUtils.parseHistory(entry) : (Customer) entry;
+        History history = ParseUtils.parseHistory(entry);
         LedgerUtils.createEntry(ctx, TABLES.HISTORY, new String[]{pad(history.h_c_w_id), pad(history.h_c_d_id), pad(history.h_c_id), history.h_date}, entry);
     }
 
@@ -396,7 +420,7 @@ public class LedgerUtils {
      * @
      */
     public static void createNewOrder(Context ctx, String entry) {
-        NewOrder newOrder = entry instanceof String ? ParseUtils.parseNewOrder(entry) : (NewOrder)entry;
+        NewOrder newOrder = ParseUtils.parseNewOrder(entry);
         LedgerUtils.createEntry(ctx, TABLES.NEW_ORDER, new String[]{pad(newOrder.no_w_id), pad(newOrder.no_d_id), pad(newOrder.no_o_id)}, entry);
     }
 
@@ -410,7 +434,7 @@ public class LedgerUtils {
      */
     public static NewOrder getOldestNewOrder(Context ctx, int no_w_id, int no_d_id) throws Exception {
         //log("Searching for oldest New Order(" + no_w_id + "," + no_d_id + "," + no_o_id , ctx);
-        let oldest = LedgerUtils.select(ctx, TABLES.NEW_ORDER, new String[]{pad(no_w_id), pad(no_d_id)}, ParseUtils.parseNewOrder, true);
+        NewOrder oldest = LedgerUtils.select(ctx, TABLES.NEW_ORDER, new String[]{pad(no_w_id), pad(no_d_id)}, ParseUtils.parseNewOrder, true);
 
         // if (oldest) {
         //     log("Retrieved oldest oldest New Order(" + no_w_id + "," + no_d_id + "," + oldest.no_o_id + ")" , ctx);
@@ -643,7 +667,7 @@ public class LedgerUtils {
      * @param entry The stock object.
      * @async
      */
-    static async updateStock(ontext ctx, Stock entry) {
+    static async updateStock(Context ctx, Stock entry) {
         LedgerUtils.updateEntry(ctx, TABLES.STOCK, new String[] {pad(entry.s_w_id), pad(entry.s_i_id)}, entry);
     }
 }

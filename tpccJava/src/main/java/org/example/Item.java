@@ -28,7 +28,7 @@ public class Item {
 
     @Property()
     //Brand information.
-    public String i_date;
+    public String i_data;
 
 
 }
