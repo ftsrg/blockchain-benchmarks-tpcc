@@ -2,10 +2,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package main.java.org.example;
+package org.example;
 
+import org.hyperledger.fabric.contract.annotation.Property;
 
- public class District {
+public class District {
     @Property()
     //The district ID. Primary key.
     public int d_id;

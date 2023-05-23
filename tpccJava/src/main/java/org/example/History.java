@@ -2,7 +2,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package main.java.org.example;
+package org.example;
+
+import org.hyperledger.fabric.contract.annotation.Property;
 
 public class History {
 
