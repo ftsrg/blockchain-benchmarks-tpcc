@@ -15,12 +15,14 @@
 SPDX-License-Identifier: Apache-2.0
 */
 
-package main.java.org.example;
-import main.java.org.example.*;
+package org.example;
 
+import org.hyperledger.fabric.contract.annotation.DataType;
+import com.google.gson.Gson;
 
-
+@DataType
 public class ParseUtils {
+    private final static Gson gson = new Gson();
 
     //ObjectMapper objectMapper = new ObjectMapper();
         
@@ -31,7 +33,7 @@ public class ParseUtils {
      */
     public static NewOrderParameters parseNewOrderParameters(String params) throws Exception {
         //return objectMapper.readValue(params, NewOrderParameters.class);
-        return new Gson().fromJson(params, NewOrderParameters.class);
+        return gson.fromJson(params, NewOrderParameters.class);
     }
 
     /**
@@ -41,7 +43,7 @@ public class ParseUtils {
      */
     public static PaymentParameters parsePaymentParameters(String params) throws Exception {
         //return objectMapper.readValue(params, PaymentParameters.class);
-        return new Gson().fromJson(params, PaymentParameters.class);
+        return gson.fromJson(params, PaymentParameters.class);
     }
 
     /**
@@ -51,7 +53,7 @@ public class ParseUtils {
      */
     public static DeliveryParameters parseDeliveryParameters(String params) throws Exception {
         //return objectMapper.readValue(params, DeliveryParameters.class);
-        return new Gson().fromJson(params, DeliveryParameters.class);
+        return gson.fromJson(params, DeliveryParameters.class);
     }
 
     /**
@@ -61,7 +63,7 @@ public class ParseUtils {
      */
     public static OrderStatusParameters parseOrderStatusParameters(String params) throws Exception {
         //return objectMapper.readValue(params, OrderStatusParameters.class);
-        return new Gson().fromJson(params, OrderStatusParameters.class);
+        return gson.fromJson(params, OrderStatusParameters.class);
     }
 
     /**
@@ -71,7 +73,7 @@ public class ParseUtils {
      */
     public static StockLevelParameters parseStockLevelParameters(String params) throws Exception {
         //return objectMapper.readValue(params, StockLevelParameters.class);
-        return new Gson().fromJson(params, StockLevelParameters.class);
+        return gson.fromJson(params, StockLevelParameters.class);
     }
 
     /**
@@ -80,7 +82,7 @@ public class ParseUtils {
      * @return {Warehouse} The warehouse object.
      */
     public static Warehouse parseWarehouse(String jsonString) {
-        return new Gson().fromJson(jsonString, Warehouse.class);
+        return gson.fromJson(jsonString, Warehouse.class);
     }
 
         /**
@@ -89,7 +91,7 @@ public class ParseUtils {
      * @return {District} The district object.
      */
     public static District parseDistrict(String jsonString) {
-        return new Gson().fromJson(jsonString, District.class);
+        return gson.fromJson(jsonString, District.class);
     }
 
     /**
@@ -98,7 +100,7 @@ public class ParseUtils {
      * @return {Customer} The customer object.
      */
     public static Customer parseCustomer(String jsonString) {
-        return new Gson().fromJson(jsonString, Customer.class);
+        return gson.fromJson(jsonString, Customer.class);
     }
 
     /**
@@ -107,7 +109,7 @@ public class ParseUtils {
      * @return {History} The history object.
      */
     public static History parseHistory(String jsonString) {
-        return new Gson().fromJson(jsonString, History.class);
+        return gson.fromJson(jsonString, History.class);
     }
 
     /**
@@ -116,7 +118,7 @@ public class ParseUtils {
      * @return {NewOrder} The new order object.
      */
     public static NewOrder parseNewOrder(String jsonString) {
-        return new Gson().fromJson(jsonString, NewOrder.class);
+        return gson.fromJson(jsonString, NewOrder.class);
     }
 
     /**
@@ -125,7 +127,7 @@ public class ParseUtils {
      * @return {Order} The order object.
      */     
     public static Order parseOrder(String jsonString) {
-        return new Gson().fromJson(jsonString, Order.class);
+        return gson.fromJson(jsonString, Order.class);
     }
 
     /**
@@ -134,7 +136,7 @@ public class ParseUtils {
      * @return {OrderLine} The order line object.
      */
     public static OrderLine parseOrderLine(String jsonString) {
-        return new Gson().fromJson(jsonString, OrderLine.class);
+        return gson.fromJson(jsonString, OrderLine.class);
     }
 
     /**
@@ -143,7 +145,7 @@ public class ParseUtils {
      * @return {Item} The item object.
      */
     public static Item parseItem(String jsonString) {
-    return new Gson().fromJson(jsonString, Item.class);
+    return gson.fromJson(jsonString, Item.class);
     }
 
     /**
@@ -152,7 +154,7 @@ public class ParseUtils {
      * @return {Stock} The stock object.
      */
     public static Stock parseStock(String jsonString) {
-        return new Gson().fromJson(jsonString, Stock.class);
+        return gson.fromJson(jsonString, Stock.class);
     }
 
 } 
