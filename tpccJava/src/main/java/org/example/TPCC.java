@@ -148,7 +148,7 @@ public class TPCC implements ContractInterface {
 
     @Transaction
     public void createWarehouseEntry(Context ctx, Warehouse warehouse){
-         try {
+         try {            
             LedgerUtils.createWarehouse(ctx, warehouse);
         } catch (Exception e) {            
             common.log(e.toString(), ctx, "error");
