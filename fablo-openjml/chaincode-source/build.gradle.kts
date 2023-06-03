@@ -1,0 +1,236 @@
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry
+import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream
+import org.apache.commons.compress.archivers.zip.ZipFile
+
+import org.gradle.internal.os.OperatingSystem;
+
+import java.net.URL
+import java.nio.ByteBuffer
+import java.nio.channels.Channels
+import java.nio.file.Files
+
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
+
+plugins {
+    application
+    id("java")
+    id("com.github.johnrengelman.shadow") version "7.0.0"
+}
+
+group = "hu.bme.mit.ftsrg.chaincode.notes"
+version = "0.1.0"
+
+repositories {
+    mavenCentral()
+    maven {
+        url = uri("https://jitpack.io")
+    }
+}
+
+dependencies {
+    implementation("org.hyperledger.fabric-chaincode-java:fabric-chaincode-shim:2.5.0")
+    // Included also as implementation dependency so shadow will package it
+    implementation(files("libs/jmlruntime.jar"))
+
+    testImplementation(files("libs/jmlruntime.jar"))
+
+    testImplementation("junit:junit:4.13.2")
+    testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.9.2")
+}
+
+application {
+    mainClass.set("org.hyperledger.fabric.contract.ContractRouter")
+}
+
+tasks.named<ShadowJar>("shadowJar") {
+   archiveBaseName.set("chaincode")
+   archiveClassifier.set("")
+   archiveVersion.set("")
+}
+
+
+tasks.getByName<Test>("test") {
+    useJUnitPlatform()
+}
+
+val openjml_path = layout.projectDirectory.dir("openjml")
+
+tasks.test {
+    java {
+        executable = "$openjml_path/jdk/bin/java"
+        jvmArgs = listOf("-Dorg.jmlspecs.openjml.rac=exception")
+    }
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_16
+    targetCompatibility = JavaVersion.VERSION_16
+}
+
+tasks.withType<JavaCompile>().configureEach {
+    val mode = when (System.getenv("JML_MODE")) {
+        "esc" -> "esc"
+        else -> "rac"
+    }
+    if (name == "compileJava") {
+        options.isFork = true
+        options.compilerArgs.addAll(listOf(
+                "-jml",
+                "--$mode",
+                "--timeout",
+                "30"
+        ))
+        options.forkOptions.javaHome = File("$openjml_path/jdk")
+    }
+}
+
+tasks.register("downloadOpenJML", ::downloadOpenJML)
+
+
+fun downloadOpenJML(action: Task) {
+    val currentOS = OperatingSystem.current()
+    val jmlDownloadAddress = if (currentOS.isMacOsX) {
+        "https://github.com/OpenJML/OpenJML/releases/download/0.17.0-alpha-15/openjml-macos-11-0.17.0-alpha-15.zip"
+    } else if (currentOS.isLinux) {
+        "https://github.com/OpenJML/OpenJML/releases/download/0.17.0-alpha-15/openjml-ubuntu-20.04-0.17.0-alpha-15.zip"
+    } else {
+        throw UnsupportedOperationException("Current OS is not supported by OpenJML")
+    }
+
+    val downloadFile = layout.buildDirectory
+        .file("tmp/download/openjml.zip").get()
+
+    val unzipFile = openjml_path
+
+    if (downloadFile.asFile.exists()) {
+        logger.lifecycle("👌 OpenJML package is present in ${downloadFile}, no need to do this")
+    } else {
+        downloadFile.asFile.parentFile.mkdirs()
+        downloadFile.asFile.createNewFile()
+
+        val url = URL(jmlDownloadAddress)
+        Channels.newChannel(url.openStream()).use { inChan ->
+            logger.lifecycle("⬇️ OpenJML downloading")
+            downloadFile.asFile.outputStream().channel.use { outChan ->
+                outChan.transferFrom(inChan, 0, Long.MAX_VALUE);
+            }
+        }
+        logger.lifecycle("✅ OpenJML downloaded, $downloadFile")
+    }
+
+
+    if (unzipFile.asFile.exists()) {
+        logger.lifecycle("👌 OpenJML home is present in ${unzipFile}, no need to do this")
+    } else {
+        logger.lifecycle("\uD83D\uDCE6 OpenJML unpacking, $unzipFile")
+
+        unzipFile.asFile.mkdirs()
+
+        ZipFile(downloadFile.asFile).use { zf ->
+            ZipArchiveInputStream(downloadFile.asFile.inputStream()).use { zis ->
+                var entry: ZipArchiveEntry? = zis.nextZipEntry
+                while (entry != null) {
+                    entry.name
+                    if (entry.isDirectory) {
+                        unzipFile.dir(entry.name).asFile.mkdirs()
+                    } else {
+                        val newFile = unzipFile.file(entry.name).asFile
+                        Channels.newChannel(newFile.outputStream())
+                            .use { outChan ->
+                                val mode = zf.getEntry(entry!!.name).unixMode
+                                var remain = entry!!.size
+                                while (remain >= 4096) {
+                                    val bytes = zis.readNBytes(4096)
+                                    outChan.write(ByteBuffer.wrap(bytes))
+                                    remain -= 4096
+                                }
+                                val tail = zis.readNBytes(remain.toInt())
+                                outChan.write(ByteBuffer.wrap(tail))
+
+                                newFile.setReadable(mode.and("0400".toInt(8)) != 0, true)
+                                newFile.setWritable(mode.and("0200".toInt(8)) != 0, true)
+                                newFile.setExecutable(mode.and("0100".toInt(8)) != 0, true)
+                            }
+                    }
+                    entry = zis.nextZipEntry
+                }
+            }
+        }
+        logger.lifecycle("✅ OpenJML unpacked, $unzipFile")
+    }
+
+    val originJavac = openjml_path.file("jdk/bin/origin-javac")
+
+    if (originJavac.asFile.exists()) {
+        logger.lifecycle("\uD83D\uDC4C javac has been replaced")
+    } else {
+        val oldJavac = openjml_path.file("jdk/bin/javac")
+        oldJavac.asFile.renameTo(originJavac.asFile)
+        Files.writeString(oldJavac.asFile.toPath(), """
+            #!/bin/bash
+            args=()
+            for var in "${'$'}@"
+            do
+              # if starts with @, the tail is path.
+              # if exists, read contains as list of strings
+              # otherwise, pass as is
+              if [[ ${'$'}var == @* ]]; then
+                tail=${'$'}{var:1}
+                if [ -f "${'$'}tail" ]; then
+                  while IFS= read -r line
+                  do
+                    args+=("${'$'}line")
+                  done < "${'$'}tail"
+                else
+                  args+=("${'$'}var")
+                fi
+              else
+                args+=("${'$'}var")
+              fi
+            done
+
+            SCRIPT_DIR=${'$'}( cd -- "${'$'}( dirname -- "${'$'}{BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+            OPENJML_ROOT="$openjml_path" ${'$'}SCRIPT_DIR/origin-javac "${'$'}{args[@]}"
+        """.trimIndent())
+        oldJavac.asFile.setExecutable(true, true)
+        logger.lifecycle("✅ Javac is replaced, $unzipFile")
+    }
+
+    val originJava = openjml_path.file("jdk/bin/origin-java")
+
+    if (originJava.asFile.exists()) {
+        logger.lifecycle("\uD83D\uDC4C java has been replaced")
+    } else {
+        val oldJava = openjml_path.file("jdk/bin/java")
+        oldJava.asFile.renameTo(originJava.asFile)
+        Files.writeString(oldJava.asFile.toPath(), """
+            #!/bin/bash
+            args=()
+            for var in "${'$'}@"
+            do
+              # if starts with @, the tail is path.
+              # if exists, read contains as list of strings
+              # otherwise, pass as is
+              if [[ ${'$'}var == @* ]]; then
+                tail=${'$'}{var:1}
+                if [ -f "${'$'}tail" ]; then
+                  while IFS= read -r line
+                  do
+                    args+=("${'$'}line")
+                  done < "${'$'}tail"
+                else
+                  args+=("${'$'}var")
+                fi
+              else
+                args+=("${'$'}var")
+              fi
+            done
+
+            SCRIPT_DIR=${'$'}( cd -- "${'$'}( dirname -- "${'$'}{BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+            OPENJML_ROOT="$openjml_path" ${'$'}SCRIPT_DIR/origin-java "${'$'}{args[@]}"
+        """.trimIndent())
+        oldJava.asFile.setExecutable(true, true)
+        logger.lifecycle("✅ Java is replaced, $unzipFile")
+    }
+}

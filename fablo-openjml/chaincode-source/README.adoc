@@ -1,0 +1,45 @@
+= OpenJML-Wrapped Chaincode-As-A-Service Example
+Bertalan Zoltán Péter <bpeter@edu.bme.hu>
+2023-06-03
+:toc:
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+
+== SYNOPSIS
+
+The contents of this repository have been based on https://github.com/mingyang91[`mingyang91`]’s https://github.com/mingyang91/openjml-template[`openjml-template`] repository.
+The configuration has been extended to…
+* include the dependencies of the sample `notes` chaincode (the only dependency is the Fabric shim);
+* and to support the creation of a shadow (_fat_) JAR with https://www.openjml.org/[OpenJML] runtime included (using https://github.com/johnrengelman/shadow[`johnrengelman/shadow`]).
+
+A `Dockerfile` is also included to produce a docker image which can be run as an external chaincode (CCAAS).
+This is how the docker compose service should look:
+
+[source,yaml]
+----
+notes:
+  build: path/to/chaincode/source
+  environment:
+    CHAINCODE_SERVER_ADDRESS: 0.0.0.0:9999
+    CORE_CHAINCODE_ID_NAME: notes:<package id>
+  expose: [9999]
+----
+
+
+== THE ‘NOTES’ CHAINCODE
+
+All the chaincode does is store _notes,_ which are just ``String``s identified by a `String` title.
+Notes can be created, retrieved, and deleted.
+
+The code has been based on the https://github.com/hyperledger/fabric-samples/tree/main/asset-transfer-basic/chaincode-java[`asset-transfer-basic`] Fabric chaincode sample.
+
+
+== RUNTIME ASSERTIONS
+
+The only assertion done is to check whether the `title` of a new note to be created is not the string `forbidden`.
+If it _is_ `forbidden`, an execution will be thrown, preventing the transaction from making it into the ledger.

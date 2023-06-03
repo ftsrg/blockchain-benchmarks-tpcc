@@ -1,0 +1,9 @@
+#!/bin/sh
+
+PACKAGE=notes.tgz
+IMAGE=hyperledger/fabric-tools:2.4.1
+
+docker run --rm -it \
+    -v $PWD/$PACKAGE:/tmp/cc.tgz:ro \
+    $IMAGE \
+    peer lifecycle chaincode calculatepackageid /tmp/cc.tgz
