@@ -61,8 +61,10 @@ public class ParseUtils {
      * @return {DeliveryParameters} The parsed parameters.
      */
     public static DeliveryParameters parseDeliveryParameters(String params) throws Exception {
-        //return objectMapper.readValue(params, DeliveryParameters.class);        
+        //return objectMapper.readValue(params, DeliveryParameters.class); 
+        LOGGER.info("Parse Delivery parameters " + params);       
         DeliveryParameters deliveryParams = gson.fromJson(params, DeliveryParameters.class);
+        LOGGER.info("Delivery parameters are: " +deliveryParams);
         return deliveryParams;
     }
 
@@ -116,7 +118,9 @@ public class ParseUtils {
      * @return {Customer} The customer object.
      */
     public static Customer parseCustomer(String jsonString) {
+        LOGGER.info("parse customer parameters");
         Customer custParams = gson.fromJson(jsonString, Customer.class);
+        LOGGER.info("return parsed customer parameters");
         return custParams;
     }
 
@@ -145,8 +149,10 @@ public class ParseUtils {
      * @param {string} jsonString The JSON string of the order.
      * @return {Order} The order object.
      */     
-    public static Order parseOrder(String jsonString) {        
+    public static Order parseOrder(String jsonString) {  
+        LOGGER.info("parse order parameters: " + jsonString);      
         Order orderParams = gson.fromJson(jsonString, Order.class);
+        LOGGER.info("Returned parsed order parameters are: " + gson.toJson(orderParams));
         return orderParams;
     }
 

@@ -49,9 +49,11 @@ public class TPCC implements ContractInterface {
 
     public TPCC() {
 
-    } 
+    }
+
     private static final Logger LOGGER = Logger.getLogger(TPCC.class.getName());
     Gson gson = new Gson();
+
     @Transaction
     /**
      * Performs the Delivery read-write TX profile.
@@ -76,11 +78,14 @@ public class TPCC implements ContractInterface {
             List<DeliveredOrder> deliveredOrders = new ArrayList<>();
 
             for (int d_id = 1; d_id <= 10; d_id++) {
+                LOGGER.info("Begin for loop to retrieve oldest new orders from the various districts");
                 // The row in the NEW-ORDER table with matching NO_W_ID (equals W_ID) and
-                // NO_D_ID (equals D_ID) and with the lowest NO_O_ID value is selected. 
-                //This is the oldest undelivered order of that district. 
-                //NO_O_ID, the order number, is retrieved.
+                // NO_D_ID (equals D_ID) and with the lowest NO_O_ID value is selected.
+                // This is the oldest undelivered order of that district.
+                // NO_O_ID, the order number, is retrieved.
                 NewOrder newOrder = LedgerUtils.getOldestNewOrder(ctx, params.w_id, d_id);
+                LOGGER.info("Oldest new order retrieved is: " + gson.toJson(newOrder));
+
                 if (newOrder == null) {
                     // If no matching row is found, then the delivery of an order for this district
                     // is skipped. The condition in which no outstanding order is present at a given
@@ -91,13 +96,17 @@ public class TPCC implements ContractInterface {
                     // selected warehouse. If this condition occurs in more than 1%, or in more than
                     // one,
                     // whichever is greater, of the business transactions, it must be reported.
-                    common.log("Could not find new order for District( " + params.w_id + "," + d_id + " ) skipping it",
-                            ctx, "info");
+                    // common.log("Could not find new order for District( " + params.w_id + "," +
+                    // d_id + " ) skipping it",
+                    // ctx, "info");
+                    LOGGER.info(
+                            "Could not find new order for District( " + params.w_id + "," + d_id + " ) skipping it");
                     skipped += 1;
                     continue;
                 }
 
                 LedgerUtils.deleteNewOrder(ctx, newOrder);
+                LOGGER.info(gson.toJson(newOrder) + "DELETED");
 
                 // The row in the ORDER table with matching O_W_ID (equals W_ ID), O_D_ID
                 // (equals D_ID),
@@ -105,8 +114,11 @@ public class TPCC implements ContractInterface {
                 // retrieved,
                 // and O_CARRIER_ID is updated.
                 Order order = LedgerUtils.getOrder(ctx, params.w_id, d_id, newOrder.no_o_id);
+                LOGGER.info("retrieved order details with no_o_id: " + newOrder.no_o_id
+                        + " and Warehouse and District IDs " + params.w_id);
                 order.o_carrier_id = params.o_carrier_id;
                 LedgerUtils.updateOrder(ctx, order);
+                LOGGER.info("Updated order" + gson.toJson(order) + "with order.o_carrier_id" + params.o_carrier_id);
 
                 // All rows in the ORDER-LINE table with matching OL_W_ID (equals O_W_ID),
                 // OL_D_ID
@@ -119,22 +131,28 @@ public class TPCC implements ContractInterface {
                 // ctx.getTxinfo().md_tpcc_delivery_total_order_lines += order.o_ol_cnt;
 
                 for (int i = 1; i <= order.o_ol_cnt; i++) {
+                    LOGGER.info("getOrderLine");
                     OrderLine orderLine = LedgerUtils.getOrderLine(ctx, params.w_id, d_id, order.o_id, i);
+                    LOGGER.info("OrderLine: " + orderLine + "retrieved");
                     orderLineAmountTotal += orderLine.ol_amount;
                     orderLine.ol_delivery_d = params.ol_delivery_d;
-
+                    LOGGER.info("updateOrderLine with orderLineAmountTotal " + orderLineAmountTotal
+                            + "and ol_delivery_d " + orderLine.ol_delivery_d);
                     LedgerUtils.updateOrderLine(ctx, orderLine);
                 }
 
                 // The row in the CUSTOMER table with matching C_W_ID (equals W_ID), C_D_ID
                 // (equals D_ID), and C_ID (equals O_C_ID) is selected and C_BALANCE is
-                // increased by
-                // the sum of all order-line amounts (OL_AMOUNT) previously retrieved.
-                // C_DELIVERY_CNT
-                // is incremented by 1.
+                // increased by the sum of all order-line amounts (OL_AMOUNT) previously
+                // retrieved.
+                // C_DELIVERY_CNT is incremented by 1.
+                LOGGER.info("getCustomer with W_ID, D_ID and C_ID" + params.w_id + "," + d_id + "," + order.o_c_id);
                 Customer customer = LedgerUtils.getCustomer(ctx, params.w_id, d_id, order.o_c_id);
+                LOGGER.info("Customer: " + customer + "retrieved");
                 customer.c_balance += orderLineAmountTotal;
                 customer.c_delivery_cnt += 1;
+                LOGGER.info(
+                        "updateCustomer. C_BALANCE is increased by the sum of all order-line amounts (OL_AMOUNT) previously retrieved and C_DELIVERY_CNT is incremented by 1 ");
                 LedgerUtils.updateCustomer(ctx, customer);
 
                 deliveredOrders.add(new DeliveredOrder(d_id, order.o_id));
@@ -143,11 +161,14 @@ public class TPCC implements ContractInterface {
 
             DoDeliveryOutput output = new DoDeliveryOutput(params.w_id, params.o_carrier_id, deliveredOrders, skipped);
 
-            common.log("Finished New Order TX with output" + output.toString(), ctx, "info");
-            LOGGER.info("Finished New Order TX with output" + output.toString());                       
+            // common.log("Finished New Order TX with output" + output.toString(), ctx,
+            // "info");
+            LOGGER.info("Finished New Order TX with output" + gson.toJson(output));
+            System.out.println("Output : " + output);
             return output;
         } catch (Exception err) {
-            common.log(err.toString(), ctx, "error");
+            // common.log(err.toString(), ctx, "error");
+            LOGGER.info(err.toString());
         }
         return null;
     }
@@ -163,31 +184,36 @@ public class TPCC implements ContractInterface {
      */
     public DoNewOrderOutput doNewOrder(Context ctx, String parameters) {
         // addTxInfo(ctx);
-
         // TPC-C 2.4.2.2
-        common.log("Starting NewOrder TX with parameters" + parameters, ctx, "info");
+        // common.log("Starting NewOrder TX with parameters" + parameters, ctx, "info");
         LOGGER.info("Starting NewOrder TX with parameters" + parameters);
-        
-        try {            
+
+        try {
             NewOrderParameters params = ParseUtils.parseNewOrderParameters(parameters);
 
             // The row in the WAREHOUSE table with matching W_ID is selected and W_TAX,
             // the warehouse tax rate, is retrieved.
             final Warehouse warehouse = LedgerUtils.getWarehouse(ctx, params.w_id);
+            LOGGER.info("Warehouse " + gson.toJson(warehouse) + "retrieved");
 
             // The row in the DISTRICT table with matching D_W_ID and D_ ID is selected,
             // D_TAX, the district tax rate, is retrieved, and D_NEXT_O_ID, the next
             // available order number for the district, is retrieved and incremented by one.
             District district = LedgerUtils.getDistrict(ctx, warehouse.w_id, params.d_id);
+            LOGGER.info("District " + gson.toJson(district) + "retrieved");
             int nextOrderId = district.d_next_o_id;
             district.d_next_o_id += 1;
             LedgerUtils.updateDistrict(ctx, district);
+            LOGGER.info("Next available order number for District " + params.d_id +
+                    " incremented. New District values are: " + gson.toJson(district));
 
             // The row in the CUSTOMER table with matching C_W_ID, C_D_ID, and C_ID is
             // selected and C_DISCOUNT, the customer's discount rate, C_LAST, the customer's
             // last name, and C_CREDIT, the customer's credit status, are retrieved.
             final Customer customer = LedgerUtils.getCustomer(ctx, warehouse.w_id, district.d_id, params.c_id);
-
+            LOGGER.info("Customer " + params.c_id + " with w_id " + warehouse.w_id + " and d_id " + district.d_id
+                    + " retrieved");
+            LOGGER.info(gson.toJson(customer));
             // A new row is inserted into both the NEW-ORDER table and the ORDER table to
             // reflect the creation of the new order. O_CARRIER_ID is set to a null value.
             // If the order includes only home order-lines, then O_ALL_LOCAL is set to 1,
@@ -199,6 +225,7 @@ public class TPCC implements ContractInterface {
             newOrder.no_w_id = warehouse.w_id;
 
             LedgerUtils.createNewOrder(ctx, newOrder);
+            LOGGER.info("New Order " + gson.toJson(newOrder) + "created");
 
             boolean allItemsLocal = Arrays.stream(params.i_w_ids).allMatch(i_w_id -> i_w_id == warehouse.w_id);
 
@@ -213,6 +240,7 @@ public class TPCC implements ContractInterface {
             order.o_all_local = allItemsLocal ? 1 : 0;
 
             LedgerUtils.createOrder(ctx, order);
+            LOGGER.info("Created Order " + gson.toJson(order));
 
             List<ItemsData> itemsData = new ArrayList<>();
 
@@ -230,6 +258,7 @@ public class TPCC implements ContractInterface {
                 // database transaction (see Clause 2.4.2.3).
 
                 Item item = LedgerUtils.getItem(ctx, i_id);
+                LOGGER.info("Retrived item " + gson.toJson(item) + " with item id " + i_id);
                 if (item == null) {
                     // 2.4.3.4 For transactions that are rolled back as a result of an
                     // unused item number (1% of all New-Order transactions), the emulated
@@ -255,7 +284,7 @@ public class TPCC implements ContractInterface {
                     // errorOutput.o_id= order.o_id;
                     // errorOutput.message= "Item number is not valid'";
 
-                    common.log("Item not found. Error output:" + errorOutput, ctx, "info");
+                    LOGGER.info("Item not found. Error output:" + errorOutput.toString());
                     throw new Exception(new JSONObject(errorOutput).toString());
                 }
 
@@ -268,6 +297,7 @@ public class TPCC implements ContractInterface {
                 // increased by OL_QUANTITY and S_ORDER_CNT is incremented by 1. If the
                 // order-line is remote, then S_REMOTE_CNT is incremented by 1.
                 Stock stock = LedgerUtils.getStock(ctx, i_w_id, i_id);
+                LOGGER.info("Stock " + gson.toJson(stock) + " retrieved");
 
                 if (stock.s_quantity >= i_qty + 10) {
                     stock.s_quantity -= i_qty;
@@ -283,6 +313,7 @@ public class TPCC implements ContractInterface {
                 }
 
                 LedgerUtils.updateStock(ctx, stock);
+                LOGGER.info("Updated stock with " + gson.toJson(stock));
 
                 // The amount for the item in the order (OL_AMOUNT) is computed as:
                 // OL_QUANTITY * I_PRICE
@@ -322,6 +353,7 @@ public class TPCC implements ContractInterface {
                 orderLine.ol_dist_info = ("s_dist_" + stockDistrictId);
 
                 LedgerUtils.createOrderLine(ctx, orderLine);
+                LOGGER.info("OrderLine " + gson.toJson(orderLine) + " created");
 
                 // 2.4.3.3 The emulated terminal must display, in the appropriate fields of
                 // the input/ output screen, all input data and the output data resulting
@@ -343,12 +375,16 @@ public class TPCC implements ContractInterface {
                 // itemsData.add("brand_generic", brandGeneric);
                 // itemsData.add("i_price", item.i_price);
                 // itemsData.add("ol_amount", orderLine.ol_amount);
+                LOGGER.info("ItemsData" + gson.toJson(itemsData));
             }
 
             // The total-amount for the complete order is computed as:
             // sum(OL_AMOUNT) * (1 - C_DISCOUNT) * (1 + W_TAX + D_TAX)
+
             Double totalAmount = totalOrderLineAmount * (1 - customer.c_discount)
                     * (1 + warehouse.w_tax + district.d_tax);
+            LOGGER.info("total amount = " + totalAmount);
+            System.out.println(totalAmount);
 
             // 2.4.3.3 The emulated terminal must display, in the appropriate fields of
             // the input/ output screen, all input data and the output data resulting
@@ -358,28 +394,30 @@ public class TPCC implements ContractInterface {
             // C_LAST, C_CREDIT, C_DISCOUNT, W_TAX, D_TAX, O_ENTRY_D, total_amount, and an
             // optional execution status message other than "Item number is not valid".
 
-            DoNewOrderOutput output = new DoNewOrderOutput();
-            output.w_id = warehouse.w_id;
-            output.d_id = district.d_id;
-            output.c_id = customer.c_id;
-            output.c_last = customer.c_last;
-            output.c_credit = customer.c_credit;
-            output.c_discount = customer.c_discount;
-            output.w_tax = warehouse.w_tax;
-            output.d_tax = district.d_tax;
-            output.o_ol_cnt = order.o_ol_cnt;
-            output.o_id = order.o_id;
-            output.o_entry_d = order.o_entry_d;
-            output.total_amount = totalAmount;
-            output.items = itemsData;
+            DoNewOrderOutput output = new DoNewOrderOutput(
+                    warehouse.w_id,
+                    district.d_id,
+                    customer.c_id,
+                    customer.c_last,
+                    customer.c_credit,
+                    customer.c_discount,
+                    warehouse.w_tax,
+                    district.d_tax,
+                    order.o_ol_cnt,
+                    order.o_id,
+                    order.o_entry_d,
+                    totalAmount,
+                    itemsData);
 
-            common.log("Finished New Order TX with output" + output.toString(), ctx, "info");
-            LOGGER.info("Finished New Order TX with output" + output.toString());
+            LOGGER.info("Finished New Order TX with output" + gson.toJson(output));
+            // System.out.println("console output print" + gson.toJson(output));
+
             return output;
         } catch (Exception err) {
-            common.log(err.toString(), ctx, "error");
+            LOGGER.info("ERROR" + err.toString() + "occured");
             // throw err;
         }
+        LOGGER.info("Error occured. NULL retured");
         return null;
     }
 
@@ -391,12 +429,11 @@ public class TPCC implements ContractInterface {
      * @param parameters The JSON encoded parameters of the TX profile.
      * @return The JSON encoded query results according to the specification.
      */
-    public DoOrderStatusOutput doOrderStatus(Context ctx, OrderStatusParameters params) {
+    public DoOrderStatusOutput doOrderStatus(Context ctx, String parameters) {
         // TPC-C 2.6.2.2
         // log(`Starting Order Status TX with parameters: ${parameters}`, ctx, 'info');
         try {
-            // final OrderStatusParameters params =
-            // ParseUtils.parseOrderStatusParameters(parameters);
+            final OrderStatusParameters params = ParseUtils.parseOrderStatusParameters(parameters);
 
             Customer customer = LedgerUtils.getCustomersByIdOrLastName(ctx, params.w_id, params.d_id, params.c_id,
                     params.c_last);
@@ -417,16 +454,18 @@ public class TPCC implements ContractInterface {
             // ctx.txinfo.md_tpcc_order_status_order_lines = order.o_ol_cnt;
 
             List<OrderLineData> orderLineData = new ArrayList<>();
+
             for (int i = 1; i <= order.o_ol_cnt; i++) {
                 OrderLine orderLine = LedgerUtils.getOrderLine(ctx, order.o_w_id, order.o_d_id, order.o_id, i);
 
-                orderLineData.add(new OrderLineData(orderLine.ol_supply_w_id, orderLine.ol_i_id,
-                        orderLine.ol_quantity, orderLine.ol_amount, orderLine.ol_delivery_d));
-                // orderLineData.add("ol_supply_w_id", orderLine.ol_supply_w_id);
-                // orderLineData.add("ol_i_id", orderLine.ol_i_id);
-                // orderLineData.add("ol_quantity", orderLine.ol_quantity);
-                // orderLineData.add("ol_amount", orderLine.ol_amount);
-                // orderLineData.add("ol_delivery_d", orderLine.ol_delivery_d);
+                OrderLineData olData = new OrderLineData();
+                olData.ol_supply_w_id = orderLine.ol_supply_w_id;
+                olData.ol_i_id = orderLine.ol_i_id;
+                olData.ol_quantity = orderLine.ol_quantity;
+                olData.ol_amount = orderLine.ol_amount;
+                olData.ol_delivery_d = orderLine.ol_delivery_d;
+
+                orderLineData.add(olData);
 
             }
 
@@ -474,13 +513,12 @@ public class TPCC implements ContractInterface {
      * @param parameters The JSON encoded parameters of the TX profile.
      * @return The JSON encoded query results according to the specification.
      */
-    public DoPaymentOutput doPayment(Context ctx, PaymentParameters params) {
+    public DoPaymentOutput doPayment(Context ctx, String parameters) {
         // addTxInfo(ctx);
-
         // TPC-C 2.5.2.2
-        // log(`Starting Payment TX with parameters: ${parameters}`, ctx, 'info');
+        LOGGER.info("Starting Payment TX with parameters: " + parameters);
         try {
-            // PaymentParameters params = ParseUtils.parsePaymentParameters(parameters);
+            PaymentParameters params = ParseUtils.parsePaymentParameters(parameters);
 
             // The row in the WAREHOUSE table with matching W_ID is selected. W_NAME,
             // W_STREET_1, W_STREET_2, W_CITY, W_STATE, and W_ZIP are retrieved and W_YTD,
@@ -614,14 +652,12 @@ public class TPCC implements ContractInterface {
      * @param parameters The JSON encoded parameters of the TX profile.
      * @return The JSON encoded query results according to the specification.
      */
-    public DoStockLevelOutput doStockLevel(Context ctx, StockLevelParameters params) {
+    public DoStockLevelOutput doStockLevel(Context ctx, String parameters) {
         // addTxInfo(ctx);
-
         // TPC-C 2.8.2.2
-        // log(`Starting Stock Level TX with parameters: ${parameters}`, ctx, 'info');
+        LOGGER.info("Starting Stock Level TX with parameters: " + parameters);
         try {
-            // final StockLevelParameters params =
-            // ParseUtils.parseStockLevelParameters(parameters);
+            final StockLevelParameters params = ParseUtils.parseStockLevelParameters(parameters);
 
             // The row in the DISTRICT table with matching D_W_ID and D_ID is selected and
             // D_NEXT_O_ID
@@ -688,60 +724,65 @@ public class TPCC implements ContractInterface {
         common.log("Instantiating TPC-C chaincode", ctx, "info");
     }
 
-
     @Transaction
     public void initEntries(Context ctx) {
         LOGGER.info("Starting initEntries");
         try {
             Warehouse warehouse = new Warehouse();
             warehouse.w_id = 1;
-            warehouse.w_name = "One";
+            warehouse.w_name = "W_One";
             warehouse.w_street_1 = "xyz";
             warehouse.w_street_2 = "123";
             warehouse.w_city = "Budapest";
-            warehouse.w_state = "Buda";
-            warehouse.w_zip = "+30";
-            warehouse.w_tax = 1121;
+            warehouse.w_state = "LA";
+            warehouse.w_zip = "00011111";
+            warehouse.w_tax = 0.1000;
             warehouse.w_ytd = 10000;
 
             String jsonWarehouse = gson.toJson(warehouse);
 
             LedgerUtils.createWarehouse(ctx, jsonWarehouse);
-            LOGGER.info("Warehouse" + jsonWarehouse);          
-            common.log("create warehouse complete", ctx, "info");
+            LOGGER.info("Warehouse " + jsonWarehouse + "innitialized");
 
             District district = new District();
             district.d_id = 1;
             district.d_w_id = 1;
-            district.d_name = "IV";
+            district.d_name = "D_One";
             district.d_street_1 = "abc";
             district.d_street_2 = "456";
             district.d_city = "Budapest";
-            district.d_state = "Buda";
-            district.d_zip = "+30";
-            district.d_tax = 1190;
+            district.d_state = "BP";
+            district.d_zip = "00111111";
+            district.d_tax = 0.0100;
             district.d_ytd = 10000;
-            district.d_next_o_id = 2;
+            district.d_next_o_id = 3001;
 
             String jsonDistrict = gson.toJson(district);
-
             LedgerUtils.createDistrict(ctx, jsonDistrict);
-            LOGGER.info("District" + jsonDistrict);
+            LOGGER.info("District " + jsonDistrict + "innitialized");
 
-            Customer customer = new Customer(1, 1, 1, "Alice", "Is", "Yong",
-                    "xyz", "123", "Budapest", "Buda", "+30", "123456789", 
-                    "19/01/2020", "GC", 100000, 25, 85000.00, 5000, 5, 3, "Good");
+            Customer customer1 = new Customer(1, 1, 1, "Alice", "Is", "Yong",
+                    "xyz", "123", "Budapest", "Buda", "00101111", "123456789",
+                    "19/01/2020", "GC", 50000, 0.25, 1000.00,
+                    10, 1, 0, "Good credit");
 
-            String jsonCustomer = customer.toString();
-            LedgerUtils.createCustomer(ctx, jsonCustomer);
-            LOGGER.info("Customer" + jsonCustomer);
+            Customer customer2 = new Customer(2, 1, 1, "Peter", "Peet", "Peter",
+                    "ABC", "23", "Budapest", "DC", "00011111", "456712389",
+                    "19/01/2020", "GC", 50000, 0.30, 1000.00,
+                    10, 1, 0, "Good credit");
+
+            String jsonCustomer1 = gson.toJson(customer1);
+            String jsonCustomer2 = gson.toJson(customer2);
+            LedgerUtils.createCustomer(ctx, jsonCustomer1);
+            LedgerUtils.createCustomer(ctx, jsonCustomer2);
+            LOGGER.info("Customer" + jsonCustomer1 + "innitialized");
 
             Item item1 = new Item();
             item1.i_id = 1;
             item1.i_im_id = 123;
             item1.i_name = "Cup";
-            item1.i_price = 599.50;
-            item1.i_data = "Luminarc cup";
+            item1.i_price = 99.50;
+            item1.i_data = "ORIGINAL";
 
             String jsonItem1 = gson.toJson(item1);
             LedgerUtils.createItem(ctx, jsonItem1);
@@ -750,8 +791,8 @@ public class TPCC implements ContractInterface {
             item2.i_id = 2;
             item2.i_im_id = 234;
             item2.i_name = "Plate";
-            item2.i_price = 899.50;
-            item2.i_data = "Luminarc plate";
+            item2.i_price = 89.50;
+            item2.i_data = "ORIGINAL";
 
             String jsonItem2 = gson.toJson(item2);
             LedgerUtils.createItem(ctx, jsonItem2);
@@ -760,91 +801,81 @@ public class TPCC implements ContractInterface {
             item3.i_id = 3;
             item3.i_im_id = 456;
             item3.i_name = "Glass";
-            item3.i_price = 789.00;
-            item3.i_data = "i_data";
+            item3.i_price = 78.00;
+            item3.i_data = "GENERIC";
 
             String jsonItem3 = gson.toJson(item3);
             LedgerUtils.createItem(ctx, jsonItem3);
 
-            LOGGER.info("Created Items " + jsonItem1 +jsonItem2 + jsonItem3);
+            LOGGER.info("Created Items " + jsonItem1 + " , " + jsonItem2 + " and " + jsonItem3);
 
-            Stock stock = new Stock(1, 1, 500, "good", 
-            "null", "null", "null", "null", 
-            "null", "null", "null", "null",
-            "null", 350, 45, 3, "Sufficient");
+            Stock stock = new Stock(1, 1, 100, "good",
+                    "null", "null", "null", "null",
+                    "null", "null", "null", "null",
+                    "null", 0, 0, 0, "ORIGINAL");
 
             String jsonStock = gson.toJson(stock);
             LedgerUtils.createStock(ctx, jsonStock);
 
-            Stock stock2 = new Stock(2, 1, 500, "good", 
-            "null", "null", "null", "null", 
-            "null", "null", "null", "null",
-            "null", 350, 40, 3, "Sufficient");
+            Stock stock2 = new Stock(2, 1, 90, "good",
+                    "null", "null", "null", "null",
+                    "null", "null", "null", "null",
+                    "null", 0, 0, 0, "ORIGINAL");
 
             String jsonStock2 = gson.toJson(stock2);
             LedgerUtils.createStock(ctx, jsonStock2);
 
-            Stock stock3 = new Stock(3, 1, 500, "good", 
-            "null", "null", "null", "null", 
-            "null", "null", "null", "null",
-            "null", 350, 30, 3, "Sufficient");
+            Stock stock3 = new Stock(3, 1, 99, "good",
+                    "null", "null", "null", "null",
+                    "null", "null", "null", "null",
+                    "null", 0, 0, 0, "GENERIC");
 
             String jsonStock3 = gson.toJson(stock3);
             LedgerUtils.createStock(ctx, jsonStock3);
 
-            LOGGER.info("INNITIALIZED STOCK ENTRIES" + jsonStock + jsonStock2 + jsonStock3);
+            LOGGER.info("INNITIALIZED STOCK ENTRIES" + jsonStock + " , " + jsonStock2 + " and " + jsonStock3);
 
-            LOGGER.info("INNITIALIZED ENTRIES");
+            LOGGER.info("ENTRIES INNITIALIZED");
 
         } catch (Exception e) {
-            common.log(e.toString(), ctx, "error");
-        }
-
-    }
-
-    @Transaction
-    public int getStuff(Context ctx){
-        int a =2;
-        int b = 2;
-        int sum = a + b;
-        common.log("TEST getStuff", ctx, "INFO");
-        LOGGER.info("TEST getStuff COMPLETE");
-        return sum;
-        
-    }
-
-    @Transaction
-    public String initWarehouse(Context ctx){
-        try {
-            Warehouse warehouse = new Warehouse();
-            warehouse.w_id = 3;
-            warehouse.w_name = "TWO";
-            warehouse.w_street_1 = "xyz";
-            warehouse.w_street_2 = "123";
-            warehouse.w_city = "Budapest";
-            warehouse.w_state = "Buda";
-            warehouse.w_zip = "+30";
-            warehouse.w_tax = 1125;
-            warehouse.w_ytd = 10000;
-
-            String jsonWarehouse = gson.toJson(warehouse);
-            LOGGER.info("Warehouse json string is " + jsonWarehouse);
-            
-            LedgerUtils.createWarehouse(ctx, jsonWarehouse); 
-            return jsonWarehouse;
-        } catch (Exception e) {
-            LOGGER.info("Problem occured while passing json string caused by" + e);
+            LOGGER.info("Problem occured while innitializing entries, caused by  " + e);
             e.printStackTrace();
         }
-        return null;                  
+
     }
 
+    // @Transaction
+    // public String initWarehouse(Context ctx){
+    // try {
+    // Warehouse warehouse = new Warehouse();
+    // warehouse.w_id = 3;
+    // warehouse.w_name = "TWO";
+    // warehouse.w_street_1 = "xyz";
+    // warehouse.w_street_2 = "123";
+    // warehouse.w_city = "Budapest";
+    // warehouse.w_state = "Buda";
+    // warehouse.w_zip = "+30";
+    // warehouse.w_tax = 1125;
+    // warehouse.w_ytd = 10000;
+
+    // String jsonWarehouse = gson.toJson(warehouse);
+    // LOGGER.info("Warehouse json string is " + jsonWarehouse);
+
+    // LedgerUtils.createWarehouse(ctx, jsonWarehouse);
+    // return jsonWarehouse;
+    // } catch (Exception e) {
+    // LOGGER.info("Problem occured while passing json string caused by" + e);
+    // e.printStackTrace();
+    // }
+    // return null;
+    // }
+
     @Transaction
-    public Warehouse readWarehouseEntry(Context ctx, int w_id) throws Exception {
+    public String readWarehouseEntry(Context ctx, int w_id) throws Exception {
         LOGGER.info("Attemp to retrieve warehouse details  for " + w_id);
         Warehouse warehouse = LedgerUtils.getWarehouse(ctx, w_id);
-        LOGGER.info("Warehouse" + warehouse.w_id + "Exist");
-        return warehouse;
+        LOGGER.info("Warehouse" + warehouse.w_id + "Exist" + warehouse.toString() + " returned");
+        return gson.toJson(warehouse);
     }
 
 }
