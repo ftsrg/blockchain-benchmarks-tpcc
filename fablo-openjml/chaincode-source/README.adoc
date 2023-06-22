@@ -14,6 +14,7 @@ endif::[]
 
 The contents of this repository have been based on https://github.com/mingyang91[`mingyang91`]’s https://github.com/mingyang91/openjml-template[`openjml-template`] repository.
 The configuration has been extended to…
+
 * include the dependencies of the sample `notes` chaincode (the only dependency is the Fabric shim);
 * and to support the creation of a shadow (_fat_) JAR with https://www.openjml.org/[OpenJML] runtime included (using https://github.com/johnrengelman/shadow[`johnrengelman/shadow`]).
 
