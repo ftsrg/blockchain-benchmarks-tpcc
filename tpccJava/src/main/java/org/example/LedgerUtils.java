@@ -33,8 +33,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.logging.Logger;
+import java.util.Comparator;
 
 /**
  * Utility functions for accessing the state database.
@@ -150,12 +150,12 @@ public class LedgerUtils {
      * @param ctx The TX context.
      * @param type The type of entries to search.
      * @param keyParts The parts of the entries private key.
-     * @param matchFunction The function that determines matches.
+     * @param matchData Data structure that determines what to match.
      * @param firstMatch Indicates whether only the first match should be returned.
      * @return The retrieved entries.
      * @throws Exception
      */
-    public static List<Object> select(Context ctx, String type, String[] keyParts, Function<String, Object> matchFunction, boolean firstMatch) throws Exception {
+    public static List<Object> select(Context ctx, String type, String[] keyParts, MatchData matchData, boolean firstMatch) throws Exception {
         LOGGER.info("Start of select function:");
         CompositeKey compositeKey = ctx.getStub().createCompositeKey(type, keyParts);
         Iterator<KeyValue> iterator = ctx.getStub().getStateByPartialCompositeKey(compositeKey.toString()).iterator();
@@ -172,7 +172,29 @@ public class LedgerUtils {
                 String entry = new String(buffer, StandardCharsets.UTF_8);
                 LOGGER.info("Enumerated entry:");
 
-                Object match = matchFunction.apply(entry);
+                Object match = null;
+                switch (matchData.type) {
+                    case CUSTOMER_LAST_NAME:
+                        Customer customer = ParseUtils.parseCustomer(entry);
+                        if (customer.c_last.equals(matchData.c_last)) {
+                            LOGGER.info("Customer's last name " + customer.c_last + "== " + "Last Name" + matchData.c_last);
+                            match = customer;
+                        } else {
+                            LOGGER.info("Customer's last name " + customer.c_last + "!= to" + "Last Name" + matchData.c_last);
+                        }
+                        break;
+
+                    case ORDER_CUSTOMER_ID:
+                            Order order = ParseUtils.parseOrder(entry);
+                            if (order.o_c_id == matchData.o_c_id) {
+                                match = order;
+                            }
+                        break;
+
+                    case PARSEABLE_ORDER:
+                        match = ParseUtils.parseOrder(entry);
+                        break;
+                }
                 if (match != null) {
                     LOGGER.info("Add matches to list");
                     matches.add(match);
@@ -340,18 +362,8 @@ public class LedgerUtils {
      */
     public static List<Customer> getCustomersByLastName(Context ctx, int c_w_id, int c_d_id, String c_last) throws Exception {
         LOGGER.info("getCustomerByLastName");
-        Function<String, Object> matchFunction = entry -> {
-            Customer customer = ParseUtils.parseCustomer(entry);
-            if(customer.c_last == c_last)
-            {
-                LOGGER.info("Customer's last name " + customer.c_last + "== " + "Last Name" + c_last );
-                return customer;
-            }
-            LOGGER.info("Customer's last name " + customer.c_last + "!= to" + "Last Name" + c_last );
-            return null;
-        };
         String[] keyParts = new String[]{common.pad(c_w_id), common.pad(c_d_id), c_last};  
-        List<Object> entries = select(ctx, TABLES.CUSTOMER_LAST_NAME, keyParts, matchFunction, false);
+        List<Object> entries = select(ctx, TABLES.CUSTOMER_LAST_NAME, keyParts, MatchData.CLastMatchData(c_last), false);
 
         if (entries.size() == 0) {
             throw new Exception(String.format("Could not find Customers(%d, %d, c_id) matching last name \"%s\"", c_w_id, c_d_id, c_last));
@@ -389,7 +401,12 @@ public class LedgerUtils {
             // C_FIRST, C_MIDDLE, and C_LAST are retrieved from the row at position n/ 2 rounded up
             // in the sorted set of selected rows from the CUSTOMER table.
             List<Customer> customerList = LedgerUtils.getCustomersByLastName(ctx, c_w_id, c_d_id, c_last);
-            customerList.sort((c1, c2) -> c1.c_first.compareTo(c2.c_first));
+            customerList.sort(new Comparator<Customer>() {
+            @Override
+            public int compare(final Customer c1, final Customer c2) {
+                return c1.c_first.compareTo(c2.c_first);
+            }
+        });
             int position = (int) Math.ceil(customerList.size() / 2.0);
             return customerList.get(position - 1);
         } 
@@ -487,7 +504,7 @@ public class LedgerUtils {
      */
     static NewOrder getOldestNewOrder(Context ctx, int no_w_id, int no_d_id) throws Exception {
         LOGGER.info("Searching for oldest New Order for warehouse " + no_w_id +" and district " + no_d_id );
-        List<Object> oldest = LedgerUtils.select(ctx, TABLES.NEW_ORDER, new String[]{common.pad(no_w_id), common.pad( no_d_id)}, ParseUtils::parseNewOrder, true);
+        List<Object> oldest = LedgerUtils.select(ctx, TABLES.NEW_ORDER, new String[]{common.pad(no_w_id), common.pad( no_d_id)}, MatchData.ParseOrderMatchData(), true);
         // if (oldest != null) {
         //     LOGGER.info("Retrieved oldest oldest New Order( " + no_w_id + "," + no_d_id + "," + oldest.no_o_id + ")");
         // }
@@ -557,17 +574,10 @@ public class LedgerUtils {
      * @throws Exception if the last order is not found.
      */
     public static Order getLastOrderOfCustomer(Context ctx, int o_w_id, int o_d_id, int o_c_id) throws Exception {
-        Function<String , Object> matchFunction = entry -> {
-        Order order = ParseUtils.parseOrder(entry);
-        if (order.o_c_id == o_c_id) {
-            return order;
-        }
-        return null;
-        };
         // log(`Searching for last Order(${o_w_id}, ${o_d_id}, o_id) of Customer(${o_w_id}, ${o_d_id}, ${o_c_id})`, ctx);
         
         String[] keyParts = new String[]{common.pad(o_w_id), common.pad(o_d_id)};
-        Order lastOrder = (Order) select(ctx, TABLES.ORDERS, keyParts, matchFunction, true);
+        Order lastOrder = (Order) select(ctx, TABLES.ORDERS, keyParts, MatchData.OCIDMatchData(o_c_id), true);
         if (lastOrder == null) {
             throw new Exception(String.format("Could not find last Order(%d, %d, o_id) of Customer(%d, %d, %d)", o_w_id, o_d_id, o_w_id, o_d_id, o_c_id));
         }
