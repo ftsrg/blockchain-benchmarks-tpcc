@@ -16,7 +16,9 @@ The preferred way of contribution is:
 ## Smart Contracts
 
 The repository contains the following smart contract implementations of TPC-C:
+
 * [Hyperledger Fabric v1.x - JavaScript](smart-contract/hyperledger-fabric/v1/javascript/README.md)
+* [Hyperledger Fabric v2.x - Java](smart-contract/hyperledger-fabric/v2/java/README.md)
 
 ## Workloads
 
