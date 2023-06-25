@@ -229,7 +229,13 @@ public class TPCC implements ContractInterface {
             LedgerUtils.createNewOrder(ctx, jsonNewOrder);
             LOGGER.info("New Order " + gson.toJson(newOrder) + "created");
 
-            boolean allItemsLocal = Arrays.stream(params.i_w_ids).allMatch(i_w_id -> i_w_id == warehouse.w_id);
+            boolean allItemsLocal = true;
+            for (int id: params.i_w_ids) {
+                if (id != warehouse.w_id) {
+                    allItemsLocal = false;
+                    break;
+                }
+            }
 
             final Order order = new Order();
             order.o_id = nextOrderId;
