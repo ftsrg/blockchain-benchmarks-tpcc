@@ -7,4 +7,4 @@
 * [Budapest University of Technology and Economics](http://www.bme.hu/?language=en)
   * [Faculty of Electrical Engineering and Informatics](https://www.vik.bme.hu/en/)
     * [Department of Measurement and Information Systems](http://www.mit.bme.hu/eng/)
-      * [Fault Tolerant Systems Research Group](https://ftsrg.mit.bme.hu/)
+      * [Critical Systems Research Group](https://ftsrg.mit.bme.hu/)
