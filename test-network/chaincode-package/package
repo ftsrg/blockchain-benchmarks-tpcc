@@ -1,0 +1,4 @@
+#!/bin/sh -xeuC
+
+tar czf code.tar.gz connection.json
+tar czf tpcc.tgz metadata.json code.tar.gz
