@@ -162,12 +162,15 @@ public class LedgerUtils {
         Iterator<KeyValue> iterator = ctx.getStub().getStateByPartialCompositeKey(compositeKey.toString()).iterator();
         //QueryResultsIterator<KeyValue> iterator = ctx.getStub().getStateByPartialCompositeKey(compositeKey.toString());
    
-        List<Object> matches = new ArrayList<>();
+        ArrayList<Object> matches = new ArrayList<>();
         //int retrieved = 0;
         try {
             LOGGER.info("iteration to retrieve next entry");
-            while (iterator.hasNext()) {                
+            while (true) {                
                 KeyValue res = iterator.next(); 
+                if (res == null) {
+                    break;
+                }
                 //retrieved += 1;
                 byte[] buffer = res.getValue();  
                 String entry = new String(buffer, StandardCharsets.UTF_8);
@@ -209,6 +212,7 @@ public class LedgerUtils {
             common.log(e.toString(), ctx, "error");
             throw e;        
         } 
+        //return matches.toArray();
         return firstMatch ? matches.subList(0, 1) : matches;
     }
     /**
@@ -365,7 +369,7 @@ public class LedgerUtils {
     public static List<Customer> getCustomersByLastName(Context ctx, int c_w_id, int c_d_id, String c_last) throws Exception {
         LOGGER.info("getCustomerByLastName");
         String[] keyParts = new String[]{common.pad(c_w_id), common.pad(c_d_id), c_last};  
-        List<Object> entries = select(ctx, TABLES.CUSTOMER_LAST_NAME, keyParts, MatchData.CLastMatchData(c_last), false);
+        List<Object> entries = LedgerUtils.select(ctx, TABLES.CUSTOMER_LAST_NAME, keyParts, MatchData.CLastMatchData(c_last), false);
 
         if (entries.size() == 0) {
             throw new Exception(String.format("Could not find Customers(%d, %d, c_id) matching last name \"%s\"", c_w_id, c_d_id, c_last));
@@ -483,7 +487,7 @@ public class LedgerUtils {
         // if (oldest != null) {
         //     LOGGER.info("Retrieved oldest oldest New Order( " + no_w_id + "," + no_d_id + "," + oldest.no_o_id + ")");
         // }
-        LOGGER.info("Retrieved oldest oldest New Order( " + oldest);
+        LOGGER.info("Retrieved oldest New Order( " + gson.toJson(oldest));
         return (NewOrder) oldest;
     }
 

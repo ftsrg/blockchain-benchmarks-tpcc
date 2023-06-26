@@ -483,7 +483,7 @@ public class LedgerUtils {
         // if (oldest != null) {
         //     LOGGER.info("Retrieved oldest oldest New Order( " + no_w_id + "," + no_d_id + "," + oldest.no_o_id + ")");
         // }
-        LOGGER.info("Retrieved oldest oldest New Order( " + oldest);
+        LOGGER.info("Retrieved oldest oldest New Order( " + gson.toJson(oldest));
         return (NewOrder) oldest;
     }
 
