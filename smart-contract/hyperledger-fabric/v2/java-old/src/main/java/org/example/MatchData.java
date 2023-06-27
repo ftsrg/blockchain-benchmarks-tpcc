@@ -2,7 +2,7 @@ package org.example;
 
 public class MatchData {
     public enum MatchType {
-        CUSTOMER_LAST_NAME, ORDER_CUSTOMER_ID, PARSEABLE_ORDER
+        CUSTOMER_LAST_NAME, ORDER_CUSTOMER_ID, PARSEABLE_NEWORDER
     }
 
     public MatchType type;
@@ -25,7 +25,7 @@ public class MatchData {
         return resp;
     }
 
-    public static MatchData ParseOrderMatchData() {
-        return new MatchData(MatchType.PARSEABLE_ORDER);
+    public static MatchData ParseNewOrderMatchData() {
+        return new MatchData(MatchType.PARSEABLE_NEWORDER);
     }
 }

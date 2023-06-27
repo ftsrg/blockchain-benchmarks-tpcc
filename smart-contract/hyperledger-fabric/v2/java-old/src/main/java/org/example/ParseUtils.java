@@ -140,7 +140,9 @@ public class ParseUtils {
      * @return {NewOrder} The new order object.
      */
     public static NewOrder parseNewOrder(String jsonString) {
+        LOGGER.info("parse NewOrder Parameter");
         NewOrder newOParams = gson.fromJson(jsonString, NewOrder.class);
+        LOGGER.info("Returned parsed NewOrder parameters: " + gson.toJson(newOParams));
         return newOParams;
     }
 

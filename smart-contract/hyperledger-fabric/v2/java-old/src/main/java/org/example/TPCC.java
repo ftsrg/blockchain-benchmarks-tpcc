@@ -83,6 +83,7 @@ public class TPCC implements ContractInterface {
                 // NO_D_ID (equals D_ID) and with the lowest NO_O_ID value is selected.
                 // This is the oldest undelivered order of that district.
                 // NO_O_ID, the order number, is retrieved.
+                
                 NewOrder newOrder = LedgerUtils.getOldestNewOrder(ctx, params.w_id, d_id);
                 LOGGER.info("Oldest new order retrieved is: " + gson.toJson(newOrder));
 
@@ -133,7 +134,7 @@ public class TPCC implements ContractInterface {
                 for (int i = 1; i <= order.o_ol_cnt; i++) {
                     LOGGER.info("getOrderLine");
                     OrderLine orderLine = LedgerUtils.getOrderLine(ctx, params.w_id, d_id, order.o_id, i);
-                    LOGGER.info("OrderLine: " + orderLine + "retrieved");
+                    LOGGER.info("OrderLine: " + gson.toJson(orderLine) + "retrieved");
                     orderLineAmountTotal += orderLine.ol_amount;
                     orderLine.ol_delivery_d = params.ol_delivery_d;
                     LOGGER.info("updateOrderLine with orderLineAmountTotal " + orderLineAmountTotal
@@ -148,11 +149,12 @@ public class TPCC implements ContractInterface {
                 // C_DELIVERY_CNT is incremented by 1.
                 LOGGER.info("getCustomer with W_ID, D_ID and C_ID" + params.w_id + "," + d_id + "," + order.o_c_id);
                 Customer customer = LedgerUtils.getCustomer(ctx, params.w_id, d_id, order.o_c_id);
-                LOGGER.info("Customer: " + customer + "retrieved");
+                LOGGER.info("Customer: " + gson.toJson(customer) + "retrieved");
                 customer.c_balance += orderLineAmountTotal;
                 customer.c_delivery_cnt += 1;
                 LOGGER.info(
-                        "updateCustomer. C_BALANCE is increased by the sum of all order-line amounts (OL_AMOUNT) previously retrieved and C_DELIVERY_CNT is incremented by 1 ");
+                        "updateCustomer. C_BALANCE is increased by the sum of all order-line amounts (OL_AMOUNT)"+ 
+                        "previously retrieved and C_DELIVERY_CNT is incremented by 1 ");
                 LedgerUtils.updateCustomer(ctx, customer);
 
                 deliveredOrders.add(new DeliveredOrder(d_id, order.o_id));
@@ -161,13 +163,10 @@ public class TPCC implements ContractInterface {
 
             DoDeliveryOutput output = new DoDeliveryOutput(params.w_id, params.o_carrier_id, deliveredOrders, skipped);
 
-            // common.log("Finished New Order TX with output" + output.toString(), ctx,
-            // "info");
             LOGGER.info("Finished Delivery TX with output: " + gson.toJson(output));
             System.out.println("Output : " + output);
             return output;
         } catch (Exception err) {
-            // common.log(err.toString(), ctx, "error");
             LOGGER.info(err.toString());
         }
         return null;
@@ -422,7 +421,7 @@ public class TPCC implements ContractInterface {
 
             LOGGER.info("Finished New Order TX with output" + gson.toJson(output));
             // System.out.println("console output print" + gson.toJson(output));
-            System.out.println("THIS IS THE OUTPUT" + output);
+            //System.out.println("THIS IS THE OUTPUT" + output);
             
             return output;
         } catch (Exception err) {
@@ -884,6 +883,29 @@ public class TPCC implements ContractInterface {
         Warehouse warehouse = LedgerUtils.getWarehouse(ctx, w_id);
         LOGGER.info("Warehouse " + warehouse.w_id + " Exist. " + gson.toJson(warehouse) + " returned");
         return gson.toJson(warehouse);
+    }
+
+    @Transaction
+    public String getOrderEntry(Context ctx, int w_id, int d_id, int o_id) throws Exception {
+        LOGGER.info("retrieve details  for existing order entry" + w_id);
+        Order order = LedgerUtils.getOrder(ctx, w_id, d_id, o_id);
+        LOGGER.info("Order " + order.o_id + " Exist. " + gson.toJson(order) + " returned");
+        return gson.toJson(order);
+    }
+
+    @Transaction
+    public String getItemEntry(Context ctx, int i_id) throws Exception {
+        LOGGER.info("retrieve details  for existing item entry " + i_id);
+        Item item = LedgerUtils.getItem(ctx, i_id);
+        LOGGER.info("Warehouse " + item.i_id + " Exist. " + gson.toJson(item) + " returned");
+        return gson.toJson(item);
+    }
+    @Transaction
+    public String getNewOrderEntry(Context ctx, int w_id, int d_id, int o_id) throws Exception {
+        LOGGER.info("Attemp to retrieve oldest new order details  for warehouse" + w_id + "and District " + d_id);
+        NewOrder newOrder = LedgerUtils.getNewOrder(ctx, w_id, d_id, o_id);
+        LOGGER.info("Retrieved new order  " + gson.toJson(newOrder));
+        return gson.toJson(newOrder);
     }
 
 }
