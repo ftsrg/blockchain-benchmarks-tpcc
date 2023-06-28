@@ -62,7 +62,7 @@ public class TPCC implements ContractInterface {
      * @param parameters The JSON encoded parameters of the TX profile.
      * @return The JSON encoded query results according to the specification.
      */
-    public DoDeliveryOutput doDelivery(Context ctx, String parameters) {
+    public String doDelivery(Context ctx, String parameters) {
         // addTxInfo(ctx);
 
         // TPC-C 2.7.4.2
@@ -167,7 +167,7 @@ public class TPCC implements ContractInterface {
 
             LOGGER.info("Finished Delivery TX with output: " + gson.toJson(output));
             //System.out.println("Output : " + output);
-            return output;
+            return gson.toJson(output);
         } catch (Exception err) {
             LOGGER.info(err.toString());
         }
@@ -182,7 +182,7 @@ public class TPCC implements ContractInterface {
      * @return {Promise<{object}>} The JSON encoded query results according to the
      *         specification.
      */
-    public DoNewOrderOutput doNewOrder(Context ctx, String parameters) {
+    public String doNewOrder(Context ctx, String parameters) {
         // addTxInfo(ctx);
         // TPC-C 2.4.2.2
         // common.log("Starting NewOrder TX with parameters" + parameters, ctx, "info");
@@ -424,7 +424,7 @@ public class TPCC implements ContractInterface {
             // System.out.println("console output print" + gson.toJson(output));
             //System.out.println("THIS IS THE OUTPUT" + output);
             
-            return output;
+            return gson.toJson(output);
         } catch (Exception err) {
             LOGGER.info("ERROR" + err.toString() + "occured");
             // throw err;
@@ -441,7 +441,7 @@ public class TPCC implements ContractInterface {
      * @param parameters The JSON encoded parameters of the TX profile.
      * @return The JSON encoded query results according to the specification.
      */
-    public DoOrderStatusOutput doOrderStatus(Context ctx, String parameters) {
+    public String doOrderStatus(Context ctx, String parameters) {
         // TPC-C 2.6.2.2
         // log(`Starting Order Status TX with parameters: ${parameters}`, ctx, 'info');
         try {
@@ -513,7 +513,7 @@ public class TPCC implements ContractInterface {
             output.order_lines = orderLineData;
 
             LOGGER.info("Finished Order Status TX with output: " +gson.toJson(output));
-            return output;
+            return gson.toJson(output);
         } catch (Exception err) {
             common.log(err.toString(), ctx, "error");
             // throw err;
@@ -529,7 +529,7 @@ public class TPCC implements ContractInterface {
      * @param parameters The JSON encoded parameters of the TX profile.
      * @return The JSON encoded query results according to the specification.
      */
-    public DoPaymentOutput doPayment(Context ctx, String parameters) {
+    public String doPayment(Context ctx, String parameters) {
         // addTxInfo(ctx);
         // TPC-C 2.5.2.2
         LOGGER.info("Starting Payment TX with parameters: " + parameters);
@@ -664,7 +664,7 @@ public class TPCC implements ContractInterface {
 
             LOGGER.info("Finished Payment TX with output: " + gson.toJson(output));
            
-            return output;
+            return gson.toJson(output);
         } catch (Exception err) {
             common.log(err.toString(), ctx, "error");
             // throw err;
@@ -680,7 +680,7 @@ public class TPCC implements ContractInterface {
      * @param parameters The JSON encoded parameters of the TX profile.
      * @return The JSON encoded query results according to the specification.
      */
-    public DoStockLevelOutput doStockLevel(Context ctx, String parameters) {
+    public String doStockLevel(Context ctx, String parameters) {
         // addTxInfo(ctx);
         // TPC-C 2.8.2.2
         LOGGER.info("Starting Stock Level TX with parameters: " + parameters);
@@ -739,7 +739,7 @@ public class TPCC implements ContractInterface {
 
             LOGGER.info("Finished Stock Level TX with output: " +gson.toJson(output));
             
-            return output;
+            return gson.toJson(output);
 
         } catch (Exception err) {
             common.log(err.toString(), ctx, "error");

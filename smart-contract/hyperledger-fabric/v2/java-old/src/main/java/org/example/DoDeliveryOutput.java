@@ -8,11 +8,11 @@ import org.hyperledger.fabric.contract.annotation.Property;
 @DataType()
 public class DoDeliveryOutput {
     @Property()
-    public int w_id;
+    private int w_id;
     @Property()
-    public int o_carrier_id;
+    private int o_carrier_id;
     @Property()
-    public DeliveredOrder delivered;
+    private DeliveredOrder delivered;
     // @Property()
     // public int skipped;
 
