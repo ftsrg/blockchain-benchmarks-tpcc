@@ -85,8 +85,9 @@ public class ParseUtils {
      * @return {StockLevelParameters} The parsed parameters.
      */
     public static StockLevelParameters parseStockLevelParameters(String params) throws Exception {
-        //return objectMapper.readValue(params, StockLevelParameters.class);
+        LOGGER.info("parses stock level parameters");
         StockLevelParameters stockLevelParams = gson.fromJson(params, StockLevelParameters.class);
+        LOGGER.info("stock level parameters: " + stockLevelParams);
         return stockLevelParams;
     }
 

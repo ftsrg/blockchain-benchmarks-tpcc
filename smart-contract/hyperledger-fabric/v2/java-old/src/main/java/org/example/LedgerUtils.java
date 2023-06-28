@@ -303,7 +303,7 @@ public class LedgerUtils {
         if (entry == null) {
             throw new Exception("Could not retrieve District(" + d_w_id + ", " + d_id + ")");
         }
-        LOGGER.info("getDistrict for " + keyParts + "returned with entry " + entry);
+        LOGGER.info("getDistrict for " + keyParts + " returned with entry " + entry);
         return entry != null ? ParseUtils.parseDistrict(entry) : null;        
     }
 
@@ -707,14 +707,22 @@ public class LedgerUtils {
      * @return The unique IDs of items from the recent orders.
      */
     public static List<Integer> getItemIdsOfRecentOrders(Context ctx, int w_id, int d_id, int o_id_min, int o_id_max) throws Exception {
+        LOGGER.info("Counts the number of items whose stock is below a given threshold.");
         Set<Integer> itemIds = new HashSet<>();        
-        LOGGER.info("Retrieving item IDs for Orders(" + w_id + "," + d_id + ", " + o_id_min + ", " + o_id_max + ")");
+        LOGGER.info("Retrieving item IDs for Orders with w_id " + w_id + " and d_id " + d_id );
         for (int current_o_id = o_id_min; current_o_id < o_id_max; current_o_id++) {
+            
             Order order = LedgerUtils.getOrder(ctx, w_id, d_id, current_o_id);
+            LOGGER.info("RETRIEVED ORDER > " + gson.toJson(order));
 
             for (int ol_number = 1; ol_number <= order.o_ol_cnt; ol_number++) {
                 OrderLine orderLine = LedgerUtils.getOrderLine(ctx, w_id, d_id, current_o_id, ol_number);
-                itemIds.add(orderLine.ol_i_id);
+                LOGGER.info("RETRIEVED ORDERLINE " + gson.toJson(orderLine));
+                itemIds.add(orderLine.ol_i_id);                
+                LOGGER.info("RETRIEVED ITEM IDS: " + itemIds);
+                for( Integer strCurrentNumber : itemIds ){
+                    System.out.println( strCurrentNumber );
+                }
             }
         }
 
