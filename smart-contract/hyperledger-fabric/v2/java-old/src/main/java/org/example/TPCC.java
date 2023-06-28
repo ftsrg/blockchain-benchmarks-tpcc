@@ -69,7 +69,7 @@ public class TPCC implements ContractInterface {
         LOGGER.info("Starting Delivery TX with parameters" + parameters);
         try {
             DeliveryParameters params = ParseUtils.parseDeliveryParameters(parameters);
-            // For a given warehouse number (W_ID), for each of the 10 districts (D_W_ID ,
+            // For a given warehouse number (W_ID), for each of the districts (D_W_ID ,
             // D_ID)
             // within that warehouse, and for a given carrier number (O_CARRIER_ID):
 
