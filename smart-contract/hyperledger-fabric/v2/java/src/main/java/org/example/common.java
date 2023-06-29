@@ -20,46 +20,42 @@ package org.example;
 import org.hyperledger.fabric.contract.Context;
 import org.hyperledger.fabric.contract.annotation.DataType;
 
-
 @DataType()
 public class common {
 
-    //public static final org.hyperledger.fabric.Logger logger = new Logger("tpcc");
+  // public static final org.hyperledger.fabric.Logger logger = new Logger("tpcc");
 
-    /**
-     * Enumerates the tables of the TPC-C benchmark.
-     * //@type {{WAREHOUSE: string, DISTRICT: string, CUSTOMER: string, HISTORY: string, NEW_ORDER: string, ORDER: string, ORDER_LINE: string, ITEM: string, STOCK: string}}
-     */
-    public class TABLES{
-        final static String WAREHOUSE = "WAREHOUSE";
-        final static String DISTRICT = "DISTRICT";
-        final static String CUSTOMER = "CUSTOMER";
-        final static String CUSTOMER_LAST_NAME = "CUSTOMER_LAST_NAME";
-        final static String HISTORY = "HISTORY";
-        final static String NEW_ORDER = "NEW_ORDER";
-        final static String ORDERS = "ORDERS";
-        final static String ORDER_LINE = "ORDER_LINE";
-        final static String ITEM = "ITEM";
-        final static String STOCK = "STOCK";
-    }
+  /**
+   * Enumerates the tables of the TPC-C benchmark. //@type {{WAREHOUSE: string, DISTRICT: string,
+   * CUSTOMER: string, HISTORY: string, NEW_ORDER: string, ORDER: string, ORDER_LINE: string, ITEM:
+   * string, STOCK: string}}
+   */
+  public class TABLES {
+    static final String WAREHOUSE = "WAREHOUSE";
+    static final String DISTRICT = "DISTRICT";
+    static final String CUSTOMER = "CUSTOMER";
+    static final String CUSTOMER_LAST_NAME = "CUSTOMER_LAST_NAME";
+    static final String HISTORY = "HISTORY";
+    static final String NEW_ORDER = "NEW_ORDER";
+    static final String ORDERS = "ORDERS";
+    static final String ORDER_LINE = "ORDER_LINE";
+    static final String ITEM = "ITEM";
+    static final String STOCK = "STOCK";
+  }
 
+  // Logs the given debug message by appending the TX ID stub before it.
+  public static void log(String msg, Context ctx, String level) {}
 
-    //Logs the given debug message by appending the TX ID stub before it.
-    public static void log(String msg, Context ctx, String level) {
+  static final int padLength = Integer.toString(Integer.MAX_VALUE).length();
 
-    }
+  /**
+   * Converts the number to text and pads it to a fix length.
+   *
+   * @param num The number to pad.
+   * @return The padded number text.
+   */
+  public static String pad(int num) {
 
-    final static int padLength = Integer.toString(Integer.MAX_VALUE).length();
-   
-    /**
-     * Converts the number to text and pads it to a fix length.
-     * @param num The number to pad. 
-     * @return The padded number text.
-     */
-    public static String pad(int num) {
-        
-        return String.format("%0" + padLength + "d", num);
-    } 
-
-    
+    return String.format("%0" + padLength + "d", num);
+  }
 }

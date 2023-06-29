@@ -6,7 +6,7 @@
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing =  software
- * distributed under the License is distributed on an "AS IS" BASIS = 
+ * distributed under the License is distributed on an "AS IS" BASIS =
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND =  either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
@@ -22,17 +22,12 @@ import org.hyperledger.fabric.contract.annotation.Property;
 
 @DataType()
 public class DeliveredOrder {
-    @Property()
-    public int d_id;
+  @Property() public int d_id;
 
-    @Property()
-    public int o_id;
+  @Property() public int o_id;
 
-    public DeliveredOrder(int d_id, int o_id){
-        this.d_id = d_id;
-        this.o_id = o_id;
-
-    }
-
-
+  public DeliveredOrder(int d_id, int o_id) {
+    this.d_id = d_id;
+    this.o_id = o_id;
+  }
 }

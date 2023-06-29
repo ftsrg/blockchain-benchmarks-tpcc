@@ -19,7 +19,6 @@
 // import org.junit.jupiter.api.Nested;
 // import org.junit.jupiter.api.Test;
 
-
 // public final class TpccJavaContractTest {
 
 //     @Nested
