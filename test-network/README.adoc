@@ -35,38 +35,36 @@ Make sure you have `docker` available (with `compose`, of course)
 . Now you can try invoking the chaincode by issuing HTTP requests to the CLI container; for example, using `curl` (more details below)
 
 // TODO update
-///
-.Invoking the chaincode
-====
-I am using https://httpie.io/[HTTPie], but you can also do this with `curl`.
-Note that the command line outputs have been altered to make them more concise.
-
-First, call the `/user/enroll` endpoint to get a bearer token (the default credentials are `admin/adminpw`):
-
-----
-$ http http://localhost:8801/user/enroll id=admin secret=adminpw
-HTTP/1.1 200 OK
-
-{
-  "token": "ba945b10-0253-11ee-b51b-5b5e65097fa0-admin"
-}
-----
-
-Then you can invoke the chaincode with the received token to try to run into a runtime assertion failure, like so:
-
-----
-$ http -v -A bearer -a ba945b10-0253-11ee-b51b-5b5e65097fa0-admin http://localhost:8801/invoke/my-channel1/notes method=CreateNote args:='["forbidden", "anything"]'
-POST /invoke/my-channel1/notes HTTP/1.1
-Accept: application/json, */*;q=0.5
-Accept-Encoding: gzip, deflate
-Authorization: Bearer ba945b10-0253-11ee-b51b-5b5e65097fa0-admin
-Content-Type: application/json
-
-{ "args": ["forbidden", "anything"], "method": "CreateNote" }
-
-HTTP/1.1 400 Bad Request
-
-{ "message": "No valid responses from any peers. Errors:\n peer=peer0.org1.example.com:7041, status=500, message=Error during contract method execution" }
-----
-====
-///
+// .Invoking the chaincode
+// ====
+// I am using https://httpie.io/[HTTPie], but you can also do this with `curl`.
+// Note that the command line outputs have been altered to make them more concise.
+// 
+// First, call the `/user/enroll` endpoint to get a bearer token (the default credentials are `admin/adminpw`):
+// 
+// ----
+// $ http http://localhost:8801/user/enroll id=admin secret=adminpw
+// HTTP/1.1 200 OK
+// 
+// {
+//   "token": "ba945b10-0253-11ee-b51b-5b5e65097fa0-admin"
+// }
+// ----
+// 
+// Then you can invoke the chaincode with the received token to try to run into a runtime assertion failure, like so:
+// 
+// ----
+// $ http -v -A bearer -a ba945b10-0253-11ee-b51b-5b5e65097fa0-admin http://localhost:8801/invoke/my-channel1/notes method=CreateNote args:='["forbidden", "anything"]'
+// POST /invoke/my-channel1/notes HTTP/1.1
+// Accept: application/json, */*;q=0.5
+// Accept-Encoding: gzip, deflate
+// Authorization: Bearer ba945b10-0253-11ee-b51b-5b5e65097fa0-admin
+// Content-Type: application/json
+// 
+// { "args": ["forbidden", "anything"], "method": "CreateNote" }
+// 
+// HTTP/1.1 400 Bad Request
+// 
+// { "message": "No valid responses from any peers. Errors:\n peer=peer0.org1.example.com:7041, status=500, message=Error during contract method execution" }
+// ----
+// ====
