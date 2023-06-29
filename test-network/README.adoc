@@ -30,7 +30,7 @@ Make sure you have `docker` available (with `compose`, of course)
 .Instructions
 . Ensure that the result of the link:{cc-pkg-dir}/scripts/calculate_package_id[`calculate_package_id`] script in link:{cc-pkg-dir}/[`chaincode-package/`] matches the one specified in link:fabric-docker/docker-compose.yaml[`fabric-docker/docker-compose.yaml`] and in link:fabric-docker/commands-generated.sh[`fabric-docker/commands-generated.sh`]; fix if necessary
 . Start the `fablo` test network by issuing `$ ./fabric-docker.sh reset` (you can also use `up` if this is the first time)
-. Copy the chaincode package from link:{cc-pkg-dir}/[`{cc-pkg-dir}/`] to link:fabric-config/chaincode-packages/[`fabric-config/chaincode-packages/`] using the link:{cc-pkg-dir}/scripts/copy_to_fablo[`copy_to_fablo`] script in link:{cc-pkg-dir}/[`{cc-pkg-dir}/`]
+. *Only if you had to change the package IDs for some reason:* Copy the chaincode package from link:{cc-pkg-dir}/[`{cc-pkg-dir}/`] to link:fabric-config/chaincode-packages/[`fabric-config/chaincode-packages/`] using the link:{cc-pkg-dir}/scripts/copy_to_fablo[`copy_to_fablo`] script in link:{cc-pkg-dir}/[`{cc-pkg-dir}/`]
 . Install the chaincode on the network peers (there is only one) by running `$ ./fabric-docker.sh chaincode install {cc-name}`
 . Now you can try invoking the chaincode by issuing HTTP requests to the CLI container; for example, using `curl` (more details below)
 
