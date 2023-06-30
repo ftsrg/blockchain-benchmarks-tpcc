@@ -86,8 +86,9 @@ public class ParseUtils {
    * @return {StockLevelParameters} The parsed parameters.
    */
   public static StockLevelParameters parseStockLevelParameters(String params) throws Exception {
-    // return objectMapper.readValue(params, StockLevelParameters.class);
+    LOGGER.info("parses stock level parameters");
     StockLevelParameters stockLevelParams = gson.fromJson(params, StockLevelParameters.class);
+    LOGGER.info("stock level parameters: " + stockLevelParams);
     return stockLevelParams;
   }
 
@@ -146,7 +147,9 @@ public class ParseUtils {
    * @return {NewOrder} The new order object.
    */
   public static NewOrder parseNewOrder(String jsonString) {
+    LOGGER.info("parse NewOrder Parameter");
     NewOrder newOParams = gson.fromJson(jsonString, NewOrder.class);
+    LOGGER.info("Returned parsed NewOrder parameters: " + gson.toJson(newOParams));
     return newOParams;
   }
 

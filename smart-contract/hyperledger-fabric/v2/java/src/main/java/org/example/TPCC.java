@@ -62,124 +62,123 @@ public class TPCC implements ContractInterface {
    * @param parameters The JSON encoded parameters of the TX profile.
    * @return The JSON encoded query results according to the specification.
    */
-  public DoDeliveryOutput doDelivery(Context ctx, String parameters) {
+  public String doDelivery(Context ctx, String parameters) {
     // addTxInfo(ctx);
 
     // TPC-C 2.7.4.2
     LOGGER.info("Starting Delivery TX with parameters" + parameters);
     try {
       DeliveryParameters params = ParseUtils.parseDeliveryParameters(parameters);
-      // For a given warehouse number (W_ID), for each of the 10 districts (D_W_ID ,
+      // For a given warehouse number (W_ID), for each of the districts (D_W_ID ,
       // D_ID)
       // within that warehouse, and for a given carrier number (O_CARRIER_ID):
 
-      int skipped = 0;
+      // int skipped = 0;
 
-      List<DeliveredOrder> deliveredOrders = new ArrayList<>();
+      // List<DeliveredOrder> deliveredOrders = new ArrayList<>();
 
-      for (int d_id = 1; d_id <= 10; d_id++) {
-        LOGGER.info("Begin for loop to retrieve oldest new orders from the various districts");
-        // The row in the NEW-ORDER table with matching NO_W_ID (equals W_ID) and
-        // NO_D_ID (equals D_ID) and with the lowest NO_O_ID value is selected.
-        // This is the oldest undelivered order of that district.
-        // NO_O_ID, the order number, is retrieved.
-        NewOrder newOrder = LedgerUtils.getOldestNewOrder(ctx, params.w_id, d_id);
-        LOGGER.info("Oldest new order retrieved is: " + gson.toJson(newOrder));
+      // for (int d_id = 1; d_id <= 10; d_id++) {
+      int d_id = 1;
+      LOGGER.info("Begin for loop to retrieve oldest new orders from the various districts");
+      // The row in the NEW-ORDER table with matching NO_W_ID (equals W_ID) and
+      // NO_D_ID (equals D_ID) and with the lowest NO_O_ID value is selected.
+      // This is the oldest undelivered order of that district.
+      // NO_O_ID, the order number, is retrieved.
 
-        if (newOrder == null) {
-          // If no matching row is found, then the delivery of an order for this district
-          // is skipped. The condition in which no outstanding order is present at a given
-          // district must be handled by skipping the delivery of an order for that
-          // district
-          // only and resuming the delivery of an order from all remaining districts of
-          // the
-          // selected warehouse. If this condition occurs in more than 1%, or in more than
-          // one,
-          // whichever is greater, of the business transactions, it must be reported.
-          // common.log("Could not find new order for District( " + params.w_id + "," +
-          // d_id + " ) skipping it",
-          // ctx, "info");
-          LOGGER.info(
-              "Could not find new order for District( "
-                  + params.w_id
-                  + ","
-                  + d_id
-                  + " ) skipping it");
-          skipped += 1;
-          continue;
-        }
+      NewOrder newOrder = LedgerUtils.getOldestNewOrder(ctx, params.w_id, d_id);
+      LOGGER.info("Oldest new order retrieved is: " + gson.toJson(newOrder));
 
-        LedgerUtils.deleteNewOrder(ctx, newOrder);
-        LOGGER.info(gson.toJson(newOrder) + "DELETED");
+      // if (newOrder == null) {
+      //     // If no matching row is found, then the delivery of an order for this district
+      //     // is skipped. The condition in which no outstanding order is present at a given
+      //     // district must be handled by skipping the delivery of an order for that
+      //     // district
+      //     // only and resuming the delivery of an order from all remaining districts of
+      //     // the
+      //     // selected warehouse. If this condition occurs in more than 1%, or in more than
+      //     // one,
+      //     // whichever is greater, of the business transactions, it must be reported.
+      //     // common.log("Could not find new order for District( " + params.w_id + "," +
+      //     // d_id + " ) skipping it",
+      //     // ctx, "info");
+      //     LOGGER.info(
+      //             "Could not find new order for District( " + params.w_id + "," + d_id + " )
+      // skipping it");
+      //     skipped += 1;
+      //     continue;
+      // }
 
-        // The row in the ORDER table with matching O_W_ID (equals W_ ID), O_D_ID
-        // (equals D_ID),
-        // and O_ID (equals NO_O_ID) is selected, O_C_ID, the customer number, is
-        // retrieved,
-        // and O_CARRIER_ID is updated.
-        Order order = LedgerUtils.getOrder(ctx, params.w_id, d_id, newOrder.no_o_id);
+      LedgerUtils.deleteNewOrder(ctx, newOrder);
+      LOGGER.info(gson.toJson(newOrder) + "DELETED");
+
+      // The row in the ORDER table with matching O_W_ID (equals W_ ID), O_D_ID
+      // (equals D_ID),
+      // and O_ID (equals NO_O_ID) is selected, O_C_ID, the customer number, is
+      // retrieved,
+      // and O_CARRIER_ID is updated.
+      Order order = LedgerUtils.getOrder(ctx, params.w_id, d_id, newOrder.no_o_id);
+      LOGGER.info(
+          "retrieved order details with no_o_id: "
+              + newOrder.no_o_id
+              + " and Warehouse and District IDs "
+              + params.w_id);
+      order.o_carrier_id = params.o_carrier_id;
+      LedgerUtils.updateOrder(ctx, order);
+      LOGGER.info(
+          "Updated order" + gson.toJson(order) + "with order.o_carrier_id" + params.o_carrier_id);
+
+      // All rows in the ORDER-LINE table with matching OL_W_ID (equals O_W_ID),
+      // OL_D_ID
+      // (equals O_D_ID), and OL_O_ID (equals O_ID) are selected. All OL_DELIVERY_D,
+      // the
+      // delivery dates, are updated to the current system time as returned by the
+      // operating
+      // system and the sum of all OL_AMOUNT is retrieved.
+      Double orderLineAmountTotal = 0.0;
+      // ctx.getTxinfo().md_tpcc_delivery_total_order_lines += order.o_ol_cnt;
+
+      for (int i = 1; i <= order.o_ol_cnt; i++) {
+        LOGGER.info("getOrderLine");
+        OrderLine orderLine = LedgerUtils.getOrderLine(ctx, params.w_id, d_id, order.o_id, i);
+        LOGGER.info("OrderLine: " + gson.toJson(orderLine) + "retrieved");
+        orderLineAmountTotal += orderLine.ol_amount;
+        orderLine.ol_delivery_d = params.ol_delivery_d;
         LOGGER.info(
-            "retrieved order details with no_o_id: "
-                + newOrder.no_o_id
-                + " and Warehouse and District IDs "
-                + params.w_id);
-        order.o_carrier_id = params.o_carrier_id;
-        LedgerUtils.updateOrder(ctx, order);
-        LOGGER.info(
-            "Updated order" + gson.toJson(order) + "with order.o_carrier_id" + params.o_carrier_id);
-
-        // All rows in the ORDER-LINE table with matching OL_W_ID (equals O_W_ID),
-        // OL_D_ID
-        // (equals O_D_ID), and OL_O_ID (equals O_ID) are selected. All OL_DELIVERY_D,
-        // the
-        // delivery dates, are updated to the current system time as returned by the
-        // operating
-        // system and the sum of all OL_AMOUNT is retrieved.
-        Double orderLineAmountTotal = 0.0;
-        // ctx.getTxinfo().md_tpcc_delivery_total_order_lines += order.o_ol_cnt;
-
-        for (int i = 1; i <= order.o_ol_cnt; i++) {
-          LOGGER.info("getOrderLine");
-          OrderLine orderLine = LedgerUtils.getOrderLine(ctx, params.w_id, d_id, order.o_id, i);
-          LOGGER.info("OrderLine: " + orderLine + "retrieved");
-          orderLineAmountTotal += orderLine.ol_amount;
-          orderLine.ol_delivery_d = params.ol_delivery_d;
-          LOGGER.info(
-              "updateOrderLine with orderLineAmountTotal "
-                  + orderLineAmountTotal
-                  + "and ol_delivery_d "
-                  + orderLine.ol_delivery_d);
-          LedgerUtils.updateOrderLine(ctx, orderLine);
-        }
-
-        // The row in the CUSTOMER table with matching C_W_ID (equals W_ID), C_D_ID
-        // (equals D_ID), and C_ID (equals O_C_ID) is selected and C_BALANCE is
-        // increased by the sum of all order-line amounts (OL_AMOUNT) previously
-        // retrieved.
-        // C_DELIVERY_CNT is incremented by 1.
-        LOGGER.info(
-            "getCustomer with W_ID, D_ID and C_ID" + params.w_id + "," + d_id + "," + order.o_c_id);
-        Customer customer = LedgerUtils.getCustomer(ctx, params.w_id, d_id, order.o_c_id);
-        LOGGER.info("Customer: " + customer + "retrieved");
-        customer.c_balance += orderLineAmountTotal;
-        customer.c_delivery_cnt += 1;
-        LOGGER.info(
-            "updateCustomer. C_BALANCE is increased by the sum of all order-line amounts (OL_AMOUNT) previously retrieved and C_DELIVERY_CNT is incremented by 1 ");
-        LedgerUtils.updateCustomer(ctx, customer);
-
-        deliveredOrders.add(new DeliveredOrder(d_id, order.o_id));
+            "updateOrderLine with orderLineAmountTotal "
+                + orderLineAmountTotal
+                + "and ol_delivery_d "
+                + orderLine.ol_delivery_d);
+        LedgerUtils.updateOrderLine(ctx, orderLine);
       }
 
-      DoDeliveryOutput output =
-          new DoDeliveryOutput(params.w_id, params.o_carrier_id, deliveredOrders, skipped);
+      // The row in the CUSTOMER table with matching C_W_ID (equals W_ID), C_D_ID
+      // (equals D_ID), and C_ID (equals O_C_ID) is selected and C_BALANCE is
+      // increased by the sum of all order-line amounts (OL_AMOUNT) previously
+      // retrieved.
+      // C_DELIVERY_CNT is incremented by 1.
+      LOGGER.info(
+          "getCustomer with W_ID, D_ID and C_ID" + params.w_id + "," + d_id + "," + order.o_c_id);
+      Customer customer = LedgerUtils.getCustomer(ctx, params.w_id, d_id, order.o_c_id);
+      LOGGER.info("Customer: " + gson.toJson(customer) + "retrieved");
+      customer.c_balance += orderLineAmountTotal;
+      customer.c_delivery_cnt += 1;
+      LOGGER.info(
+          "updateCustomer. C_BALANCE is increased by the sum of all order-line amounts (OL_AMOUNT)"
+              + "previously retrieved and C_DELIVERY_CNT is incremented by 1 ");
+      LedgerUtils.updateCustomer(ctx, customer);
 
-      // common.log("Finished New Order TX with output" + output.toString(), ctx,
-      // "info");
-      LOGGER.info("Finished New Order TX with output" + gson.toJson(output));
-      System.out.println("Output : " + output);
-      return output;
+      DeliveredOrder deliveredOrders = new DeliveredOrder(d_id, order.o_id);
+      LOGGER.info("Delivered order is: " + gson.toJson(deliveredOrders));
+
+      // }
+
+      DoDeliveryOutput output =
+          new DoDeliveryOutput(params.w_id, params.o_carrier_id, deliveredOrders);
+
+      LOGGER.info("Finished Delivery TX with output: " + gson.toJson(output));
+      // System.out.println("Output : " + output);
+      return gson.toJson(output);
     } catch (Exception err) {
-      // common.log(err.toString(), ctx, "error");
       LOGGER.info(err.toString());
     }
     return null;
@@ -193,7 +192,7 @@ public class TPCC implements ContractInterface {
    * @param parameters The JSON encoded parameters of the TX profile.
    * @return {Promise<{object}>} The JSON encoded query results according to the specification.
    */
-  public DoNewOrderOutput doNewOrder(Context ctx, String parameters) {
+  public String doNewOrder(Context ctx, String parameters) {
     // addTxInfo(ctx);
     // TPC-C 2.4.2.2
     // common.log("Starting NewOrder TX with parameters" + parameters, ctx, "info");
@@ -451,9 +450,9 @@ public class TPCC implements ContractInterface {
 
       LOGGER.info("Finished New Order TX with output" + gson.toJson(output));
       // System.out.println("console output print" + gson.toJson(output));
-      System.out.println("THIS IS THE OUTPUT" + output);
+      // System.out.println("THIS IS THE OUTPUT" + output);
 
-      return output;
+      return gson.toJson(output);
     } catch (Exception err) {
       LOGGER.info("ERROR" + err.toString() + "occured");
       // throw err;
@@ -470,7 +469,7 @@ public class TPCC implements ContractInterface {
    * @param parameters The JSON encoded parameters of the TX profile.
    * @return The JSON encoded query results according to the specification.
    */
-  public DoOrderStatusOutput doOrderStatus(Context ctx, String parameters) {
+  public String doOrderStatus(Context ctx, String parameters) {
     // TPC-C 2.6.2.2
     // log(`Starting Order Status TX with parameters: ${parameters}`, ctx, 'info');
     try {
@@ -479,6 +478,12 @@ public class TPCC implements ContractInterface {
       Customer customer =
           LedgerUtils.getCustomersByIdOrLastName(
               ctx, params.w_id, params.d_id, params.c_id, params.c_last);
+      LOGGER.info(
+          "getCustomersByIdOrLastName returned Customer: "
+              + customer.c_first
+              + customer.c_last
+              + " with ID: "
+              + customer.c_id);
 
       // The row in the ORDER table with matching O_W_ID (equals C_W_ID), O_D_ID
       // (equals C_D_ID),
@@ -488,6 +493,7 @@ public class TPCC implements ContractInterface {
       // retrieved.
       Order order =
           LedgerUtils.getLastOrderOfCustomer(ctx, customer.c_w_id, customer.c_d_id, customer.c_id);
+      LOGGER.info("getLastOrderOfCustomer returned: " + gson.toJson(order));
 
       // All rows in the ORDER-LINE table with matching OL_W_ID (equals O_W_ID),
       // OL_D_ID (equals
@@ -501,6 +507,7 @@ public class TPCC implements ContractInterface {
       for (int i = 1; i <= order.o_ol_cnt; i++) {
         OrderLine orderLine =
             LedgerUtils.getOrderLine(ctx, order.o_w_id, order.o_d_id, order.o_id, i);
+        LOGGER.info("getOrderLine with order.o_ids: " + order.o_id + "retrieved");
 
         OrderLineData olData = new OrderLineData();
         olData.ol_supply_w_id = orderLine.ol_supply_w_id;
@@ -510,6 +517,8 @@ public class TPCC implements ContractInterface {
         olData.ol_delivery_d = orderLine.ol_delivery_d;
 
         orderLineData.add(olData);
+
+        LOGGER.info("ordeline data retrived: " + orderLineData);
       }
 
       // 2.6.3.3 The emulated terminal must display, in the appropriate fields of the
@@ -538,9 +547,8 @@ public class TPCC implements ContractInterface {
       output.o_carrier_id = order.o_carrier_id;
       output.order_lines = orderLineData;
 
-      // log(`Finished Order Status TX with output: ${JSON.stringify(output)}`, ctx,
-      // 'info');
-      return output;
+      LOGGER.info("Finished Order Status TX with output: " + gson.toJson(output));
+      return gson.toJson(output);
     } catch (Exception err) {
       common.log(err.toString(), ctx, "error");
       // throw err;
@@ -556,7 +564,7 @@ public class TPCC implements ContractInterface {
    * @param parameters The JSON encoded parameters of the TX profile.
    * @return The JSON encoded query results according to the specification.
    */
-  public DoPaymentOutput doPayment(Context ctx, String parameters) {
+  public String doPayment(Context ctx, String parameters) {
     // addTxInfo(ctx);
     // TPC-C 2.5.2.2
     LOGGER.info("Starting Payment TX with parameters: " + parameters);
@@ -568,19 +576,24 @@ public class TPCC implements ContractInterface {
       // the
       // warehouse's year-to-date balance, is increased by H_ AMOUNT.
       Warehouse warehouse = LedgerUtils.getWarehouse(ctx, params.w_id);
+      LOGGER.info("Parameters retrieved for warehouse " + params.w_id);
       warehouse.w_ytd += params.h_amount;
       LedgerUtils.updateWarehouse(ctx, warehouse);
+      LOGGER.info("Updated warehouse's year-to-date balance  with new value: " + warehouse.w_ytd);
 
       // The row in the DISTRICT table with matching D_W_ID and D_ID is selected.
       // D_NAME, D_STREET_1, D_STREET_2, D_CITY, D_STATE, and D_ZIP are retrieved and
       // D_YTD, the district's year-to-date balance, is increased by H_AMOUNT.
       District district = LedgerUtils.getDistrict(ctx, warehouse.w_id, params.d_id);
+      LOGGER.info("get parameters for  district " + params.d_id);
       district.d_ytd += params.h_amount;
       LedgerUtils.updateDistrict(ctx, district);
+      LOGGER.info("Update district's year-to-date balance with value: " + district.d_ytd);
 
       Customer customer =
           LedgerUtils.getCustomersByIdOrLastName(
               ctx, warehouse.w_id, district.d_id, params.c_id, params.c_last);
+      LOGGER.info("Customer " + gson.toJson(customer) + "retrieved by last name " + params.c_last);
 
       // C_BALANCE is decreased by H_AMOUNT. C_YTD_PAYMENT is increased by H_AMOUNT.
       // C_PAYMENT_CNT is incremented by 1.
@@ -619,10 +632,26 @@ public class TPCC implements ContractInterface {
                 + " "
                 + params.h_amount;
         customer.c_data = history + "|" + customer.c_data;
+        LOGGER.info(
+            "history information: "
+                + customer.c_id
+                + ", "
+                + customer.c_d_id
+                + ", "
+                + customer.c_w_id
+                + ", "
+                + district.d_id
+                + ", "
+                + warehouse.w_id
+                + "and "
+                + params.h_amount
+                + "inserted at the left of the C_DATA");
+
         if (customer.c_data.length() > 500) customer.c_data = customer.c_data.substring(0, 500);
       }
 
       LedgerUtils.updateCustomer(ctx, customer);
+      LOGGER.info("customer updated with the new C_DATA field.");
 
       // H_DATA is built by concatenating W_NAME and D_NAME separated by 4 spaces.
       // let h_data = warehouse.w_name + ' '.repeat(4) + district.d_name;
@@ -640,7 +669,10 @@ public class TPCC implements ContractInterface {
       history.h_amount = params.h_amount;
       history.h_data = h_data;
 
-      LedgerUtils.createHistory(ctx, history);
+      String historyData = gson.toJson(history);
+
+      LedgerUtils.createHistory(ctx, historyData);
+      LOGGER.info("History created with data " + historyData);
 
       // 2.5.3.3 The emulated terminal must display, in the appropriate fields of the
       // input/output screen, all input data and the output data resulting from the
@@ -687,9 +719,9 @@ public class TPCC implements ContractInterface {
         output.c_data = customer.c_data.substring(0, 200);
       }
 
-      // log(`Finished Payment TX with output: ${JSON.stringify(output)}`, ctx,
-      // 'info');
-      return output;
+      LOGGER.info("Finished Payment TX with output: " + gson.toJson(output));
+
+      return gson.toJson(output);
     } catch (Exception err) {
       common.log(err.toString(), ctx, "error");
       // throw err;
@@ -705,7 +737,7 @@ public class TPCC implements ContractInterface {
    * @param parameters The JSON encoded parameters of the TX profile.
    * @return The JSON encoded query results according to the specification.
    */
-  public DoStockLevelOutput doStockLevel(Context ctx, String parameters) {
+  public String doStockLevel(Context ctx, String parameters) {
     // addTxInfo(ctx);
     // TPC-C 2.8.2.2
     LOGGER.info("Starting Stock Level TX with parameters: " + parameters);
@@ -713,21 +745,24 @@ public class TPCC implements ContractInterface {
       final StockLevelParameters params = ParseUtils.parseStockLevelParameters(parameters);
 
       // The row in the DISTRICT table with matching D_W_ID and D_ID is selected and
-      // D_NEXT_O_ID
-      // is retrieved.
+      // D_NEXT_O_ID is retrieved.
       final District district = LedgerUtils.getDistrict(ctx, params.w_id, params.d_id);
+      LOGGER.info("District " + district.d_id + " RETRIEVED");
 
       // All rows in the ORDER-LINE table with matching OL_W_ID (equals W_ID), OL_D_ID
       // (equals
       // D_ID), and OL_O_ID (lower than D_NEXT_O_ID and greater than or equal to
       // D_NEXT_O_ID
-      // minus 20) are selected. They are the items for 20 recent orders of the
+      // minus 5) are selected. They are the items for 5 recent orders of the
       // district.
 
-      final int o_id_min = district.d_next_o_id - 20;
+      final int o_id_min = district.d_next_o_id - 5;
       final int o_id_max = district.d_next_o_id;
+      LOGGER.info("o_id_min = " + o_id_min + " and o_id_max = " + o_id_max);
+      LOGGER.info("get recent 5 orders");
       List<Integer> recentItemIds =
           LedgerUtils.getItemIdsOfRecentOrders(ctx, params.w_id, district.d_id, o_id_min, o_id_max);
+      LOGGER.info("getItemIdsOfRecentOrders returned " + recentItemIds);
       // ctx.txinfo.md_tpcc_stock_level_recent_items = recentItemIds.length;
 
       // All rows in the STOCK table with matching S_I_ID (equals OL_I_ID) and S_W_ID
@@ -738,9 +773,12 @@ public class TPCC implements ContractInterface {
       int lowStock = 0;
       for (int i_id : recentItemIds) {
         Stock stock = LedgerUtils.getStock(ctx, params.w_id, i_id);
+        LOGGER.info("get stock for items> " + i_id);
         if (stock.s_quantity < params.threshold) {
+          LOGGER.info("The stock quantity is less than the threshold");
           lowStock += 1;
         }
+        LOGGER.info("LowStock = " + lowStock);
       }
 
       // 2.8.3.3 The emulated terminal must display, in the appropriate field of the
@@ -756,9 +794,9 @@ public class TPCC implements ContractInterface {
       output.threshold = params.threshold;
       output.low_stock = lowStock;
 
-      // log(`Finished Stock Level TX with output: ${JSON.stringify(output)}`, ctx,
-      // 'info');
-      return output;
+      LOGGER.info("Finished Stock Level TX with output: " + gson.toJson(output));
+
+      return gson.toJson(output);
 
     } catch (Exception err) {
       common.log(err.toString(), ctx, "error");
@@ -775,6 +813,7 @@ public class TPCC implements ContractInterface {
    */
   public void instantiate(Context ctx) {
     common.log("Instantiating TPC-C chaincode", ctx, "info");
+    LOGGER.info("Instantiating TPC-C chaincode");
   }
 
   @Transaction
@@ -971,5 +1010,33 @@ public class TPCC implements ContractInterface {
     Warehouse warehouse = LedgerUtils.getWarehouse(ctx, w_id);
     LOGGER.info("Warehouse " + warehouse.w_id + " Exist. " + gson.toJson(warehouse) + " returned");
     return gson.toJson(warehouse);
+  }
+
+  @Transaction
+  public String getOrderEntry(Context ctx, int w_id, int d_id, int o_id) throws Exception {
+    LOGGER.info("retrieve details  for existing order entry" + w_id);
+    Order order = LedgerUtils.getOrder(ctx, w_id, d_id, o_id);
+    LOGGER.info("Order " + order.o_id + " Exist. " + gson.toJson(order) + " returned");
+    return gson.toJson(order);
+  }
+
+  @Transaction
+  public String getItemEntry(Context ctx, int i_id) throws Exception {
+    LOGGER.info("retrieve details  for existing item entry " + i_id);
+    Item item = LedgerUtils.getItem(ctx, i_id);
+    LOGGER.info("Item " + item.i_id + " Exist. " + gson.toJson(item) + " returned");
+    return gson.toJson(item);
+  }
+
+  @Transaction
+  public String getNewOrderEntry(Context ctx, int w_id, int d_id, int o_id) throws Exception {
+    LOGGER.info(
+        "Attemp to retrieve oldest new order details  for warehouse"
+            + w_id
+            + "and District "
+            + d_id);
+    NewOrder newOrder = LedgerUtils.getNewOrder(ctx, w_id, d_id, o_id);
+    LOGGER.info("Retrieved new order  " + gson.toJson(newOrder));
+    return gson.toJson(newOrder);
   }
 }
