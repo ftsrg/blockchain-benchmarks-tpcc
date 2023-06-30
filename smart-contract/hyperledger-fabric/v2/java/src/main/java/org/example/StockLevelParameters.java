@@ -20,22 +20,19 @@ package org.example;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
-
 @DataType()
 public class StockLevelParameters {
-    @Property()
-    //The warehouse ID.
-    public int w_id;
- 
-    @Property()
-    //The district ID.
-    public int d_id;
- 
-    @Property()
-    //The threshold of minimum quantity in stock to report.
-    public int threshold;
+  @Property()
+  // The warehouse ID.
+  public int w_id;
 
-    public StockLevelParameters(){
-        
-    }
+  @Property()
+  // The district ID.
+  public int d_id;
+
+  @Property()
+  // The threshold of minimum quantity in stock to report.
+  public int threshold;
+
+  public StockLevelParameters() {}
 }

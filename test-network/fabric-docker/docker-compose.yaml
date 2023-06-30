@@ -196,10 +196,10 @@ services:
 
   tpcc:
     container_name: tpcc
-    build: ../../../chaincode/
+    build: ../../smart-contract/hyperledger-fabric/v2/java/
     environment:
       - CHAINCODE_SERVER_ADDRESS=0.0.0.0:9999
-      - CORE_CHAINCODE_ID_NAME=tpcc:ea0c73d3e7f49c6958dc29a8b4d186e0e665ef047d3b82ed86f827c7087a1d80
+      - CORE_CHAINCODE_ID_NAME=tpcc:a03d5726c28a155d993f6789701908d88746d0e5f0c9078860a7b4ae18411886
     expose:
       - 9999
     networks:
