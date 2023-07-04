@@ -6,7 +6,7 @@
 OPTS='-Dorg.jmlspecs.openjml.rac=exception'
 
 if [ "$DEBUG" = true ]; then
-   exec java $OPTS -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=0.0.0.0:8000 -jar /chaincode.jar
+   exec java $OPTS -noverify -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=0.0.0.0:8000 -jar /chaincode.jar
 else
-   exec java $OPTS -jar /chaincode.jar
+   exec java $OPTS -noverify -jar /chaincode.jar
 fi
