@@ -17,28 +17,38 @@ SPDX-License-Identifier: Apache-2.0
 
 package hu.bme.mit.ftsrg.tpcc.inputs;
 
-// import java.util.Date;
-
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
 @DataType()
-public class DeliveryParameters {
+public class DoNewOrderInputParameters {
   @Property()
   // The warehouse ID.
   public int w_id;
 
   @Property()
-  // The carrier ID for the order.
-  public int o_carrier_id;
+  // The district ID.
+  public int d_id;
 
   @Property()
-  // The delivery date of the order.
-  public String ol_delivery_d;
+  // The customer ID.
+  public int c_id;
 
-  public DeliveryParameters(int w_id, int o_carrier_id, String ol_delivery_d) {
-    this.w_id = w_id;
-    this.o_carrier_id = o_carrier_id;
-    this.ol_delivery_d = ol_delivery_d;
-  }
+  @Property()
+  // The date ISO string for the order entry.
+  public String o_entry_d;
+
+  @Property()
+  // The array of item IDs for the order lines.
+  public int[] i_ids;
+
+  @Property()
+  // The array of warehouse IDs for the order lines.
+  public int[] i_w_ids;
+
+  @Property()
+  // The array of quantities for the order lines.
+  public int[] i_qtys;
+
+  public DoNewOrderInputParameters() {}
 }

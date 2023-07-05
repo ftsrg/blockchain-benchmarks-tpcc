@@ -39,10 +39,10 @@ public class ParseUtils {
    * @param params The JSON string of the parameters.
    * @return The parsed parameters.
    */
-  public static NewOrderParameters parseNewOrderParameters(String params) throws Exception {
+  public static DoNewOrderInputParameters parseNewOrderParameters(String params) throws Exception {
     // return objectMapper.readValue(params, NewOrderParameters.class);
     // return gson.fromJson(params, NewOrderParameters.class);
-    NewOrderParameters newOrderParams = gson.fromJson(params, NewOrderParameters.class);
+    DoNewOrderInputParameters newOrderParams = gson.fromJson(params, DoNewOrderInputParameters.class);
     return newOrderParams;
   }
 
@@ -52,9 +52,9 @@ public class ParseUtils {
    * @param {string} params The JSON string of the parameters.
    * @return {PaymentParameters} The parsed parameters.
    */
-  public static PaymentParameters parsePaymentParameters(String params) throws Exception {
+  public static DoPaymentInputParameters parsePaymentParameters(String params) throws Exception {
     // return objectMapper.readValue(params, PaymentParameters.class);
-    PaymentParameters paymentParams = gson.fromJson(params, PaymentParameters.class);
+    DoPaymentInputParameters paymentParams = gson.fromJson(params, DoPaymentInputParameters.class);
     return paymentParams;
   }
 
@@ -64,10 +64,10 @@ public class ParseUtils {
    * @param {string} params The JSON string of the parameters.
    * @return {DeliveryParameters} The parsed parameters.
    */
-  public static DeliveryParameters parseDeliveryParameters(String params) throws Exception {
+  public static DoDeliveryInputParameters parseDeliveryParameters(String params) throws Exception {
     // return objectMapper.readValue(params, DeliveryParameters.class);
     LOGGER.info("Parse Delivery parameters " + params);
-    DeliveryParameters deliveryParams = gson.fromJson(params, DeliveryParameters.class);
+    DoDeliveryInputParameters deliveryParams = gson.fromJson(params, DoDeliveryInputParameters.class);
     LOGGER.info("Delivery parameters are: " + deliveryParams);
     return deliveryParams;
   }
@@ -78,9 +78,9 @@ public class ParseUtils {
    * @param {string} params The JSON string of the parameters.
    * @return {OrderStatusParameters} The parsed parameters.
    */
-  public static OrderStatusParameters parseOrderStatusParameters(String params) throws Exception {
+  public static DoOrderStatusInputParameters parseOrderStatusParameters(String params) throws Exception {
     // return objectMapper.readValue(params, OrderStatusParameters.class);
-    OrderStatusParameters oStatusParams = gson.fromJson(params, OrderStatusParameters.class);
+    DoOrderStatusInputParameters oStatusParams = gson.fromJson(params, DoOrderStatusInputParameters.class);
     return oStatusParams;
   }
 
@@ -90,9 +90,9 @@ public class ParseUtils {
    * @param {string} params The JSON string of the parameters.
    * @return {StockLevelParameters} The parsed parameters.
    */
-  public static StockLevelParameters parseStockLevelParameters(String params) throws Exception {
+  public static DoStockLevelInputParameters parseStockLevelParameters(String params) throws Exception {
     LOGGER.info("parses stock level parameters");
-    StockLevelParameters stockLevelParams = gson.fromJson(params, StockLevelParameters.class);
+    DoStockLevelInputParameters stockLevelParams = gson.fromJson(params, DoStockLevelInputParameters.class);
     LOGGER.info("stock level parameters: " + stockLevelParams);
     return stockLevelParams;
   }

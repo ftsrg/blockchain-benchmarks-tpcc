@@ -17,35 +17,28 @@ SPDX-License-Identifier: Apache-2.0
 
 package hu.bme.mit.ftsrg.tpcc.inputs;
 
+// import java.util.Date;
+
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
 @DataType()
-public class OrderStatusParameters {
-
+public class DoDeliveryInputParameters {
   @Property()
   // The warehouse ID.
   public int w_id;
 
   @Property()
-  // The district ID.
-  public int d_id;
+  // The carrier ID for the order.
+  public int o_carrier_id;
 
   @Property()
-  // The customer ID if provided.
-  public int c_id;
+  // The delivery date of the order.
+  public String ol_delivery_d;
 
-  @Property()
-  // The last name of the customer if provided.
-  public String c_last;
-
-  public OrderStatusParameters() {}
-
-  // public OrderStatusParameters(int w_id, int d_id, int c_id, String c_last){
-  //    this.w_id = w_id;
-  //    this.d_id = d_id;
-  //    this.c_id = c_id;
-  //    this.c_last = c_last;
-  // }
-
+  public DoDeliveryInputParameters(int w_id, int o_carrier_id, String ol_delivery_d) {
+    this.w_id = w_id;
+    this.o_carrier_id = o_carrier_id;
+    this.ol_delivery_d = ol_delivery_d;
+  }
 }

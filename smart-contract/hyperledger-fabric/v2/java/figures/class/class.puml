@@ -40,7 +40,8 @@ class EnhancedContext {
 }
 
 class EntityRegistry {
-  // Add attributes and methods here
+  private/public CRUD
+  partial/range queries
 }
 
 class ChaincodeStubMonitor {
@@ -72,7 +73,13 @@ class Context {
 }
 
 interface EntityInterface {
-  // Add attributes and methods here
+  type
+  keyparts
+  toJson
+  fromJson
+  toBuffer
+  fromBuffer
+
 }
 
 interface ChaincodeStubInterface {
