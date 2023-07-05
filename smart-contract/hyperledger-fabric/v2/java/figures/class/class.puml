@@ -22,12 +22,14 @@ BusinessEntity --|> EntityInterface
 EntityRegistry ..> EntityInterface
 EntityRegistry --> ChaincodeStubMonitor
 
-skinparam groupInheritance 4
+skinparam groupInheritance 2
+
 
 ChaincodeStubInterface <|-- FabricChaincodeStub
 ChaincodeStubInterface <|-- ChaincodeStubXYCache
 ChaincodeStubInterface <|-- ChaincodeStubXABC
 ChaincodeStubInterface <|-- ChaincodeStubMonitor
+
 
 class BusinessContract {
   // Add attributes and methods here
@@ -69,11 +71,11 @@ class Context {
   // Add attributes and methods here
 }
 
-class EntityInterface {
+interface EntityInterface {
   // Add attributes and methods here
 }
 
-class ChaincodeStubInterface {
+interface ChaincodeStubInterface {
   // Add attributes and methods here
 }
 
