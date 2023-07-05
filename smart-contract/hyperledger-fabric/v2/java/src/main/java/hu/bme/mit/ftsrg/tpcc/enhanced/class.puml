@@ -1,0 +1,80 @@
+@startuml "Specificaton"
+
+BusinessContract ..> EnhancedContext
+EnhancedContext *--> EntityRegistry
+EntityRegistry --> ChaincodeStubMonitor
+ChaincodeStubMonitor --> ChaincodeStubXABC
+ChaincodeStubMonitor <-- ChaincodeStubXABC
+
+ChaincodeStubXABC --> ChaincodeStubXYCache
+ChaincodeStubXABC <-- ChaincodeStubXYCache
+
+ChaincodeStubXYCache --> FabricChaincodeStub
+ChaincodeStubXYCache <-- FabricChaincodeStub
+
+BusinessContract ..> BusinessEntity
+
+Contract <|-- BusinessContract
+
+Context <|-- EnhancedContext
+BusinessEntity --|> EntityInterface
+
+EntityRegistry ..> EntityInterface
+EntityRegistry --> ChaincodeStubMonitor
+
+skinparam groupInheritance 4
+
+ChaincodeStubInterface <|-- FabricChaincodeStub
+ChaincodeStubInterface <|-- ChaincodeStubXYCache
+ChaincodeStubInterface <|-- ChaincodeStubXABC
+ChaincodeStubInterface <|-- ChaincodeStubMonitor
+
+class BusinessContract {
+  // Add attributes and methods here
+}
+
+class EnhancedContext {
+  // Add attributes and methods here
+}
+
+class EntityRegistry {
+  // Add attributes and methods here
+}
+
+class ChaincodeStubMonitor {
+  // Add attributes and methods here
+}
+
+class ChaincodeStubXABC {
+  // Add attributes and methods here
+}
+
+class ChaincodeStubXYCache {
+  // Add attributes and methods here
+}
+
+class FabricChaincodeStub {
+  // Add attributes and methods here
+}
+
+class BusinessEntity {
+  // Add attributes and methods here
+}
+
+class Contract {
+  // Add attributes and methods here
+}
+
+class Context {
+  // Add attributes and methods here
+}
+
+class EntityInterface {
+  // Add attributes and methods here
+}
+
+class ChaincodeStubInterface {
+  // Add attributes and methods here
+}
+
+@enduml
