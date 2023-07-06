@@ -17,7 +17,7 @@ plugins {
   id("com.diffplug.spotless") version "6.13.0"
 }
 
-group = "org.example"
+group = "hu.bme.mit.ftsrg.tpcc"
 
 version = "0.1.0"
 

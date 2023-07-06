@@ -1,35 +1,22 @@
 @startuml "Specificaton"
-
-BusinessContract ..> EnhancedContext
-EnhancedContext *--> EntityRegistry
-EntityRegistry --> ChaincodeStubMonitor
-ChaincodeStubMonitor --> ChaincodeStubXABC
-ChaincodeStubMonitor <-- ChaincodeStubXABC
-
-ChaincodeStubXABC --> ChaincodeStubXYCache
-ChaincodeStubXABC <-- ChaincodeStubXYCache
-
-ChaincodeStubXYCache --> FabricChaincodeStub
-ChaincodeStubXYCache <-- FabricChaincodeStub
-
-BusinessContract ..> BusinessEntity
-
-Contract <|-- BusinessContract
-
-Context <|-- EnhancedContext
-BusinessEntity --|> EntityInterface
-
-EntityRegistry ..> EntityInterface
-EntityRegistry --> ChaincodeStubMonitor
-
 skinparam groupInheritance 2
-
+Contract <|-- BusinessContract
+BusinessContract ..> EnhancedContext
+BusinessContract ..> BusinessEntity
+EnhancedContext *--> EntityRegistry
+BusinessEntity --|> EntityInterface
+EntityRegistry ..> EntityInterface
+Context <|-- EnhancedContext
+EntityRegistry ..> ChaincodeStubInterface
 
 ChaincodeStubInterface <|-- FabricChaincodeStub
-ChaincodeStubInterface <|-- ChaincodeStubXYCache
-ChaincodeStubInterface <|-- ChaincodeStubXABC
-ChaincodeStubInterface <|-- ChaincodeStubMonitor
+ChaincodeStubInterface <|-- ChaincodeStubMiddleware
 
+ChaincodeStubMiddleware ..> ChaincodeStubInterface:  nextLayer
+
+ChaincodeStubMiddleware <|-- ChaincodeStubXYCache
+ChaincodeStubMiddleware <|-- ChaincodeStubXABC
+ChaincodeStubMiddleware <|-- ChaincodeStubMonitor
 
 class BusinessContract {
   // Add attributes and methods here
@@ -73,12 +60,12 @@ class Context {
 }
 
 interface EntityInterface {
-  type
-  keyparts
-  toJson
-  fromJson
-  toBuffer
-  fromBuffer
+  type()
+  keyparts()
+  toJson ()
+  fromJson()
+  toBuffer()
+  fromBuffer()
 
 }
 
