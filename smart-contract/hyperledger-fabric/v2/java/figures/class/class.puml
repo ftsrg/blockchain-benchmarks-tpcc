@@ -61,7 +61,7 @@ interface EntityInterface #A9DCDF {
 
 }
 
-interface ChaincodeStubInterface #A9DCDF{
+interface ChaincodeStubInterface #C0C0C0{
   // Add attributes and methods here
 }
 

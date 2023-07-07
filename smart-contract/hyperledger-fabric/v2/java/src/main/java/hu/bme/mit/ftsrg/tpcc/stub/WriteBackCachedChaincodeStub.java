@@ -1,5 +1,13 @@
 package hu.bme.mit.ftsrg.tpcc.stub;
 
-public class WriteBackCachedChaincodeStub {
+import org.hyperledger.fabric.shim.ChaincodeStub;
+
+public class WriteBackCachedChaincodeStub extends ChaincodeStubMiddleware{
+
+    WriteBackCachedChaincodeStub(ChaincodeStub nextLayer) {
+        super(nextLayer);
+        
+    }
+    
     
 }
