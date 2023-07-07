@@ -43,11 +43,11 @@ class BusinessEntity {
   // Add attributes and methods here
 }
 
-class Contract {
+class Contract #C0C0C0{
   // Add attributes and methods here
 }
 
-class Context {
+class Context #C0C0C0{
   // Add attributes and methods here
 }
 
