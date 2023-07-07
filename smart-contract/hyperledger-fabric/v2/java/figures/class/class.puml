@@ -14,9 +14,9 @@ ChaincodeStubInterface <|-- ChaincodeStubMiddleware
 
 ChaincodeStubMiddleware ..> ChaincodeStubInterface:  nextLayer
 
-ChaincodeStubMiddleware <|-- ChaincodeStubXYCache
-ChaincodeStubMiddleware <|-- ChaincodeStubXABC
-ChaincodeStubMiddleware <|-- ChaincodeStubMonitor
+ChaincodeStubMiddleware <|-- WriteBackCachedChaincodeStub
+ChaincodeStubMiddleware <|-- UpdateThrottledChaincodeStub
+
 
 class BusinessContract {
   // Add attributes and methods here
@@ -31,15 +31,7 @@ class EntityRegistry {
   partial/range queries
 }
 
-class ChaincodeStubMonitor {
-  // Add attributes and methods here
-}
-
-class ChaincodeStubXABC {
-  // Add attributes and methods here
-}
-
-class ChaincodeStubXYCache {
+class WriteBackCachedChaincodeStub {
   // Add attributes and methods here
 }
 
@@ -59,9 +51,9 @@ class Context {
   // Add attributes and methods here
 }
 
-interface EntityInterface {
-  type()
-  keyparts()
+interface EntityInterface #A9DCDF {
+  getType()
+  getKeyparts()
   toJson ()
   fromJson()
   toBuffer()
@@ -69,7 +61,7 @@ interface EntityInterface {
 
 }
 
-interface ChaincodeStubInterface {
+interface ChaincodeStubInterface #A9DCDF{
   // Add attributes and methods here
 }
 
