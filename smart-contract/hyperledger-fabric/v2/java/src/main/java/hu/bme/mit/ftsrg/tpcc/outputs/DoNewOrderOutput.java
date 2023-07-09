@@ -1,10 +1,9 @@
 package hu.bme.mit.ftsrg.tpcc.outputs;
 
+import hu.bme.mit.ftsrg.tpcc.entries.ItemsData;
 import java.util.List;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
-
-import hu.bme.mit.ftsrg.tpcc.entries.ItemsData;
 
 // import com.owlike.genson.annotation.JsonProperty;
 

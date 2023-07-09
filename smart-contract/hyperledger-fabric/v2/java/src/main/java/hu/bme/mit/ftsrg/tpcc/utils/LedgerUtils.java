@@ -18,11 +18,9 @@ SPDX-License-Identifier: Apache-2.0
 package hu.bme.mit.ftsrg.tpcc.utils;
 
 import com.google.gson.Gson;
-
 import hu.bme.mit.ftsrg.tpcc.TPCC;
 import hu.bme.mit.ftsrg.tpcc.entries.*;
 import hu.bme.mit.ftsrg.tpcc.utils.Common.TABLES;
-
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -31,7 +29,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
-
 import org.hyperledger.fabric.contract.Context;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.shim.ledger.CompositeKey;
@@ -244,6 +241,7 @@ public class LedgerUtils {
     // return firstMatch ? matches.subList(0, 1) : matches;
     return matches;
   }
+
   /** WAREHOUSE API */
 
   /**
@@ -577,6 +575,7 @@ public class LedgerUtils {
     // [{"o_id":0,"o_d_id":0,"o_w_id":0,"o_c_id":0,"o_carrier_id":0,"o_ol_cnt":0,"o_all_local":0}]
     return (NewOrder) oldest;
   }
+
   //////////////////////////////////////////////////////////////////////////////////////////////////
   /**
    * Retrieves new order from the state database that matches the given partial key.
@@ -600,6 +599,7 @@ public class LedgerUtils {
     LOGGER.info("getNewOrder returned " + entry);
     return entry != null ? ParseUtils.parseNewOrder(entry) : null;
   }
+
   ///////////////////////////////////////////////////////////////////////////////////////////////
   /**
    * Deletes a new order from the state database.

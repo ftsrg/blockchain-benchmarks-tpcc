@@ -15,7 +15,7 @@ val jmlava = openJMLJavaHomeDir.file("bin/jmlava")
 plugins {
   application
   id("com.github.johnrengelman.shadow") version "7.1.2"
-  id("com.diffplug.spotless") version "6.13.0"
+  id("com.diffplug.spotless") version "6.19.0"
 }
 
 group = "hu.bme.mit.ftsrg.tpcc"
@@ -51,7 +51,7 @@ tasks.named<ShadowJar>("shadowJar") {
   archiveVersion.set("")
 }
 
-tasks.getByName<Test>("test") { useJUnitPlatform() }
+tasks.named<Test>("test") { useJUnitPlatform() }
 
 tasks.test {
   java {

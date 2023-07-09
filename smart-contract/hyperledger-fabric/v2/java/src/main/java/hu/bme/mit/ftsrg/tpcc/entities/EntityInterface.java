@@ -1,5 +1,3 @@
 package hu.bme.mit.ftsrg.tpcc.entities;
 
-public interface EntityInterface {
-    
-}
+public interface EntityInterface {}

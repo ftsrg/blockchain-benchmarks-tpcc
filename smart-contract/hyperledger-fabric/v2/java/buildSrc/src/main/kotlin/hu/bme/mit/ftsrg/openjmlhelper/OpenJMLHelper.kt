@@ -11,11 +11,11 @@ import org.gradle.api.logging.Logger
 /**
  * OpenJML compilation helpers.
  *
- * WARNING: Only compatible with OpenJML v0.17.0-alpha-9 and above.  Only tested with v0.17.0-alpha-15.
+ * WARNING: Only compatible with OpenJML v0.17.0-alpha-9 and above. Only tested with
+ * v0.17.0-alpha-15.
  *
  * Originally based on https://github.com/mingyang91/openjml-template
  */
-
 val originalExecutableSuffix = ".orig"
 
 // NOTE: ${'$'} is just an escaped $ inside a Kotlin string literal
@@ -101,7 +101,12 @@ fun generateJmlava(target: File, javaHome: Directory, logger: Logger) {
   generateScript(target, """"$javaHome/bin/java$originalExecutableSuffix" ${'$'}args""", logger)
 }
 
-internal fun replaceExecutable(target: File, with: File, logger: Logger, backupSuffix: String = ".bak") {
+internal fun replaceExecutable(
+    target: File,
+    with: File,
+    logger: Logger,
+    backupSuffix: String = ".bak"
+) {
   val name = target.nameWithoutExtension
   val backupFile = target.resolveSibling(File("$name$backupSuffix"))
 
