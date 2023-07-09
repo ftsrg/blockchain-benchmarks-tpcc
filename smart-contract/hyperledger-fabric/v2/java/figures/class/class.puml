@@ -1,34 +1,21 @@
 @startuml "Specificaton"
-
-BusinessContract ..> EnhancedContext
-EnhancedContext *--> EntityRegistry
-EntityRegistry --> ChaincodeStubMonitor
-ChaincodeStubMonitor --> ChaincodeStubXABC
-ChaincodeStubMonitor <-- ChaincodeStubXABC
-
-ChaincodeStubXABC --> ChaincodeStubXYCache
-ChaincodeStubXABC <-- ChaincodeStubXYCache
-
-ChaincodeStubXYCache --> FabricChaincodeStub
-ChaincodeStubXYCache <-- FabricChaincodeStub
-
-BusinessContract ..> BusinessEntity
-
-Contract <|-- BusinessContract
-
-Context <|-- EnhancedContext
-BusinessEntity --|> EntityInterface
-
-EntityRegistry ..> EntityInterface
-EntityRegistry --> ChaincodeStubMonitor
-
 skinparam groupInheritance 2
-
+Contract <|-- BusinessContract
+BusinessContract ..> EnhancedContext
+BusinessContract ..> BusinessEntity
+EnhancedContext *--> EntityRegistry
+BusinessEntity --|> EntityInterface
+EntityRegistry ..> EntityInterface
+Context <|-- EnhancedContext
+EntityRegistry ..> ChaincodeStubInterface
 
 ChaincodeStubInterface <|-- FabricChaincodeStub
-ChaincodeStubInterface <|-- ChaincodeStubXYCache
-ChaincodeStubInterface <|-- ChaincodeStubXABC
-ChaincodeStubInterface <|-- ChaincodeStubMonitor
+ChaincodeStubInterface <|-- ChaincodeStubMiddleware
+
+ChaincodeStubMiddleware ..> ChaincodeStubInterface:  nextLayer
+
+ChaincodeStubMiddleware <|-- WriteBackCachedChaincodeStub
+ChaincodeStubMiddleware <|-- UpdateThrottledChaincodeStub
 
 
 class BusinessContract {
@@ -40,18 +27,11 @@ class EnhancedContext {
 }
 
 class EntityRegistry {
-  // Add attributes and methods here
+  private/public CRUD
+  partial/range queries
 }
 
-class ChaincodeStubMonitor {
-  // Add attributes and methods here
-}
-
-class ChaincodeStubXABC {
-  // Add attributes and methods here
-}
-
-class ChaincodeStubXYCache {
+class WriteBackCachedChaincodeStub {
   // Add attributes and methods here
 }
 
@@ -63,19 +43,25 @@ class BusinessEntity {
   // Add attributes and methods here
 }
 
-class Contract {
+class Contract #C0C0C0{
   // Add attributes and methods here
 }
 
-class Context {
+class Context #C0C0C0{
   // Add attributes and methods here
 }
 
-interface EntityInterface {
-  // Add attributes and methods here
+interface EntityInterface #A9DCDF {
+  getType()
+  getKeyparts()
+  toJson ()
+  fromJson()
+  toBuffer()
+  fromBuffer()
+
 }
 
-interface ChaincodeStubInterface {
+interface ChaincodeStubInterface #C0C0C0{
   // Add attributes and methods here
 }
 

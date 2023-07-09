@@ -21,7 +21,7 @@ import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
 @DataType()
-public class NewOrderParameters {
+public class DoStockLevelInputParameters {
   @Property()
   // The warehouse ID.
   public int w_id;
@@ -31,24 +31,8 @@ public class NewOrderParameters {
   public int d_id;
 
   @Property()
-  // The customer ID.
-  public int c_id;
+  // The threshold of minimum quantity in stock to report.
+  public int threshold;
 
-  @Property()
-  // The date ISO string for the order entry.
-  public String o_entry_d;
-
-  @Property()
-  // The array of item IDs for the order lines.
-  public int[] i_ids;
-
-  @Property()
-  // The array of warehouse IDs for the order lines.
-  public int[] i_w_ids;
-
-  @Property()
-  // The array of quantities for the order lines.
-  public int[] i_qtys;
-
-  public NewOrderParameters() {}
+  public DoStockLevelInputParameters() {}
 }

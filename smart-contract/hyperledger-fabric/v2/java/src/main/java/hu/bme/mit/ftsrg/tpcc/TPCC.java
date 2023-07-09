@@ -74,7 +74,7 @@ public class TPCC implements ContractInterface {
     // TPC-C 2.7.4.2
     LOGGER.info("Starting Delivery TX with parameters" + parameters);
     try {
-      DeliveryParameters params = ParseUtils.parseDeliveryParameters(parameters);
+      DoDeliveryInputParameters params = ParseUtils.parseDeliveryParameters(parameters);
       // For a given warehouse number (W_ID), for each of the districts (D_W_ID ,
       // D_ID)
       // within that warehouse, and for a given carrier number (O_CARRIER_ID):
@@ -205,7 +205,7 @@ public class TPCC implements ContractInterface {
     LOGGER.info("Starting NewOrder TX with parameters" + parameters);
 
     try {
-      NewOrderParameters params = ParseUtils.parseNewOrderParameters(parameters);
+      DoNewOrderInputParameters params = ParseUtils.parseNewOrderParameters(parameters);
 
       // The row in the WAREHOUSE table with matching W_ID is selected and W_TAX,
       // the warehouse tax rate, is retrieved.
@@ -479,7 +479,7 @@ public class TPCC implements ContractInterface {
     // TPC-C 2.6.2.2
     // log(`Starting Order Status TX with parameters: ${parameters}`, ctx, 'info');
     try {
-      final OrderStatusParameters params = ParseUtils.parseOrderStatusParameters(parameters);
+      final DoOrderStatusInputParameters params = ParseUtils.parseOrderStatusParameters(parameters);
 
       Customer customer =
           LedgerUtils.getCustomersByIdOrLastName(
@@ -575,7 +575,7 @@ public class TPCC implements ContractInterface {
     // TPC-C 2.5.2.2
     LOGGER.info("Starting Payment TX with parameters: " + parameters);
     try {
-      PaymentParameters params = ParseUtils.parsePaymentParameters(parameters);
+      DoPaymentInputParameters params = ParseUtils.parsePaymentParameters(parameters);
 
       // The row in the WAREHOUSE table with matching W_ID is selected. W_NAME,
       // W_STREET_1, W_STREET_2, W_CITY, W_STATE, and W_ZIP are retrieved and W_YTD,
@@ -748,7 +748,7 @@ public class TPCC implements ContractInterface {
     // TPC-C 2.8.2.2
     LOGGER.info("Starting Stock Level TX with parameters: " + parameters);
     try {
-      final StockLevelParameters params = ParseUtils.parseStockLevelParameters(parameters);
+      final DoStockLevelInputParameters params = ParseUtils.parseStockLevelParameters(parameters);
 
       // The row in the DISTRICT table with matching D_W_ID and D_ID is selected and
       // D_NEXT_O_ID is retrieved.
