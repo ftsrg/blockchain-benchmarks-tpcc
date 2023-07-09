@@ -1,4 +1,4 @@
-FROM gradle:8-jdk8-jammy AS build
+FROM gradle:8-jdk17-jammy AS build
 
 WORKDIR /home/gradle/
 COPY src/ src/
@@ -9,7 +9,7 @@ COPY gradle.properties ./
 RUN gradle --no-daemon shadowJar
 
 
-FROM eclipse-temurin:8-jre
+FROM eclipse-temurin:17-jre
 ARG CC_SERVER_PORT=9999
 
 ENV TINI_VERSION v0.19.0

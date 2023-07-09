@@ -8,3 +8,5 @@ id="$("$CALCULATE_PACKAGE_ID" -q | tr -d '\r\n')"
 cp -v \
     "$CHAINCODE_NAME.tgz" \
     "$FABLO_FABRIC_CONFIG/chaincode-packages/$CHAINCODE_NAME-$id.tar.gz"
+
+echo "$id"

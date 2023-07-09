@@ -2,10 +2,11 @@
 
 import com.diffplug.gradle.spotless.SpotlessExtension
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import hu.bme.mit.ftsrg.openjmlhelper.*
 import java.io.File
 
 val openJMLDir = layout.projectDirectory.dir(".openjml")
-val openJMLJavaHomeDir = openJMLDir.dir("java")
+val openJMLJavaHomeDir = openJMLDir.dir("jdk")
 val downloadDir = layout.buildDirectory.dir(".tmp/download")
 
 val jmlavac = openJMLJavaHomeDir.file("bin/jmlavac")
@@ -28,6 +29,7 @@ repositories {
 
 dependencies {
   implementation("org.hyperledger.fabric-chaincode-java:fabric-chaincode-shim:2.5.0")
+  implementation("org.hyperledger.fabric:fabric-protos:0.3.0")
   implementation("org.json:json:20230227")
   implementation("com.google.code.gson:gson:2.10.1")
   // Included also as implementation dependency so shadow will package it
@@ -42,6 +44,8 @@ dependencies {
 application { mainClass.set("org.hyperledger.fabric.contract.ContractRouter") }
 
 tasks.named<ShadowJar>("shadowJar") {
+  dependsOn(tasks.named("initOpenJML"))
+
   archiveBaseName.set("chaincode")
   archiveClassifier.set("")
   archiveVersion.set("")
@@ -56,22 +60,22 @@ tasks.test {
   }
 }
 
-java {
-  sourceCompatibility = JavaVersion.VERSION_1_8
-  targetCompatibility = JavaVersion.VERSION_1_8
-}
+// java {
+//   sourceCompatibility = JavaVersion.VERSION_17
+//   targetCompatibility = JavaVersion.VERSION_17
+// }
 
 tasks.withType<JavaCompile>().configureEach {
   dependsOn(tasks.named("initOpenJML"))
-
-  val mode =
-      when (System.getenv("JML_MODE")) {
-        "esc" -> "esc"
-        else -> "rac"
-      }
-  if (name == "compileJava") {
+  // Only when not compiling because of Spotless
+  if (!gradle.startParameter.taskNames.any { it.contains("spotlessApply") }) {
+    val mode =
+        when (System.getenv("JML_MODE")) {
+          "esc" -> "esc"
+          else -> "rac"
+        }
     options.isFork = true
-    options.compilerArgs.addAll(listOf("-jml", "-$mode", "-timeout", "30"))
+    options.compilerArgs.addAll(listOf("-jml", "-$mode", "-timeout", "30", "--nullable-by-default"))
     options.forkOptions.javaHome = openJMLJavaHomeDir.asFile
   }
 }
@@ -97,13 +101,12 @@ tasks.register("initOpenJML") {
   downloadOpenJML(openJMLVersion, zipFile, logger)
   extractOpenJML(zipFile, openJMLDir, logger)
 
-  copyJavaHome(openJMLJavaHomeDir, logger)
   // `jmlavac' is what we call `javac' that is actually
   // OpenJML's javac; likewise, `jmlava' is a wrapper for `java' with
   // OpenJML already in the classpath
-  generateJmlavac(jmlavac.asFile, openJMLDir, logger)
+  generateJmlavac(jmlavac.asFile, openJMLJavaHomeDir, logger)
   replaceJavac(openJMLJavaHomeDir, jmlavac.asFile, logger)
-  generateJmlava(jmlava.asFile, openJMLDir, logger)
+  generateJmlava(jmlava.asFile, openJMLJavaHomeDir, logger)
   replaceJava(openJMLJavaHomeDir, jmlava.asFile, logger)
   logger.lifecycle("✅ OpenJML successfully initialized in $openJMLDir")
 }
