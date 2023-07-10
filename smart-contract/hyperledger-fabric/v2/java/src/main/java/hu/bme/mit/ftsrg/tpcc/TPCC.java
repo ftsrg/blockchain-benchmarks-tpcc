@@ -1043,4 +1043,10 @@ public class TPCC implements ContractInterface {
     LOGGER.info("Retrieved new order  " + gson.toJson(newOrder));
     return gson.toJson(newOrder);
   }
+
+  @Transaction(intent = Transaction.TYPE.EVALUATE)
+  public String ping(Context ctx) {
+    LOGGER.info("Received ping");
+    return "pong";
+  }
 }
