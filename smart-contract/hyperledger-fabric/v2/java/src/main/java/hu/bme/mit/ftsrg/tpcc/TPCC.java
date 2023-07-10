@@ -1049,4 +1049,15 @@ public class TPCC implements ContractInterface {
     LOGGER.info("Received ping");
     return "pong";
   }
+
+  /*
+   * This is just a dummy OpenJML test.  Should only allow getting the
+   * details of customer #1, but not customer #2 created by initEntries.
+   */
+  // @ requires c_id < 2;
+  @Transaction(intent = Transaction.TYPE.EVALUATE)
+  public String OJMTEST__getCustomer(Context ctx, int c_w_id, int c_d_id, int c_id)
+      throws Exception {
+    return gson.toJson(LedgerUtils.getCustomer(ctx, c_w_id, c_d_id, c_id));
+  }
 }
