@@ -12,7 +12,7 @@ import com.google.gson.Gson;
 // import hu.bme.mit.ftsrg.tpcc.utils.JsonUtils;
 
 @DataType()
-public class BusinessEntity implements EntityInterface{
+public class EntityBase implements EntityInterface{
     Gson gson = new Gson();
 
     @Override
@@ -50,8 +50,8 @@ public class BusinessEntity implements EntityInterface{
     @Override
     public void fromJson(String json) {
         //Object.assign(this, Common.robustJsonParse(json));
-        BusinessEntity entity = new BusinessEntity();
-        entity = (BusinessEntity) Common.robustJsonParse(json);
+        EntityBase entity = new EntityBase();
+        entity = (EntityBase) Common.robustJsonParse(json);
         
     }
 }

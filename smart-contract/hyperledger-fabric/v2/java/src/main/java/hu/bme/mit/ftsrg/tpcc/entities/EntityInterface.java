@@ -7,4 +7,5 @@ public interface EntityInterface {
     void fromBuffer(byte[] buffer);
     String toJson();
     void fromJson(String json);
+    //void fromObject();
 }
