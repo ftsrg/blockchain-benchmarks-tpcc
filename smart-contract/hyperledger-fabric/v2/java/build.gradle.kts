@@ -86,6 +86,7 @@ configure<SpotlessExtension> {
     removeUnusedImports()
     googleJavaFormat()
     formatAnnotations()
+    toggleOffOn()
   }
   kotlin {
     target("src/*/kotlin/**/*.kt", "buildSrc/src/*/kotlin/**/*.kt")
