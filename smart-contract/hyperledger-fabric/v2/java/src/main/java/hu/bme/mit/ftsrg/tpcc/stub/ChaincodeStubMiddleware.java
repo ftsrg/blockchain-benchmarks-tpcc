@@ -113,161 +113,135 @@ public class ChaincodeStubMiddleware implements ChaincodeStub {
     @Override
     public QueryResultsIteratorWithMetadata<KeyValue> getStateByPartialCompositeKeyWithPagination(
             CompositeKey compositeKey, int pageSize, String bookmark) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getStateByPartialCompositeKeyWithPagination'");
+        return this.nextLayer.getStateByPartialCompositeKeyWithPagination(compositeKey, pageSize, bookmark);
     }
 
     @Override
     public CompositeKey createCompositeKey(String objectType, String... attributes) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'createCompositeKey'");
+        return this.nextLayer.createCompositeKey(objectType, attributes);
     }
 
     @Override
     public CompositeKey splitCompositeKey(String compositeKey) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'splitCompositeKey'");
+        return this.nextLayer.splitCompositeKey(compositeKey);
     }
 
     @Override
     public QueryResultsIterator<KeyValue> getQueryResult(String query) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getQueryResult'");
+        return this.nextLayer.getQueryResult(query);
     }
 
     @Override
     public QueryResultsIteratorWithMetadata<KeyValue> getQueryResultWithPagination(String query, int pageSize,
             String bookmark) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getQueryResultWithPagination'");
+        return this.nextLayer.getQueryResultWithPagination(query, pageSize, bookmark);
     }
 
     @Override
     public QueryResultsIterator<KeyModification> getHistoryForKey(String key) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getHistoryForKey'");
+        return this.getHistoryForKey(key);
     }
 
     @Override
     public byte[] getPrivateData(String collection, String key) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getPrivateData'");
+        return this.nextLayer.getPrivateData(collection, key);
     }
 
     @Override
     public byte[] getPrivateDataHash(String collection, String key) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getPrivateDataHash'");
+        return this.nextLayer.getPrivateDataHash(collection, key);
     }
 
     @Override
     public byte[] getPrivateDataValidationParameter(String collection, String key) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getPrivateDataValidationParameter'");
+        return this.nextLayer.getPrivateDataValidationParameter(collection, key);
     }
 
     @Override
     public void putPrivateData(String collection, String key, byte[] value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'putPrivateData'");
+        
     }
 
     @Override
     public void setPrivateDataValidationParameter(String collection, String key, byte[] value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setPrivateDataValidationParameter'");
+        
     }
 
     @Override
     public void delPrivateData(String collection, String key) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'delPrivateData'");
+        
     }
 
     @Override
     public void purgePrivateData(String collection, String key) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'purgePrivateData'");
+        
     }
 
     @Override
     public QueryResultsIterator<KeyValue> getPrivateDataByRange(String collection, String startKey, String endKey) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getPrivateDataByRange'");
+        return this.nextLayer.getPrivateDataByRange(collection, startKey, endKey);
     }
 
     @Override
     public QueryResultsIterator<KeyValue> getPrivateDataByPartialCompositeKey(String collection, String compositeKey) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getPrivateDataByPartialCompositeKey'");
+        return this.nextLayer.getPrivateDataByPartialCompositeKey(collection, compositeKey);
     }
 
     @Override
     public QueryResultsIterator<KeyValue> getPrivateDataByPartialCompositeKey(String collection,
             CompositeKey compositeKey) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getPrivateDataByPartialCompositeKey'");
+        return this.nextLayer.getPrivateDataByPartialCompositeKey(collection, compositeKey);
     }
 
     @Override
     public QueryResultsIterator<KeyValue> getPrivateDataByPartialCompositeKey(String collection, String objectType,
             String... attributes) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getPrivateDataByPartialCompositeKey'");
+        return this.nextLayer.getPrivateDataByPartialCompositeKey(collection, objectType, attributes);
     }
 
     @Override
     public QueryResultsIterator<KeyValue> getPrivateDataQueryResult(String collection, String query) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getPrivateDataQueryResult'");
+        return this.nextLayer.getPrivateDataQueryResult(collection, query);
     }
 
     @Override
     public void setEvent(String name, byte[] payload) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setEvent'");
+        
     }
 
     @Override
     public ChaincodeEvent getEvent() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getEvent'");
+        return this.nextLayer.getEvent();
     }
 
     @Override
     public SignedProposal getSignedProposal() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getSignedProposal'");
+        return this.nextLayer.getSignedProposal();
     }
 
     @Override
     public Instant getTxTimestamp() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getTxTimestamp'");
+        return this.nextLayer.getTxTimestamp();
     }
 
     @Override
     public byte[] getCreator() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getCreator'");
+        return this.nextLayer.getCreator();
     }
 
     @Override
     public Map<String, byte[]> getTransient() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getTransient'");
+        return this.nextLayer.getTransient();
     }
 
     @Override
     public byte[] getBinding() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getBinding'");
+        return this.nextLayer.getBinding();
     }
 
     @Override
     public String getMspId() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getMspId'");
+        return this.nextLayer.getMspId();
     }
     
 }
