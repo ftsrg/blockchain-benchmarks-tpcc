@@ -24,7 +24,7 @@ networkUp() {
 }
 
 if [ "$1" = "up" ]; then
-  case "$2" in
+  case "${2-}" in
   --build|-b) buildChaincodeTPCC;;
   esac
   networkUp
@@ -32,7 +32,7 @@ elif [ "$1" = "down" ]; then
   networkDown
 elif [ "$1" = "reset" ]; then
   networkDown
-  case "$2" in
+  case "${2-}" in
   --build|-b) buildChaincodeTPCC;;
   esac
   networkUp
