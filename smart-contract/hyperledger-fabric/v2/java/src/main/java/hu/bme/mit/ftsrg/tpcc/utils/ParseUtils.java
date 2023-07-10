@@ -18,19 +18,19 @@ SPDX-License-Identifier: Apache-2.0
 package hu.bme.mit.ftsrg.tpcc.utils;
 
 import com.google.gson.Gson;
-
 import hu.bme.mit.ftsrg.tpcc.TPCC;
 import hu.bme.mit.ftsrg.tpcc.entries.*;
 import hu.bme.mit.ftsrg.tpcc.inputs.*;
-
 import java.util.logging.Logger;
 import org.hyperledger.fabric.contract.annotation.DataType;
+
 // import com.fasterxml.jackson.databind.ObjectMapper;
 
 @DataType
 public class ParseUtils {
   static Gson gson = new Gson();
   private static final Logger LOGGER = Logger.getLogger(TPCC.class.getName());
+
   // private ObjectMapper objectMapper = new ObjectMapper();
 
   /**
@@ -42,7 +42,8 @@ public class ParseUtils {
   public static DoNewOrderInputParameters parseNewOrderParameters(String params) throws Exception {
     // return objectMapper.readValue(params, NewOrderParameters.class);
     // return gson.fromJson(params, NewOrderParameters.class);
-    DoNewOrderInputParameters newOrderParams = gson.fromJson(params, DoNewOrderInputParameters.class);
+    DoNewOrderInputParameters newOrderParams =
+        gson.fromJson(params, DoNewOrderInputParameters.class);
     return newOrderParams;
   }
 
@@ -67,7 +68,8 @@ public class ParseUtils {
   public static DoDeliveryInputParameters parseDeliveryParameters(String params) throws Exception {
     // return objectMapper.readValue(params, DeliveryParameters.class);
     LOGGER.info("Parse Delivery parameters " + params);
-    DoDeliveryInputParameters deliveryParams = gson.fromJson(params, DoDeliveryInputParameters.class);
+    DoDeliveryInputParameters deliveryParams =
+        gson.fromJson(params, DoDeliveryInputParameters.class);
     LOGGER.info("Delivery parameters are: " + deliveryParams);
     return deliveryParams;
   }
@@ -78,9 +80,11 @@ public class ParseUtils {
    * @param {string} params The JSON string of the parameters.
    * @return {OrderStatusParameters} The parsed parameters.
    */
-  public static DoOrderStatusInputParameters parseOrderStatusParameters(String params) throws Exception {
+  public static DoOrderStatusInputParameters parseOrderStatusParameters(String params)
+      throws Exception {
     // return objectMapper.readValue(params, OrderStatusParameters.class);
-    DoOrderStatusInputParameters oStatusParams = gson.fromJson(params, DoOrderStatusInputParameters.class);
+    DoOrderStatusInputParameters oStatusParams =
+        gson.fromJson(params, DoOrderStatusInputParameters.class);
     return oStatusParams;
   }
 
@@ -90,9 +94,11 @@ public class ParseUtils {
    * @param {string} params The JSON string of the parameters.
    * @return {StockLevelParameters} The parsed parameters.
    */
-  public static DoStockLevelInputParameters parseStockLevelParameters(String params) throws Exception {
+  public static DoStockLevelInputParameters parseStockLevelParameters(String params)
+      throws Exception {
     LOGGER.info("parses stock level parameters");
-    DoStockLevelInputParameters stockLevelParams = gson.fromJson(params, DoStockLevelInputParameters.class);
+    DoStockLevelInputParameters stockLevelParams =
+        gson.fromJson(params, DoStockLevelInputParameters.class);
     LOGGER.info("stock level parameters: " + stockLevelParams);
     return stockLevelParams;
   }

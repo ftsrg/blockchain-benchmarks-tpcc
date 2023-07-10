@@ -2,16 +2,16 @@ package hu.bme.mit.ftsrg.tpcc.outputs;
 
 // import java.util.List;
 
+import hu.bme.mit.ftsrg.tpcc.entries.DeliveredOrder;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
-
-import hu.bme.mit.ftsrg.tpcc.entries.DeliveredOrder;
 
 @DataType()
 public class DoDeliveryOutput {
   @Property() private int w_id;
   @Property() private int o_carrier_id;
   @Property() private DeliveredOrder delivered;
+
   // @Property()
   // public int skipped;
 

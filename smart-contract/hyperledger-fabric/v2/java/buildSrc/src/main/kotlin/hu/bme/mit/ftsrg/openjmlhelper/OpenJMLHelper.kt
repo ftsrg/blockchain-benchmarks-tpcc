@@ -1,3 +1,5 @@
+package hu.bme.mit.ftsrg.openjmlhelper
+
 import java.io.File
 import java.net.URL
 import java.nio.channels.Channels
@@ -9,23 +11,17 @@ import org.gradle.api.logging.Logger
 /**
  * OpenJML compilation helpers.
  *
- * WARNING: Only compatible up to OpenJML v0.8.59 (the last version before the JDK16+ alphas).
- *
- * At the moment, compatible ONLY with v0.8.59. Earlier versions can be easily supported by
- * extending the RELEASE_DATE map.
+ * WARNING: Only compatible with OpenJML v0.17.0-alpha-9 and above. Only tested with
+ * v0.17.0-alpha-15.
  *
  * Originally based on https://github.com/mingyang91/openjml-template
  */
-val RELEASE_DATE =
-    mapOf<String, String>(
-        "0.8.59" to "20211116",
-        /* ... possibly older versions ... */
-    )
+val originalExecutableSuffix = ".orig"
 
 // NOTE: ${'$'} is just an escaped $ inside a Kotlin string literal
 val scriptPrefix =
     """
-    #!/bin/sh -euCx
+    #!/bin/sh -euC
 
     args=
     for p in "${'$'}@"; do
@@ -61,14 +57,8 @@ fun downloadOpenJML(version: String, target: File, logger: Logger) {
   target.parentFile.mkdirs()
   target.createNewFile()
 
-  val releaseDate: String =
-      RELEASE_DATE.get(version)
-          ?: run {
-            logger.error("❌ Unknown OpenJML version $version")
-            throw Exception("Unknown OpenJML version")
-          }
   val downloadAddress =
-      "https://github.com/OpenJML/OpenJML/releases/download/$version/openjml-$version-$releaseDate.zip"
+      "https://github.com/OpenJML/OpenJML/releases/download/$version/openjml-ubuntu-20.04-$version.zip"
   Channels.newChannel(URL(downloadAddress).openStream()).use { inChan ->
     logger.lifecycle("⬇️ OpenJML downloading...")
     target.outputStream().channel.use { outChan -> outChan.transferFrom(inChan, 0, Long.MAX_VALUE) }
@@ -103,41 +93,22 @@ internal fun generateScript(target: File, content: String, logger: Logger) {
   logger.lifecycle("✅ $name generated at $target")
 }
 
-fun generateJmlavac(target: File, openJMLHome: Directory, logger: Logger) {
-  generateScript(
-      target,
-      """OPENJML_ROOT="$openJMLHome" java -jar "$openJMLHome/openjml.jar" ${'$'}args""",
-      logger)
+fun generateJmlavac(target: File, javaHome: Directory, logger: Logger) {
+  generateScript(target, """"$javaHome/bin/javac$originalExecutableSuffix" ${'$'}args""", logger)
 }
 
-fun generateJmlava(target: File, openJMLHome: Directory, logger: Logger) {
-  generateScript(target, """java -cp "$openJMLHome/openjml.jar" ${'$'}args""", logger)
+fun generateJmlava(target: File, javaHome: Directory, logger: Logger) {
+  generateScript(target, """"$javaHome/bin/java$originalExecutableSuffix" ${'$'}args""", logger)
 }
 
-fun copyJavaHome(target: Directory, logger: Logger) {
-  val original = org.gradle.internal.jvm.Jvm.current().getJavaHome()
-
-  if (target.asFile.exists()) {
-    logger.lifecycle("👌 Java home copy present in $target; no need to copy")
-    return
-  }
-
-  logger.lifecycle("➡️ Copying Java home from $original to  $target...")
-  original.copyRecursively(target.asFile, overwrite = true) { file, exception ->
-    if (exception is NoSuchFileException) {
-      logger.warn("⚠️ File $file not found; skipping")
-      OnErrorAction.SKIP
-    } else {
-      logger.error("❌ Failed to copy $file: ${exception.message}")
-      throw exception
-    }
-  }
-  logger.lifecycle("✅ Java home copied to $target")
-}
-
-internal fun replaceExecutable(target: File, with: File, logger: Logger) {
+internal fun replaceExecutable(
+    target: File,
+    with: File,
+    logger: Logger,
+    backupSuffix: String = ".bak"
+) {
   val name = target.nameWithoutExtension
-  val backupFile = target.resolveSibling(File("$name.bak"))
+  val backupFile = target.resolveSibling(File("$name$backupSuffix"))
 
   if (backupFile.exists()) {
     logger.lifecycle("👌 $name has already been replaced; no need to copy")
@@ -152,9 +123,9 @@ internal fun replaceExecutable(target: File, with: File, logger: Logger) {
 }
 
 fun replaceJavac(javaHome: Directory, jmlavac: File, logger: Logger) {
-  replaceExecutable(javaHome.file("bin/javac").asFile, jmlavac, logger)
+  replaceExecutable(javaHome.file("bin/javac").asFile, jmlavac, logger, originalExecutableSuffix)
 }
 
 fun replaceJava(javaHome: Directory, jmlava: File, logger: Logger) {
-  replaceExecutable(javaHome.file("bin/java").asFile, jmlava, logger)
+  replaceExecutable(javaHome.file("bin/java").asFile, jmlava, logger, originalExecutableSuffix)
 }

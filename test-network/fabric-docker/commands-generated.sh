@@ -52,6 +52,10 @@ installChaincode() {
 
 }
 
+buildChaincodeTPCC() {
+  (cd "$FABLO_NETWORK_ROOT"/fabric-docker && docker-compose build tpcc)
+}
+
 # Custom function that installs the tpcc chaincode
 installChaincodeTPCC() {
   chaincodeInstall \
@@ -142,7 +146,8 @@ networkDown() {
   printf "\nRemoving generated configs... \U1F5D1 \n"
   rm -rf "$FABLO_NETWORK_ROOT/fabric-config/config"
   rm -rf "$FABLO_NETWORK_ROOT/fabric-config/crypto-config"
-  rm -rf "$FABLO_NETWORK_ROOT/fabric-config/chaincode-packages"
+  # Do not remove this so we can keep our prepackages TPC-C CC there
+  # rm -rf "$FABLO_NETWORK_ROOT/fabric-config/chaincode-packages"
 
   printHeadline "Done! Network was purged" "U1F5D1"
 }

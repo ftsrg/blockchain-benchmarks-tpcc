@@ -18,12 +18,10 @@ SPDX-License-Identifier = Apache-2.0
 package hu.bme.mit.ftsrg.tpcc;
 
 import com.google.gson.Gson;
-
 import hu.bme.mit.ftsrg.tpcc.entries.*;
 import hu.bme.mit.ftsrg.tpcc.inputs.*;
 import hu.bme.mit.ftsrg.tpcc.outputs.*;
 import hu.bme.mit.ftsrg.tpcc.utils.*;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
