@@ -2,20 +2,20 @@
 skinparam groupInheritance 2
 Contract <|-- BusinessContract
 BusinessContract ..> EnhancedContext
-BusinessContract ..> BusinessEntity
+BusinessContract ..> EntityBase
 EnhancedContext *--> EntityRegistry
-BusinessEntity --|> EntityInterface
+EntityBase --|> EntityInterface
 EntityRegistry ..> EntityInterface
 Context <|-- EnhancedContext
 EntityRegistry ..> ChaincodeStubInterface
 
 ChaincodeStubInterface <|-- FabricChaincodeStub
-ChaincodeStubInterface <|-- ChaincodeStubMiddleware
+ChaincodeStubInterface <|-- ChaincodeStubMiddlewareBase
 
-ChaincodeStubMiddleware ..> ChaincodeStubInterface:  nextLayer
+ChaincodeStubMiddlewareBase ..> ChaincodeStubInterface:  nextLayer
 
-ChaincodeStubMiddleware <|-- WriteBackCachedChaincodeStub
-ChaincodeStubMiddleware <|-- UpdateThrottledChaincodeStub
+ChaincodeStubMiddlewareBase <|-- WriteBackCachedChaincodeStub
+ChaincodeStubMiddlewareBase <|-- UpdateThrottledChaincodeStub
 
 
 class BusinessContract {
@@ -39,7 +39,7 @@ class FabricChaincodeStub {
   // Add attributes and methods here
 }
 
-class BusinessEntity {
+class EntityBase {
   // Add attributes and methods here
 }
 
@@ -63,6 +63,9 @@ interface EntityInterface #A9DCDF {
 
 interface ChaincodeStubInterface #C0C0C0{
   // Add attributes and methods here
+}
+class ChaincodeStubMiddlewareBase {
+  
 }
 
 @enduml
