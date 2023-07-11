@@ -1,5 +1,6 @@
 package hu.bme.mit.ftsrg.tpcc.entities;
 
+//public interface EntityInterface<AssetType> {
 public interface EntityInterface {
     String getType();
     String[] getKeyParts();
@@ -7,5 +8,5 @@ public interface EntityInterface {
     void fromBuffer(byte[] buffer);
     String toJson();
     void fromJson(String json);
-    //void fromObject();
+    
 }

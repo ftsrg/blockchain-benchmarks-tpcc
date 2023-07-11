@@ -1,19 +1,23 @@
 package hu.bme.mit.ftsrg.tpcc.entities;
 
 
+import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
-import hu.bme.mit.ftsrg.tpcc.utils.Common;
+//import hu.bme.mit.ftsrg.tpcc.utils.Common;
 //import java.util.Arrays;
 
 import org.hyperledger.fabric.contract.annotation.DataType;
 
 import com.google.gson.Gson;
 
-// import hu.bme.mit.ftsrg.tpcc.utils.JsonUtils;
-
 @DataType()
-public class EntityBase implements EntityInterface{
+public abstract class EntityBase implements EntityInterface{
     Gson gson = new Gson();
+
+    public EntityBase()
+    {
+
+    }
 
     @Override
     public String getType() {
@@ -47,11 +51,31 @@ public class EntityBase implements EntityInterface{
         
     }
 
-    @Override
-    public void fromJson(String json) {
-        //Object.assign(this, Common.robustJsonParse(json));
-        EntityBase entity = new EntityBase();
-        entity = (EntityBase) Common.robustJsonParse(json);
-        
+    @Override    
+    public void fromJson(final String json) {
+        Object obj = gson.fromJson(json, this.getClass());
+        Field[] ourFields = this.getClass().getDeclaredFields();
+    
+        /*
+         * Try to get values for our known fields from the deserialized
+         * object.  This process if forgiving: if one of our fields does not
+         * exist inside the deserialized object, we leave it as is; if the
+         * deserialized object contains fields we do not recognize, we
+         * silently ignore them.
+         */
+        for (Field ourField : ourFields) {
+          try {
+            Field theirField = obj.getClass().getField(ourField.getName());
+            try {
+                if (ourField.get(this) == null) ourField.set(this, theirField.get(obj));
+            } catch (IllegalArgumentException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
+          } catch (NoSuchFieldException e) {
+            /* ignore or: */
+            e.printStackTrace();
+          }
+        }
     }
+
 }

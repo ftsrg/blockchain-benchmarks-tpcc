@@ -20,8 +20,10 @@ package hu.bme.mit.ftsrg.tpcc.entries;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
+import hu.bme.mit.ftsrg.tpcc.entities.EntityBase;
+
 @DataType()
-public class Customer {
+public class Customer extends EntityBase{
   // The customer ID. Primary key.
   @Property() public int c_id;
 
