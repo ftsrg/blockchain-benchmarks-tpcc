@@ -2,9 +2,9 @@
 skinparam groupInheritance 2
 Contract <|-- BusinessContract
 BusinessContract ..> EnhancedContext
-BusinessContract ..> BusinessEntity
+BusinessContract ..> EntityBase
 EnhancedContext *--> EntityRegistry
-BusinessEntity --|> EntityInterface
+EntityBase --|> EntityInterface
 EntityRegistry ..> EntityInterface
 Context <|-- EnhancedContext
 EntityRegistry ..> ChaincodeStubInterface
@@ -39,7 +39,7 @@ class FabricChaincodeStub {
   // Add attributes and methods here
 }
 
-class BusinessEntity {
+abstract EntityBase #AliceBlue{
   // Add attributes and methods here
 }
 
