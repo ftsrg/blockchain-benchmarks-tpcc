@@ -20,8 +20,10 @@ package hu.bme.mit.ftsrg.tpcc.entries;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
+import hu.bme.mit.ftsrg.tpcc.entities.EntityBase;
+
 @DataType()
-public class District {
+public class District extends EntityBase{
   @Property()
   // The district ID. Primary key.
   public int d_id;
