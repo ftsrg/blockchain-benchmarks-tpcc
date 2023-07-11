@@ -2,7 +2,6 @@ package hu.bme.mit.ftsrg.tpcc.outputs;
 
 // import java.util.List;
 
-import hu.bme.mit.ftsrg.tpcc.entries.DeliveredOrder;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 

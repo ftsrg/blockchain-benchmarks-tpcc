@@ -64,22 +64,22 @@ public class Common {
     return String.format("%0" + padLength + "d", num);
   }
 
-  public static Object robustJsonParse(String value) {
-    if (value == null) {
-      throw new IllegalArgumentException("The received JSON string is null");
-    }
+  // public static Object robustJsonParse(String value) {
+  //   if (value == null) {
+  //     throw new IllegalArgumentException("The received JSON string is null");
+  //   }
 
-    if (value.isEmpty()) {
-      throw new IllegalArgumentException("The received JSON string is empty");
-    }
+  //   if (value.isEmpty()) {
+  //     throw new IllegalArgumentException("The received JSON string is empty");
+  //   }
 
-    try {
-      return gson.fromJson(value, Object.class);
-      // JsonObject jsonObject = JsonParser.parseString(value).getAsJsonObject();
-      // return jsonObject;
+  //   try {
+  //     return gson.fromJson(value, Object.class);
+  //     // JsonObject jsonObject = JsonParser.parseString(value).getAsJsonObject();
+  //     // return jsonObject;
 
-    } catch (Exception e) {
-      return new Object();
-    }
-  }
+  //   } catch (Exception e) {
+  //     return new Object();
+  //   }
+  // }
 }
