@@ -77,107 +77,105 @@ public class TPCC implements ContractInterface {
       // D_ID)
       // within that warehouse, and for a given carrier number (O_CARRIER_ID):
 
-      // int skipped = 0;
+      List<DeliveredOrder> deliveredOrders = new ArrayList<>();
+      int skipped = 0;
+      for (int d_id = 1; d_id <= 10; d_id++) {
+        LOGGER.info("Begin for loop to retrieve oldest new orders from the various districts");
+        // The row in the NEW-ORDER table with matching NO_W_ID (equals W_ID) and
+        // NO_D_ID (equals D_ID) and with the lowest NO_O_ID value is selected.
+        // This is the oldest undelivered order of that district.
+        // NO_O_ID, the order number, is retrieved.
 
-      // List<DeliveredOrder> deliveredOrders = new ArrayList<>();
+        NewOrder newOrder = LedgerUtils.getOldestNewOrder(ctx, params.w_id, d_id);
+        LOGGER.info("Oldest new order retrieved is: " + gson.toJson(newOrder));
 
-      // for (int d_id = 1; d_id <= 10; d_id++) {
-      int d_id = 1;
-      LOGGER.info("Begin for loop to retrieve oldest new orders from the various districts");
-      // The row in the NEW-ORDER table with matching NO_W_ID (equals W_ID) and
-      // NO_D_ID (equals D_ID) and with the lowest NO_O_ID value is selected.
-      // This is the oldest undelivered order of that district.
-      // NO_O_ID, the order number, is retrieved.
+        if (newOrder == null) {
+          // If no matching row is found, then the delivery of an order for this district
+          // is skipped. The condition in which no outstanding order is present at a given
+          // district must be handled by skipping the delivery of an order for that
+          // district
+          // only and resuming the delivery of an order from all remaining districts of
+          // the
+          // selected warehouse. If this condition occurs in more than 1%, or in more than
+          // one,
+          // whichever is greater, of the business transactions, it must be reported.
+          // common.log("Could not find new order for District( " + params.w_id + "," +
+          // d_id + " ) skipping it",
+          // ctx, "info");
+          LOGGER.info(
+              "Could not find new order for District( "
+                  + params.w_id
+                  + ","
+                  + d_id
+                  + " ) skipping it");
+          skipped += 1;
+          continue;
+        }
 
-      NewOrder newOrder = LedgerUtils.getOldestNewOrder(ctx, params.w_id, d_id);
-      LOGGER.info("Oldest new order retrieved is: " + gson.toJson(newOrder));
+        LedgerUtils.deleteNewOrder(ctx, newOrder);
+        LOGGER.info(gson.toJson(newOrder) + "DELETED");
 
-      // if (newOrder == null) {
-      //     // If no matching row is found, then the delivery of an order for this district
-      //     // is skipped. The condition in which no outstanding order is present at a given
-      //     // district must be handled by skipping the delivery of an order for that
-      //     // district
-      //     // only and resuming the delivery of an order from all remaining districts of
-      //     // the
-      //     // selected warehouse. If this condition occurs in more than 1%, or in more than
-      //     // one,
-      //     // whichever is greater, of the business transactions, it must be reported.
-      //     // common.log("Could not find new order for District( " + params.w_id + "," +
-      //     // d_id + " ) skipping it",
-      //     // ctx, "info");
-      //     LOGGER.info(
-      //             "Could not find new order for District( " + params.w_id + "," + d_id + " )
-      // skipping it");
-      //     skipped += 1;
-      //     continue;
-      // }
-
-      LedgerUtils.deleteNewOrder(ctx, newOrder);
-      LOGGER.info(gson.toJson(newOrder) + "DELETED");
-
-      // The row in the ORDER table with matching O_W_ID (equals W_ ID), O_D_ID
-      // (equals D_ID),
-      // and O_ID (equals NO_O_ID) is selected, O_C_ID, the customer number, is
-      // retrieved,
-      // and O_CARRIER_ID is updated.
-      Order order = LedgerUtils.getOrder(ctx, params.w_id, d_id, newOrder.no_o_id);
-      LOGGER.info(
-          "retrieved order details with no_o_id: "
-              + newOrder.no_o_id
-              + " and Warehouse and District IDs "
-              + params.w_id);
-      order.o_carrier_id = params.o_carrier_id;
-      LedgerUtils.updateOrder(ctx, order);
-      LOGGER.info(
-          "Updated order" + gson.toJson(order) + "with order.o_carrier_id" + params.o_carrier_id);
-
-      // All rows in the ORDER-LINE table with matching OL_W_ID (equals O_W_ID),
-      // OL_D_ID
-      // (equals O_D_ID), and OL_O_ID (equals O_ID) are selected. All OL_DELIVERY_D,
-      // the
-      // delivery dates, are updated to the current system time as returned by the
-      // operating
-      // system and the sum of all OL_AMOUNT is retrieved.
-      Double orderLineAmountTotal = 0.0;
-      // ctx.getTxinfo().md_tpcc_delivery_total_order_lines += order.o_ol_cnt;
-
-      for (int i = 1; i <= order.o_ol_cnt; i++) {
-        LOGGER.info("getOrderLine");
-        OrderLine orderLine = LedgerUtils.getOrderLine(ctx, params.w_id, d_id, order.o_id, i);
-        LOGGER.info("OrderLine: " + gson.toJson(orderLine) + "retrieved");
-        orderLineAmountTotal += orderLine.ol_amount;
-        orderLine.ol_delivery_d = params.ol_delivery_d;
+        // The row in the ORDER table with matching O_W_ID (equals W_ ID), O_D_ID
+        // (equals D_ID),
+        // and O_ID (equals NO_O_ID) is selected, O_C_ID, the customer number, is
+        // retrieved,
+        // and O_CARRIER_ID is updated.
+        Order order = LedgerUtils.getOrder(ctx, params.w_id, d_id, newOrder.no_o_id);
         LOGGER.info(
-            "updateOrderLine with orderLineAmountTotal "
-                + orderLineAmountTotal
-                + "and ol_delivery_d "
-                + orderLine.ol_delivery_d);
-        LedgerUtils.updateOrderLine(ctx, orderLine);
+            "retrieved order details with no_o_id: "
+                + newOrder.no_o_id
+                + " and Warehouse and District IDs "
+                + params.w_id);
+        order.o_carrier_id = params.o_carrier_id;
+        LedgerUtils.updateOrder(ctx, order);
+        LOGGER.info(
+            "Updated order" + gson.toJson(order) + "with order.o_carrier_id" + params.o_carrier_id);
+
+        // All rows in the ORDER-LINE table with matching OL_W_ID (equals O_W_ID),
+        // OL_D_ID
+        // (equals O_D_ID), and OL_O_ID (equals O_ID) are selected. All OL_DELIVERY_D,
+        // the
+        // delivery dates, are updated to the current system time as returned by the
+        // operating
+        // system and the sum of all OL_AMOUNT is retrieved.
+        Double orderLineAmountTotal = 0.0;
+        // ctx.getTxinfo().md_tpcc_delivery_total_order_lines += order.o_ol_cnt;
+
+        for (int i = 1; i <= order.o_ol_cnt; i++) {
+          LOGGER.info("getOrderLine");
+          OrderLine orderLine = LedgerUtils.getOrderLine(ctx, params.w_id, d_id, order.o_id, i);
+          LOGGER.info("OrderLine: " + gson.toJson(orderLine) + "retrieved");
+          orderLineAmountTotal += orderLine.ol_amount;
+          orderLine.ol_delivery_d = params.ol_delivery_d;
+          LOGGER.info(
+              "updateOrderLine with orderLineAmountTotal "
+                  + orderLineAmountTotal
+                  + "and ol_delivery_d "
+                  + orderLine.ol_delivery_d);
+          LedgerUtils.updateOrderLine(ctx, orderLine);
+        }
+
+        // The row in the CUSTOMER table with matching C_W_ID (equals W_ID), C_D_ID
+        // (equals D_ID), and C_ID (equals O_C_ID) is selected and C_BALANCE is
+        // increased by the sum of all order-line amounts (OL_AMOUNT) previously
+        // retrieved.
+        // C_DELIVERY_CNT is incremented by 1.
+        LOGGER.info(
+            "getCustomer with W_ID, D_ID and C_ID" + params.w_id + "," + d_id + "," + order.o_c_id);
+        Customer customer = LedgerUtils.getCustomer(ctx, params.w_id, d_id, order.o_c_id);
+        LOGGER.info("Customer: " + gson.toJson(customer) + "retrieved");
+        customer.c_balance += orderLineAmountTotal;
+        customer.c_delivery_cnt += 1;
+        LOGGER.info(
+            "updateCustomer. C_BALANCE is increased by the sum of all order-line amounts (OL_AMOUNT)"
+                + "previously retrieved and C_DELIVERY_CNT is incremented by 1 ");
+        LedgerUtils.updateCustomer(ctx, customer);
+
+        deliveredOrders.add(new DeliveredOrder(d_id, order.o_id));
       }
 
-      // The row in the CUSTOMER table with matching C_W_ID (equals W_ID), C_D_ID
-      // (equals D_ID), and C_ID (equals O_C_ID) is selected and C_BALANCE is
-      // increased by the sum of all order-line amounts (OL_AMOUNT) previously
-      // retrieved.
-      // C_DELIVERY_CNT is incremented by 1.
-      LOGGER.info(
-          "getCustomer with W_ID, D_ID and C_ID" + params.w_id + "," + d_id + "," + order.o_c_id);
-      Customer customer = LedgerUtils.getCustomer(ctx, params.w_id, d_id, order.o_c_id);
-      LOGGER.info("Customer: " + gson.toJson(customer) + "retrieved");
-      customer.c_balance += orderLineAmountTotal;
-      customer.c_delivery_cnt += 1;
-      LOGGER.info(
-          "updateCustomer. C_BALANCE is increased by the sum of all order-line amounts (OL_AMOUNT)"
-              + "previously retrieved and C_DELIVERY_CNT is incremented by 1 ");
-      LedgerUtils.updateCustomer(ctx, customer);
-
-      DeliveredOrder deliveredOrders = new DeliveredOrder(d_id, order.o_id);
-      LOGGER.info("Delivered order is: " + gson.toJson(deliveredOrders));
-
-      // }
-
       DoDeliveryOutput output =
-          new DoDeliveryOutput(params.w_id, params.o_carrier_id, deliveredOrders);
+          new DoDeliveryOutput(params.w_id, params.o_carrier_id, deliveredOrders, skipped);
 
       LOGGER.info("Finished Delivery TX with output: " + gson.toJson(output));
       // System.out.println("Output : " + output);
