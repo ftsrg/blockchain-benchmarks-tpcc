@@ -58,7 +58,6 @@ public class TPCC implements ContractInterface {
   private static final Logger LOGGER = Logger.getLogger(TPCC.class.getName());
   Gson gson = new Gson();
 
-  @Transaction
   /**
    * Performs the Delivery read-write TX profile.
    *
@@ -66,6 +65,7 @@ public class TPCC implements ContractInterface {
    * @param parameters The JSON encoded parameters of the TX profile.
    * @return The JSON encoded query results according to the specification.
    */
+  @Transaction(intent = Transaction.TYPE.SUBMIT)
   public String doDelivery(Context ctx, String parameters) {
     // addTxInfo(ctx);
 
@@ -186,7 +186,6 @@ public class TPCC implements ContractInterface {
     return null;
   }
 
-  @Transaction
   /**
    * Performs the New Order read-write TX profile.
    *
@@ -194,6 +193,7 @@ public class TPCC implements ContractInterface {
    * @param parameters The JSON encoded parameters of the TX profile.
    * @return {Promise<{object}>} The JSON encoded query results according to the specification.
    */
+  @Transaction(intent = Transaction.TYPE.SUBMIT)
   public String doNewOrder(Context ctx, String parameters) {
     // addTxInfo(ctx);
     // TPC-C 2.4.2.2
@@ -463,7 +463,6 @@ public class TPCC implements ContractInterface {
     return null;
   }
 
-  @Transaction
   /**
    * Performs the Order Status read TX profile.
    *
@@ -471,6 +470,7 @@ public class TPCC implements ContractInterface {
    * @param parameters The JSON encoded parameters of the TX profile.
    * @return The JSON encoded query results according to the specification.
    */
+  @Transaction(intent = Transaction.TYPE.EVALUATE)
   public String doOrderStatus(Context ctx, String parameters) {
     // TPC-C 2.6.2.2
     // log(`Starting Order Status TX with parameters: ${parameters}`, ctx, 'info');
@@ -558,7 +558,6 @@ public class TPCC implements ContractInterface {
     return null;
   }
 
-  @Transaction
   /**
    * Performs the Payment read-write TX profile.
    *
@@ -566,6 +565,7 @@ public class TPCC implements ContractInterface {
    * @param parameters The JSON encoded parameters of the TX profile.
    * @return The JSON encoded query results according to the specification.
    */
+  @Transaction(intent = Transaction.TYPE.SUBMIT)
   public String doPayment(Context ctx, String parameters) {
     // addTxInfo(ctx);
     // TPC-C 2.5.2.2
@@ -731,7 +731,6 @@ public class TPCC implements ContractInterface {
     return null;
   }
 
-  @Transaction
   /**
    * Performs the Stock Level read TX profile.
    *
@@ -739,6 +738,7 @@ public class TPCC implements ContractInterface {
    * @param parameters The JSON encoded parameters of the TX profile.
    * @return The JSON encoded query results according to the specification.
    */
+  @Transaction(intent = Transaction.TYPE.EVALUATE)
   public String doStockLevel(Context ctx, String parameters) {
     // addTxInfo(ctx);
     // TPC-C 2.8.2.2
@@ -807,18 +807,18 @@ public class TPCC implements ContractInterface {
     return null;
   }
 
-  @Transaction
   /**
    * Initializes the TPC-C chaincode.
    *
    * @param ctx The TX context.
    */
+  @Transaction(intent = Transaction.TYPE.EVALUATE)
   public void instantiate(Context ctx) {
     Common.log("Instantiating TPC-C chaincode", ctx, "info");
     LOGGER.info("Instantiating TPC-C chaincode");
   }
 
-  @Transaction
+  @Transaction(intent = Transaction.TYPE.SUBMIT)
   public void initEntries(Context ctx) {
     LOGGER.info("Starting initEntries");
     try {
@@ -1006,7 +1006,7 @@ public class TPCC implements ContractInterface {
     }
   }
 
-  @Transaction
+  @Transaction(intent = Transaction.TYPE.EVALUATE)
   public String readWarehouseEntry(Context ctx, int w_id) throws Exception {
     LOGGER.info("Attemp to retrieve warehouse details  for " + w_id);
     Warehouse warehouse = LedgerUtils.getWarehouse(ctx, w_id);
@@ -1014,7 +1014,7 @@ public class TPCC implements ContractInterface {
     return gson.toJson(warehouse);
   }
 
-  @Transaction
+  @Transaction(intent = Transaction.TYPE.EVALUATE)
   public String getOrderEntry(Context ctx, int w_id, int d_id, int o_id) throws Exception {
     LOGGER.info("retrieve details  for existing order entry" + w_id);
     Order order = LedgerUtils.getOrder(ctx, w_id, d_id, o_id);
@@ -1022,7 +1022,7 @@ public class TPCC implements ContractInterface {
     return gson.toJson(order);
   }
 
-  @Transaction
+  @Transaction(intent = Transaction.TYPE.EVALUATE)
   public String getItemEntry(Context ctx, int i_id) throws Exception {
     LOGGER.info("retrieve details  for existing item entry " + i_id);
     Item item = LedgerUtils.getItem(ctx, i_id);
@@ -1030,7 +1030,7 @@ public class TPCC implements ContractInterface {
     return gson.toJson(item);
   }
 
-  @Transaction
+  @Transaction(intent = Transaction.TYPE.EVALUATE)
   public String getNewOrderEntry(Context ctx, int w_id, int d_id, int o_id) throws Exception {
     LOGGER.info(
         "Attemp to retrieve oldest new order details  for warehouse"
