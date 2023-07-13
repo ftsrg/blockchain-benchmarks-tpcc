@@ -54,6 +54,8 @@ public class LedgerUtils {
   public static void createEntry(Context ctx, String type, String[] keyParts, Object entry)
       throws Exception {
     LOGGER.info("Begin createEntry for input " + type + " and " + keyParts);
+
+    //CompositeKey key = ctx.getStub().createCompositeKey(type, keyParts);
     CompositeKey key = ctx.getStub().createCompositeKey(type, keyParts);
     LOGGER.info("Created composite key " + key.toString());
 
