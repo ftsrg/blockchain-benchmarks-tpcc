@@ -20,28 +20,26 @@ package hu.bme.mit.ftsrg.tpcc.entries;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
-@DataType()
+@DataType
 public class Item {
 
-  public Item() {}
-
-  @Property()
-  // The ID of the item. Primary key.
+  /** The ID of the item. Primary key. */
+  @Property(schema = {"minimum", "0"})
   public int i_id;
 
-  @Property()
-  // The image ID associated with the item.
+  /** The image ID associated with the item. */
+  @Property(schema = {"minimum", "0"})
   public int i_im_id;
 
-  @Property()
-  // The name of the item.
+  /** The name of the item. */
+  @Property(schema = {"maxLength", "24"})
   public String i_name;
 
-  @Property()
-  // The price of the item.
+  /** The price of the item. */
+  @Property(schema = {"minimum", "0"})
   public Double i_price;
 
-  @Property()
-  // Brand information.
+  /** Brand information. */
+  @Property(schema = {"maxLength", "50"})
   public String i_data;
 }

@@ -22,16 +22,10 @@ import hu.bme.mit.ftsrg.tpcc.TPCC;
 import hu.bme.mit.ftsrg.tpcc.entries.*;
 import hu.bme.mit.ftsrg.tpcc.inputs.*;
 import java.util.logging.Logger;
-import org.hyperledger.fabric.contract.annotation.DataType;
 
-// import com.fasterxml.jackson.databind.ObjectMapper;
-
-@DataType
 public class ParseUtils {
   static Gson gson = new Gson();
   private static final Logger LOGGER = Logger.getLogger(TPCC.class.getName());
-
-  // private ObjectMapper objectMapper = new ObjectMapper();
 
   /**
    * Parses the parameters of a New Order TX. (To enable IDE code completion)

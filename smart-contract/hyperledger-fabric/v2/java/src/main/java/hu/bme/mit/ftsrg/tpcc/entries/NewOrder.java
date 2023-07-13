@@ -20,19 +20,18 @@ package hu.bme.mit.ftsrg.tpcc.entries;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
-@DataType()
+@DataType
 public class NewOrder {
-  @Property()
-  // The order ID. Primary key.
+
+  /** The order ID. Primary key. */
+  @Property(schema = {"minimum", "0"})
   public int no_o_id;
 
-  @Property()
-  // The district ID associated with the order. Primary key.
+  /** The district ID associated with the order. Primary key. */
+  @Property(schema = {"minimum", "0"})
   public int no_d_id;
 
-  @Property()
-  // The warehouse ID associated with the order. Primary key.
+  /** The warehouse ID associated with the order. Primary key. */
+  @Property(schema = {"minimum", "0"})
   public int no_w_id;
-
-  public NewOrder() {}
 }

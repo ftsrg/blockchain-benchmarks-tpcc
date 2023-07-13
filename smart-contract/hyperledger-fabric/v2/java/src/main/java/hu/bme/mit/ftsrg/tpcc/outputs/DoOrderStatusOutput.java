@@ -5,29 +5,33 @@ import java.util.List;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
-@DataType()
+@DataType
 public class DoOrderStatusOutput {
-  @Property() public int w_id;
 
-  @Property() public int d_id;
+  @Property(schema = {"minimum", "0"})
+  public int w_id;
 
-  @Property() public int c_id;
+  @Property(schema = {"minimum", "0"})
+  public int d_id;
 
-  @Property() public String c_first;
+  @Property(schema = {"minimum", "0"})
+  public int c_id;
 
-  @Property() public String c_middle;
+  @Property(schema = {"maxLength", "16"})
+  public String c_first;
 
-  @Property() public String c_last;
+  @Property(schema = {"minLength", "2", "maxLength", "2"})
+  public String c_middle;
 
-  @Property() public Double c_balance;
+  @Property(schema = {"maxLength", "16"})
+  public String c_last;
 
-  @Property() public int o_id;
+  @Property public Double c_balance;
 
-  @Property() public String o_entry_d;
+  @Property(schema = {"minimum", "0"})
+  public int o_id;
 
-  @Property() public int o_carrier_id;
-
-  @Property() public List<OrderLineData> order_lines;
-
-  public DoOrderStatusOutput() {}
+  @Property public String o_entry_d;
+  @Property public int o_carrier_id;
+  @Property public List<OrderLineData> order_lines;
 }

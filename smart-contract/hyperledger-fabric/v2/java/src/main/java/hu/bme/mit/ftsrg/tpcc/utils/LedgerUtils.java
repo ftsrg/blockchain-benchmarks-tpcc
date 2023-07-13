@@ -30,12 +30,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 import org.hyperledger.fabric.contract.Context;
-import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.shim.ledger.CompositeKey;
 import org.hyperledger.fabric.shim.ledger.KeyValue;
 
 /** Utility functions for accessing the state database. */
-@DataType()
 public class LedgerUtils {
   private static final Logger LOGGER = Logger.getLogger(TPCC.class.getName());
   static Gson gson = new Gson();

@@ -20,13 +20,16 @@ package hu.bme.mit.ftsrg.tpcc.outputs;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
-@DataType()
+@DataType
 public class DeliveredOrder {
-  @Property() public int d_id;
 
-  @Property() public int o_id;
+  @Property(schema = {"minimum", "0"})
+  public int d_id;
 
-  public DeliveredOrder(int d_id, int o_id) {
+  @Property(schema = {"minimum", "0"})
+  public int o_id;
+
+  public DeliveredOrder(final int d_id, final int o_id) {
     this.d_id = d_id;
     this.o_id = o_id;
   }

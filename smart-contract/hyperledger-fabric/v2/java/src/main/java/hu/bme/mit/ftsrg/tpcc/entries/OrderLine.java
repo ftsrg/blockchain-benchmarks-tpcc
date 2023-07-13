@@ -17,53 +17,47 @@ SPDX-License-Identifier: Apache-2.0
 
 package hu.bme.mit.ftsrg.tpcc.entries;
 
-// import java.util.Date;
-
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
-@DataType()
+@DataType
 public class OrderLine {
 
-  public OrderLine() {}
-
-  @Property()
-  // The order ID associated with the order line. Primary key.
+  /** The order ID associated with the order line. Primary key. */
+  @Property(schema = {"minimum", "0"})
   public int ol_o_id;
 
-  @Property()
-  // The district ID associated with the order line. Primary key.
+  /** The district ID associated with the order line. Primary key. */
+  @Property(schema = {"minimum", "0"})
   public int ol_d_id;
 
-  @Property()
-  // The warehouse ID associated with the order line. Primary key.
+  /** The warehouse ID associated with the order line. Primary key. */
+  @Property(schema = {"minimum", "0"})
   public int ol_w_id;
 
-  @Property()
-  // The number/position/index of the order line. Primary key.
+  /** The number/position/index of the order line. Primary key. */
+  @Property(schema = {"minimum", "0"})
   public int ol_number;
 
-  @Property()
-  // The item ID associated with the order line.
+  /** The item ID associated with the order line. */
+  @Property(schema = {"minimum", "0"})
   public int ol_i_id;
 
-  @Property()
-  // The ID of the supplying warehouse.
+  /** The ID of the supplying warehouse. */
+  @Property(schema = {"minimum", "0"})
   public int ol_supply_w_id;
 
-  @Property()
-  // The date of delivery.
-  public String ol_delivery_d;
+  /** The date of delivery. */
+  @Property public String ol_delivery_d;
 
-  @Property()
-  // The quantity of items in the order line.
+  /** The quantity of items in the order line. */
+  @Property(schema = {"minimum", "0"})
   public int ol_quantity;
 
-  @Property()
-  // The amount to pay.
-  public Double ol_amount;
+  /** The amount to pay. */
+  @Property public Double ol_amount;
 
-  @Property()
-  // Information about the district.
+  /** Information about the district. */
+  @Property(schema = {"maxLength", "24"})
   public String ol_dist_info;
 }

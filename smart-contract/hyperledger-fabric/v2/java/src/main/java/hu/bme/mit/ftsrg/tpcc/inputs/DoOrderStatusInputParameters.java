@@ -20,32 +20,22 @@ package hu.bme.mit.ftsrg.tpcc.inputs;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
-@DataType()
+@DataType
 public class DoOrderStatusInputParameters {
 
-  @Property()
-  // The warehouse ID.
+  /** The warehouse ID. */
+  @Property(schema = {"minimum", "0"})
   public int w_id;
 
-  @Property()
-  // The district ID.
+  /** The district ID. */
+  @Property(schema = {"minimum", "0"})
   public int d_id;
 
-  @Property()
-  // The customer ID if provided.
+  /** The customer ID if provided. */
+  @Property(schema = {"minimum", "0"})
   public int c_id;
 
-  @Property()
-  // The last name of the customer if provided.
+  /** The last name of the customer if provided. */
+  @Property(schema = {"maxLength", "16"})
   public String c_last;
-
-  public DoOrderStatusInputParameters() {}
-
-  // public OrderStatusParameters(int w_id, int d_id, int c_id, String c_last){
-  //    this.w_id = w_id;
-  //    this.d_id = d_id;
-  //    this.c_id = c_id;
-  //    this.c_last = c_last;
-  // }
-
 }

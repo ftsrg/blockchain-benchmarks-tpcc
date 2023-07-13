@@ -5,8 +5,9 @@ import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import org.hyperledger.fabric.contract.annotation.DataType;
 
-@DataType()
+@DataType
 public class EntityBase implements EntityInterface {
+
   Gson gson = new Gson();
 
   public EntityBase() {}

@@ -3,26 +3,36 @@ package hu.bme.mit.ftsrg.tpcc.entries;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
-@DataType()
+@DataType
 public class ItemsData {
-  @Property() int ol_supply_w_id;
-  @Property() int ol_i_id;
-  @Property() String i_name;
-  @Property() int ol_quantity;
-  @Property() int s_quantity;
-  @Property() String brand_generic;
-  @Property() Double i_price;
-  @Property() Double ol_amount;
+
+  @Property(schema = {"minimum", "0"})
+  int ol_supply_w_id;
+
+  @Property(schema = {"minimum", "0"})
+  int ol_i_id;
+
+  @Property(schema = {"maxLength", "24"})
+  String i_name;
+
+  @Property int ol_quantity;
+  @Property int s_quantity;
+  @Property String brand_generic;
+
+  @Property(schema = {"minimum", "0"})
+  Double i_price;
+
+  @Property Double ol_amount;
 
   public ItemsData(
-      int ol_supply_w_id,
-      int ol_i_id,
-      String i_name,
-      int ol_quantity,
-      int s_quantity,
-      String brand_generic,
-      Double i_price,
-      Double ol_amount) {
+      final int ol_supply_w_id,
+      final int ol_i_id,
+      final String i_name,
+      final int ol_quantity,
+      final int s_quantity,
+      final String brand_generic,
+      final Double i_price,
+      final Double ol_amount) {
     this.ol_supply_w_id = ol_supply_w_id;
     this.ol_i_id = ol_i_id;
     this.i_name = i_name;

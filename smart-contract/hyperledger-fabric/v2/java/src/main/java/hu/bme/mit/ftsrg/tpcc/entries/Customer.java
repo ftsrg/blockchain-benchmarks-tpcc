@@ -20,111 +20,110 @@ package hu.bme.mit.ftsrg.tpcc.entries;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
-@DataType()
+@DataType
 public class Customer {
-  // The customer ID. Primary key.
-  @Property() public int c_id;
 
-  @Property()
-  // The district ID associated with the customer. Primary key.
+  /** The customer ID. Primary key. */
+  @Property(schema = {"minimum", "0"})
+  public int c_id;
+
+  /** The district ID associated with the customer. Primary key. */
+  @Property(schema = {"minimum", "0"})
   public int c_d_id;
 
-  @Property()
-  // The warehouse ID associated with the customer. Primary key.
+  /** The warehouse ID associated with the customer. Primary key. */
+  @Property(schema = {"minimum", "0"})
   public int c_w_id;
 
-  @Property() // The first name of the customer.
+  /** The first name of the customer. */
+  @Property(schema = {"maxLength", "16"})
   public String c_first;
 
-  @Property() // The middle name of the customer.
+  /** The middle name of the customer. */
+  @Property(schema = {"minLength", "2", "maxLength", "2"})
   public String c_middle;
 
-  @Property()
-  // The last name of the customer.
+  /** The last name of the customer. */
+  @Property(schema = {"maxLength", "16"})
   public String c_last;
 
-  @Property()
-  // The first street name of the customer.
+  /** The first street name of the customer. */
+  @Property(schema = {"maxLength", "20"})
   public String c_street_1;
 
-  @Property()
-  // The second street name of the customer.
+  /** The second street name of the customer. */
+  @Property(schema = {"maxLength", "20"})
   public String c_street_2;
 
-  @Property()
-  // The city of the customer.
+  /** The city of the customer. */
+  @Property(schema = {"maxLength", "20"})
   public String c_city;
 
-  @Property()
-  // The state of the customer.
+  /** The state of the customer. */
+  @Property(schema = {"pattern", "[a-zA-Z]{2}"})
   public String c_state;
 
-  @Property()
-  // The ZIP code of the customer.
+  /** The ZIP code of the customer. */
+  @Property(schema = {"pattern", "[0-9]{4}1111"})
   public String c_zip;
 
-  @Property()
-  // The phone number of the customer
+  /** The phone number of the customer */
+  @Property(schema = {"minLength", "16", "maxLength", "16"})
   public String c_phone;
 
-  @Property()
-  // The date when the customer was registered.
-  public String c_since;
+  /** The date when the customer was registered. */
+  @Property public String c_since;
 
-  @Property()
-  // The credit classification of the customer (GC or BC).
+  /** The credit classification of the customer (GC or BC). */
+  @Property(schema = {"pattern", "[GB]C"})
   public String c_credit;
 
-  @Property()
-  // The credit limit of the customer.
-  public int c_credit_lim;
+  /** The credit limit of the customer. */
+  @Property public int c_credit_lim;
 
-  @Property()
-  // The discount for the customer.
-  public Double c_discount;
+  /** The discount for the customer. */
+  @Property public Double c_discount;
 
-  @Property()
-  // The balance of the customer.
-  public Double c_balance;
+  /** The balance of the customer. */
+  @Property public Double c_balance;
 
-  @Property()
-  // The year to date payment of the customer.
-  public int c_ytd_payment;
+  /** The year to date payment of the customer. */
+  @Property public int c_ytd_payment;
 
-  @Property()
-  // The number of times the customer paid.
+  /** The number of times the customer paid. */
+  @Property(schema = {"minimum", "0"})
   public int c_payment_cnt;
 
-  @Property()
-  // The number of times a delivery was made for the customer.
+  /** The number of times a delivery was made for the customer. */
+  @Property(schema = {"minimum", "0"})
   public int c_delivery_cnt;
 
-  @Property()
-  // Arbitrary information.
+  /** Arbitrary information. */
+  @Property(schema = {"maxLength", "500"})
   public String c_data;
 
   public Customer(
-      int c_id,
-      int c_d_id,
-      int c_w_id,
-      String c_first,
-      String c_middle,
-      String c_last,
-      String c_street_1,
-      String c_street_2,
-      String c_city,
-      String c_state,
-      String c_zip,
-      String c_phone,
-      String c_since,
-      String c_credit,
-      int c_credit_lim,
-      Double c_discount,
-      Double c_balance,
-      int c_ytd_payment,
-      int c_payment_cnt,
-      int c_delivery_cnt,
-      String c_data) {
+      final int c_id,
+      final int c_d_id,
+      final int c_w_id,
+      final String c_first,
+      final String c_middle,
+      final String c_last,
+      final String c_street_1,
+      final String c_street_2,
+      final String c_city,
+      final String c_state,
+      final String c_zip,
+      final String c_phone,
+      final String c_since,
+      final String c_credit,
+      final int c_credit_lim,
+      final Double c_discount,
+      final Double c_balance,
+      final int c_ytd_payment,
+      final int c_payment_cnt,
+      final int c_delivery_cnt,
+      final String c_data) {
     this.c_id = c_id;
     this.c_d_id = c_d_id;
     this.c_w_id = c_w_id;

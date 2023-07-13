@@ -20,35 +20,30 @@ package hu.bme.mit.ftsrg.tpcc.inputs;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
-@DataType()
+@DataType
 public class DoNewOrderInputParameters {
-  @Property()
-  // The warehouse ID.
+
+  /** The warehouse ID. */
+  @Property(schema = {"minimum", "0"})
   public int w_id;
 
-  @Property()
-  // The district ID.
+  /** The district ID. */
+  @Property(schema = {"minimum", "0"})
   public int d_id;
 
-  @Property()
-  // The customer ID.
+  /** The customer ID. */
+  @Property(schema = {"minimum", "0"})
   public int c_id;
 
-  @Property()
-  // The date ISO string for the order entry.
-  public String o_entry_d;
+  /** The date ISO string for the order entry. */
+  @Property public String o_entry_d;
 
-  @Property()
-  // The array of item IDs for the order lines.
-  public int[] i_ids;
+  /** The array of item IDs for the order lines. */
+  @Property public int[] i_ids;
 
-  @Property()
-  // The array of warehouse IDs for the order lines.
-  public int[] i_w_ids;
+  /** The array of warehouse IDs for the order lines. */
+  @Property public int[] i_w_ids;
 
-  @Property()
-  // The array of quantities for the order lines.
-  public int[] i_qtys;
-
-  public DoNewOrderInputParameters() {}
+  /** The array of quantities for the order lines. */
+  @Property public int[] i_qtys;
 }
