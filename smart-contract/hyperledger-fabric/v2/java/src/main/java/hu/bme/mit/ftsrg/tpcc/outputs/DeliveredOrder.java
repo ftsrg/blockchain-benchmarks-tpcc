@@ -21,7 +21,7 @@ import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
 @DataType()
-public class DeliveredOrder {
+public class DeliveredOrder extends EntityBase{
   @Property() public int d_id;
 
   @Property() public int o_id;

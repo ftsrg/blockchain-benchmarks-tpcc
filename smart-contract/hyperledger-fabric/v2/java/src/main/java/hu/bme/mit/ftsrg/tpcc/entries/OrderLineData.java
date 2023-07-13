@@ -6,7 +6,7 @@ import org.hyperledger.fabric.contract.annotation.Property;
 // import java.util.Date;
 
 @DataType()
-public class OrderLineData {
+public class OrderLineData extends EntityBase{
   @Property() public int ol_supply_w_id;
   @Property() public int ol_i_id;
   @Property() public int ol_quantity;

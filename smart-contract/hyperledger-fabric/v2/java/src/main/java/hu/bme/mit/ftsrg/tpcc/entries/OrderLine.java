@@ -23,7 +23,7 @@ import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
 @DataType()
-public class OrderLine {
+public class OrderLine extends EntityBase{
 
   public OrderLine() {}
 

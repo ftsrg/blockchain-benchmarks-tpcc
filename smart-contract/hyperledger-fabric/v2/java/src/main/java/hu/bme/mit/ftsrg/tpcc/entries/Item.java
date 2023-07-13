@@ -21,7 +21,7 @@ import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
 @DataType()
-public class Item {
+public class Item extends EntityBase{
 
   public Item() {}
 

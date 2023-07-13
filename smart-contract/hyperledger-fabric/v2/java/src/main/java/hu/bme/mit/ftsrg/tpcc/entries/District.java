@@ -21,7 +21,7 @@ import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
 @DataType()
-public class District {
+public class District extends EntityBase{
   @Property()
   // The district ID. Primary key.
   public int d_id;

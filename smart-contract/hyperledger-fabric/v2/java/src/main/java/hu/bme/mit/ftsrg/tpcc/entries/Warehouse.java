@@ -21,7 +21,7 @@ import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
 @DataType
-public class Warehouse {
+public class Warehouse extends EntityBase{
   @Property()
   // The warehouse ID. Primary key.
   public int w_id;

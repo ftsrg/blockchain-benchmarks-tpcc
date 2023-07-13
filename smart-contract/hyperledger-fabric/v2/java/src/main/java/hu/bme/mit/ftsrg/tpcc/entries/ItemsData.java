@@ -4,7 +4,7 @@ import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
 @DataType()
-public class ItemsData {
+public class ItemsData extends EntityBase{
   @Property() int ol_supply_w_id;
   @Property() int ol_i_id;
   @Property() String i_name;
