@@ -12,17 +12,30 @@ import org.hyperledger.fabric.shim.ledger.CompositeKey;
 public class Create {
   static Gson gson = new Gson();
 
-  public static void createWarehouse(Context ctx, Object entry) throws Exception {
-    Warehouse warehouse =
-        entry instanceof String ? ParseUtils.parseWarehouse((String) entry) : (Warehouse) entry;
-    createEntry(ctx, TABLES.WAREHOUSE, new String[] {Common.pad(warehouse.w_id)}, entry);
+  public static Warehouse getWarehouse(Context ctx, int w_id) throws Exception {
+    String entry = getEntry(ctx, TABLES.WAREHOUSE, new String[] {Common.pad(w_id)});
+    if (entry == null) {
+      throw new Exception("Could not retrieve Warehouse(" + w_id + ")");
+    }
+    return entry != null ? ParseUtils.parseWarehouse(entry) : null;
   }
 
-  public static void createEntry(Context ctx, String type, String[] keyParts, Object entry)
-      throws Exception {
-    CompositeKey key = ctx.getStub().createCompositeKey(type, keyParts);
-    String entryString = entry instanceof String ? (String) entry : gson.toJson(entry);
-    byte[] buffer = entryString.getBytes(StandardCharsets.UTF_8);
-    ctx.getStub().putState(key.toString(), buffer);
+  public static String getEntry(Context ctx, String type, String[] keyParts) throws Exception {
+    CompositeKey key = ctx.getStub().createCompositeKey(type, keyParts);   
+    byte[] data = ctx.getStub().getState(key.toString());
+  
+    if (data.length > 0) {
+      String entry = new String(data, StandardCharsets.UTF_8);
+      return entry;
+    }
+    return null;
+  }
+
+
+
+  
+  public Object getWarehouseEntry(){
+    
+    return null;
   }
 }
