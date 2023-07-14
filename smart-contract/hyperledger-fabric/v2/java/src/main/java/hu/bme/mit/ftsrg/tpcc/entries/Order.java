@@ -14,11 +14,12 @@
 
 package hu.bme.mit.ftsrg.tpcc.entries;
 
+import hu.bme.mit.ftsrg.tpcc.entities.EntityBase;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
 @DataType()
-public class Order extends EntityBase{
+public class Order extends EntityBase {
   @Property()
   // The order ID. Primary key.
   public int o_id;

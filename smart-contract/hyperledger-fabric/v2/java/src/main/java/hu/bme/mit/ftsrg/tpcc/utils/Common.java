@@ -36,7 +36,7 @@ public class Common {
    * string, STOCK: string}}
    */
   public class TABLES {
-    static final String WAREHOUSE = "WAREHOUSE";
+    public static final String WAREHOUSE = "WAREHOUSE";
     static final String DISTRICT = "DISTRICT";
     static final String CUSTOMER = "CUSTOMER";
     static final String CUSTOMER_LAST_NAME = "CUSTOMER_LAST_NAME";

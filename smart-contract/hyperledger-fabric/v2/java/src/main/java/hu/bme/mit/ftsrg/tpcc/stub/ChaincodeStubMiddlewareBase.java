@@ -19,7 +19,7 @@ public class ChaincodeStubMiddlewareBase implements ChaincodeStub {
     this.nextLayer = nextLayer;
   }
 
-  private ChaincodeStub nextLayer;
+  protected ChaincodeStub nextLayer;
 
   @Override
   public List<byte[]> getArgs() {

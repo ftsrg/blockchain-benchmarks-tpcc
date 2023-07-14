@@ -1,12 +1,13 @@
 package hu.bme.mit.ftsrg.tpcc.entries;
 
+import hu.bme.mit.ftsrg.tpcc.entities.EntityBase;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
 // import java.util.Date;
 
 @DataType()
-public class OrderLineData extends EntityBase{
+public class OrderLineData extends EntityBase {
   @Property() public int ol_supply_w_id;
   @Property() public int ol_i_id;
   @Property() public int ol_quantity;
