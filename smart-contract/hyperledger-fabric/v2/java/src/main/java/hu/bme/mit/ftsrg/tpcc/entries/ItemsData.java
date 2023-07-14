@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
 package hu.bme.mit.ftsrg.tpcc.entries;
 
 import org.hyperledger.fabric.contract.annotation.DataType;

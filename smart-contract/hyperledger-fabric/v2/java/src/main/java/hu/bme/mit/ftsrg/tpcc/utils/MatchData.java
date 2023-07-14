@@ -1,6 +1,9 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
 package hu.bme.mit.ftsrg.tpcc.utils;
 
 public class MatchData {
+
   public enum MatchType {
     CUSTOMER_LAST_NAME,
     ORDER_CUSTOMER_ID,

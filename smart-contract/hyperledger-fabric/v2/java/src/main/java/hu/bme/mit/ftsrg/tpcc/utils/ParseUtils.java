@@ -1,19 +1,4 @@
-/*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-/*
-SPDX-License-Identifier: Apache-2.0
-*/
+/* SPDX-License-Identifier: Apache-2.0 */
 
 package hu.bme.mit.ftsrg.tpcc.utils;
 
@@ -24,6 +9,7 @@ import hu.bme.mit.ftsrg.tpcc.inputs.*;
 import java.util.logging.Logger;
 
 public class ParseUtils {
+
   static Gson gson = new Gson();
   private static final Logger LOGGER = Logger.getLogger(TPCC.class.getName());
 
@@ -34,8 +20,6 @@ public class ParseUtils {
    * @return The parsed parameters.
    */
   public static DoNewOrderInputParameters parseNewOrderParameters(String params) throws Exception {
-    // return objectMapper.readValue(params, NewOrderParameters.class);
-    // return gson.fromJson(params, NewOrderParameters.class);
     DoNewOrderInputParameters newOrderParams =
         gson.fromJson(params, DoNewOrderInputParameters.class);
     return newOrderParams;
@@ -48,7 +32,6 @@ public class ParseUtils {
    * @return {PaymentParameters} The parsed parameters.
    */
   public static DoPaymentInputParameters parsePaymentParameters(String params) throws Exception {
-    // return objectMapper.readValue(params, PaymentParameters.class);
     DoPaymentInputParameters paymentParams = gson.fromJson(params, DoPaymentInputParameters.class);
     return paymentParams;
   }
@@ -60,7 +43,6 @@ public class ParseUtils {
    * @return {DeliveryParameters} The parsed parameters.
    */
   public static DoDeliveryInputParameters parseDeliveryParameters(String params) throws Exception {
-    // return objectMapper.readValue(params, DeliveryParameters.class);
     LOGGER.info("Parse Delivery parameters " + params);
     DoDeliveryInputParameters deliveryParams =
         gson.fromJson(params, DoDeliveryInputParameters.class);
@@ -76,7 +58,6 @@ public class ParseUtils {
    */
   public static DoOrderStatusInputParameters parseOrderStatusParameters(String params)
       throws Exception {
-    // return objectMapper.readValue(params, OrderStatusParameters.class);
     DoOrderStatusInputParameters oStatusParams =
         gson.fromJson(params, DoOrderStatusInputParameters.class);
     return oStatusParams;

@@ -1,19 +1,4 @@
-/*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http =//www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-/*
-SPDX-License-Identifier = Apache-2.0
-*/
+/* SPDX-License-Identifier: Apache-2.0 */
 
 package hu.bme.mit.ftsrg.tpcc;
 
@@ -53,8 +38,6 @@ import org.json.JSONObject;
 @Default
 public class TPCC implements ContractInterface {
 
-  public TPCC() {}
-
   private static final Logger LOGGER = Logger.getLogger(TPCC.class.getName());
   Gson gson = new Gson();
 
@@ -76,16 +59,15 @@ public class TPCC implements ContractInterface {
       // For a given warehouse number (W_ID), for each of the districts (D_W_ID ,
       // D_ID)
       // within that warehouse, and for a given carrier number (O_CARRIER_ID):
-
       List<DeliveredOrder> deliveredOrders = new ArrayList<>();
       int skipped = 0;
       for (int d_id = 1; d_id <= 10; d_id++) {
         LOGGER.info("Begin for loop to retrieve oldest new orders from the various districts");
+
         // The row in the NEW-ORDER table with matching NO_W_ID (equals W_ID) and
         // NO_D_ID (equals D_ID) and with the lowest NO_O_ID value is selected.
         // This is the oldest undelivered order of that district.
         // NO_O_ID, the order number, is retrieved.
-
         NewOrder newOrder = LedgerUtils.getOldestNewOrder(ctx, params.w_id, d_id);
         LOGGER.info("Oldest new order retrieved is: " + gson.toJson(newOrder));
 
@@ -236,11 +218,11 @@ public class TPCC implements ContractInterface {
               + district.d_id
               + " retrieved");
       LOGGER.info(gson.toJson(customer));
+
       // A new row is inserted into both the NEW-ORDER table and the ORDER table to
       // reflect the creation of the new order. O_CARRIER_ID is set to a null value.
       // If the order includes only home order-lines, then O_ALL_LOCAL is set to 1,
       // otherwise O_ALL_LOCAL is set to 0.
-
       final NewOrder newOrder = new NewOrder();
       newOrder.no_o_id = nextOrderId;
       newOrder.no_d_id = district.d_id;
@@ -287,7 +269,6 @@ public class TPCC implements ContractInterface {
         // I_DATA are retrieved. If I_ID has an unused value (see Clause 2.4.1.5), a
         // "not-found" condition is signaled, resulting in a rollback of the
         // database transaction (see Clause 2.4.2.3).
-
         Item item = LedgerUtils.getItem(ctx, i_id);
         LOGGER.info("Retrived item " + gson.toJson(item) + " with item id " + i_id);
         if (item == null) {
@@ -296,7 +277,6 @@ public class TPCC implements ContractInterface {
           // terminal must display in the appropriate fields of the input/output
           // screen the fields: W_ID, D_ID, C_ID, C_LAST, C_CREDIT, O_ID, and the
           // execution status message "Item number is not valid".
-
           HashMap<String, Object> errorOutput = new HashMap<>();
           errorOutput.put("w_id", warehouse.w_id);
           errorOutput.put("d_id", district.d_id);
@@ -305,15 +285,6 @@ public class TPCC implements ContractInterface {
           errorOutput.put("c_credit", customer.c_credit);
           errorOutput.put("o_id", order.o_id);
           errorOutput.put("message", "Item number is not valid");
-
-          // ErrorOutput errorOutput = new ErrorOutput();
-          // errorOutput.w_id = warehouse.w_id;
-          // errorOutput.d_id = district.d_id;
-          // errorOutput.c_id= customer.c_id;
-          // errorOutput.c_last= customer.c_last;
-          // errorOutput.c_credit= customer.c_credit;
-          // errorOutput.o_id= order.o_id;
-          // errorOutput.message= "Item number is not valid'";
 
           LOGGER.info("Item not found. Error output:" + errorOutput.toString());
           throw new Exception(new JSONObject(errorOutput).toString());
@@ -368,9 +339,6 @@ public class TPCC implements ContractInterface {
         // represents the district number (OL_D_ID)
         String stockDistrictId = String.format("%02d", district.d_id);
 
-        // final OrderLine orderLine = new OrderLine(nextOrderId, district.d_id,
-        // warehouse.w_id, i + 1, i_id, i_w_id, null, i_qty, orderLineAmount, "s_dist_"
-        // + stockDistrictId);
         final OrderLine orderLine = new OrderLine();
         orderLine.ol_o_id = nextOrderId;
         orderLine.ol_d_id = district.d_id;
@@ -396,7 +364,6 @@ public class TPCC implements ContractInterface {
         // OL_QUANTITY, S_QUANTITY, brand_generic, I_PRICE, and OL_AMOUNT. The group
         // is repeated O_OL_CNT times (once per item in the order), equal to the
         // computed value of ol_cnt.
-
         itemsData.add(
             new ItemsData(
                 orderLine.ol_supply_w_id,
@@ -407,20 +374,11 @@ public class TPCC implements ContractInterface {
                 brandGeneric,
                 item.i_price,
                 orderLine.ol_amount));
-        // itemsData.add("ol_supply_w_id", orderLine.ol_supply_w_id);
-        // itemsData.add("ol_i_id", orderLine.ol_i_id);
-        // itemsData.add("i_name", item.i_name);
-        // itemsData.add("ol_quantity", orderLine.ol_quantity);
-        // itemsData.add("s_quantity", stock.s_quantity);
-        // itemsData.add("brand_generic", brandGeneric);
-        // itemsData.add("i_price", item.i_price);
-        // itemsData.add("ol_amount", orderLine.ol_amount);
         LOGGER.info("ItemsData" + gson.toJson(itemsData));
       }
 
       // The total-amount for the complete order is computed as:
       // sum(OL_AMOUNT) * (1 - C_DISCOUNT) * (1 + W_TAX + D_TAX)
-
       Double totalAmount =
           totalOrderLineAmount * (1 - customer.c_discount) * (1 + warehouse.w_tax + district.d_tax);
       LOGGER.info("total amount = " + totalAmount);
@@ -433,7 +391,6 @@ public class TPCC implements ContractInterface {
       // - One non-repeating group of fields: W_ID, D_ID, C_ID, O_ID, O_OL_CNT,
       // C_LAST, C_CREDIT, C_DISCOUNT, W_TAX, D_TAX, O_ENTRY_D, total_amount, and an
       // optional execution status message other than "Item number is not valid".
-
       DoNewOrderOutput output =
           new DoNewOrderOutput(
               warehouse.w_id,
@@ -503,7 +460,6 @@ public class TPCC implements ContractInterface {
       // OL_I_ID,
       // OL_SUPPLY_W_ID, OL_QUANTITY, OL_AMOUNT, and OL_DELIVERY_D are retrieved.
       // ctx.txinfo.md_tpcc_order_status_order_lines = order.o_ol_cnt;
-
       List<OrderLineData> orderLineData = new ArrayList<>();
 
       for (int i = 1; i <= order.o_ol_cnt; i++) {
@@ -535,7 +491,6 @@ public class TPCC implements ContractInterface {
       // OL_AMOUNT, and
       // OL_DELIVERY_D. The group is repeated O_OL_CNT times (once per item in the
       // order).
-
       DoOrderStatusOutput output = new DoOrderStatusOutput();
       output.w_id = params.w_id;
       output.d_id = params.d_id;
@@ -613,13 +568,6 @@ public class TPCC implements ContractInterface {
       // C_DATA field. The content of the C_DATA field never exceeds 500 characters.
       // The
       // selected customer is updated with the new C_DATA field.
-      // if (customer.c_credit == "BC") {
-      // String history = String.join(" ",customer.c_id, customer.c_d_id,
-      // customer.c_w_id, district.d_id, warehouse.w_id, params.h_amount);
-      // customer.c_data = history + '|' + customer.c_data;
-      // if (customer.c_data.length > 500)
-      // customer.c_data = customer.c_data.slice(0, 500);
-      // }
       if (customer.c_credit.equals("BC")) {
         String history =
             customer.c_id
@@ -656,7 +604,6 @@ public class TPCC implements ContractInterface {
       LOGGER.info("customer updated with the new C_DATA field.");
 
       // H_DATA is built by concatenating W_NAME and D_NAME separated by 4 spaces.
-      // let h_data = warehouse.w_name + ' '.repeat(4) + district.d_name;
       String h_data = warehouse.w_name + "    " + district.d_name;
 
       // A new row is inserted into the HISTORY table with H_C_ID = C_ID,
@@ -1056,7 +1003,7 @@ public class TPCC implements ContractInterface {
   //@ requires c_id < 2;
   // spotless:on
   @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String OJMTEST__getCustomer(Context ctx, int c_w_id, int c_d_id, int c_id)
+  public String OJMLTEST__getCustomer(Context ctx, int c_w_id, int c_d_id, int c_id)
       throws Exception {
     return gson.toJson(LedgerUtils.getCustomer(ctx, c_w_id, c_d_id, c_id));
   }

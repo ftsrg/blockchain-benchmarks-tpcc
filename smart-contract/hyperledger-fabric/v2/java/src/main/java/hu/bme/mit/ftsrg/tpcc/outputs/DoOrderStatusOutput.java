@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
 package hu.bme.mit.ftsrg.tpcc.outputs;
 
 import hu.bme.mit.ftsrg.tpcc.entries.OrderLineData;
