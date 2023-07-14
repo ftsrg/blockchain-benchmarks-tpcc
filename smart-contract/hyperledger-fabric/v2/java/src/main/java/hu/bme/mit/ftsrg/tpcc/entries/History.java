@@ -19,7 +19,7 @@ package hu.bme.mit.ftsrg.tpcc.entries;
 
 import hu.bme.mit.ftsrg.tpcc.entities.EntityBase;
 import hu.bme.mit.ftsrg.tpcc.utils.Common;
-
+import hu.bme.mit.ftsrg.tpcc.utils.Common.TABLES;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
@@ -61,8 +61,12 @@ public class History extends EntityBase {
   public History() {}
 
   @Override
-  public String[] getKeyParts(){
-    return new String[] {Common.pad(h_c_w_id),Common.pad(h_c_d_id),Common.pad(h_c_id),h_date};
-    
+  public String[] getKeyParts() {
+    return new String[] {Common.pad(h_c_w_id), Common.pad(h_c_d_id), Common.pad(h_c_id), h_date};
+  }
+
+  @Override
+  public String getType() {
+    return TABLES.HISTORY;
   }
 }

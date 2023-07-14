@@ -11,23 +11,20 @@ public abstract class EntityBase implements EntityInterface {
 
   public EntityBase() {}
 
-  @Override
-  public String getType() {
-    
-    throw new UnsupportedOperationException("Unimplemented method 'getType'");
-  }
+  // @Override
+  // public String getType() {
+
+  //   throw new UnsupportedOperationException("Unimplemented method 'getType'");
+  // }
 
   // @Override
   // public String[] getKeyParts() {
-    
+
   //   throw new UnsupportedOperationException("Unimplemented method 'getKeyParts'");
   // }
 
   @Override
   public byte[] toBuffer() {
-    // return StandardCharsets.UTF_8.encode(gson.toJson(this)).array();
-    // return gson.toJson(this).getBytes(StandardCharsets.UTF_8);
-
     String entityToJson = gson.toJson(this);
     return entityToJson.getBytes(StandardCharsets.UTF_8);
   }

@@ -21,7 +21,7 @@ package hu.bme.mit.ftsrg.tpcc.entries;
 
 import hu.bme.mit.ftsrg.tpcc.entities.EntityBase;
 import hu.bme.mit.ftsrg.tpcc.utils.Common;
-
+import hu.bme.mit.ftsrg.tpcc.utils.Common.TABLES;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
@@ -71,8 +71,14 @@ public class OrderLine extends EntityBase {
   public String ol_dist_info;
 
   @Override
-  public String[] getKeyParts(){
+  public String[] getKeyParts() {
     return new String[] {
-      Common.pad(ol_w_id),Common.pad(ol_d_id),Common.pad(ol_o_id),Common.pad(ol_number)};
+      Common.pad(ol_w_id), Common.pad(ol_d_id), Common.pad(ol_o_id), Common.pad(ol_number)
+    };
+  }
+
+  @Override
+  public String getType() {
+    return TABLES.ORDER_LINE;
   }
 }

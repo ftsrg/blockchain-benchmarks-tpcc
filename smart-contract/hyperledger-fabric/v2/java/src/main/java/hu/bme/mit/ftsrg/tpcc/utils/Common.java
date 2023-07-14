@@ -37,15 +37,15 @@ public class Common {
    */
   public class TABLES {
     public static final String WAREHOUSE = "WAREHOUSE";
-    static final String DISTRICT = "DISTRICT";
-    static final String CUSTOMER = "CUSTOMER";
-    static final String CUSTOMER_LAST_NAME = "CUSTOMER_LAST_NAME";
-    static final String HISTORY = "HISTORY";
-    static final String NEW_ORDER = "NEW_ORDER";
-    static final String ORDERS = "ORDERS";
-    static final String ORDER_LINE = "ORDER_LINE";
-    static final String ITEM = "ITEM";
-    static final String STOCK = "STOCK";
+    public static final String DISTRICT = "DISTRICT";
+    public static final String CUSTOMER = "CUSTOMER";
+    public static final String CUSTOMER_LAST_NAME = "CUSTOMER_LAST_NAME";
+    public static final String HISTORY = "HISTORY";
+    public static final String NEW_ORDER = "NEW_ORDER";
+    public static final String ORDER = "ORDER";
+    public static final String ORDER_LINE = "ORDER_LINE";
+    public static final String ITEM = "ITEM";
+    public static final String STOCK = "STOCK";
   }
 
   // Logs the given debug message by appending the TX ID stub before it.

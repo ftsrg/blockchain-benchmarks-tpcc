@@ -1,11 +1,10 @@
 package hu.bme.mit.ftsrg.tpcc.entries;
 
-import hu.bme.mit.ftsrg.tpcc.entities.EntityBase;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
 @DataType()
-public class ItemsData extends EntityBase {
+public class ItemsData {
   @Property() int ol_supply_w_id;
   @Property() int ol_i_id;
   @Property() String i_name;
@@ -23,8 +22,7 @@ public class ItemsData extends EntityBase {
       int s_quantity,
       String brand_generic,
       Double i_price,
-      Double ol_amount) 
-    {
+      Double ol_amount) {
     this.ol_supply_w_id = ol_supply_w_id;
     this.ol_i_id = ol_i_id;
     this.i_name = i_name;
@@ -34,5 +32,4 @@ public class ItemsData extends EntityBase {
     this.i_price = i_price;
     this.ol_amount = ol_amount;
   }
-
 }

@@ -19,7 +19,7 @@ package hu.bme.mit.ftsrg.tpcc.entries;
 
 import hu.bme.mit.ftsrg.tpcc.entities.EntityBase;
 import hu.bme.mit.ftsrg.tpcc.utils.Common;
-
+import hu.bme.mit.ftsrg.tpcc.utils.Common.TABLES;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
@@ -150,11 +150,14 @@ public class Customer extends EntityBase {
     this.c_delivery_cnt = c_delivery_cnt;
     this.c_data = c_data;
   }
+
   @Override
-  public String[] getKeyParts(){
-    return new String[] {
-      Common.pad(c_w_id), Common.pad(c_d_id), Common.pad(c_id)
-    };
-    
+  public String[] getKeyParts() {
+    return new String[] {Common.pad(c_w_id), Common.pad(c_d_id), Common.pad(c_id)};
+  }
+
+  @Override
+  public String getType() {
+    return TABLES.CUSTOMER;
   }
 }

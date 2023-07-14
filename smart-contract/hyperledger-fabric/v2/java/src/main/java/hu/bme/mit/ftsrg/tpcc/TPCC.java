@@ -21,12 +21,12 @@ import com.google.gson.Gson;
 import hu.bme.mit.ftsrg.tpcc.entries.*;
 import hu.bme.mit.ftsrg.tpcc.inputs.*;
 import hu.bme.mit.ftsrg.tpcc.outputs.*;
+import hu.bme.mit.ftsrg.tpcc.stub.EnhancedContext;
 import hu.bme.mit.ftsrg.tpcc.utils.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
-import org.hyperledger.fabric.contract.Context;
 import org.hyperledger.fabric.contract.ContractInterface;
 import org.hyperledger.fabric.contract.annotation.Contact;
 import org.hyperledger.fabric.contract.annotation.Contract;
@@ -66,7 +66,7 @@ public class TPCC implements ContractInterface {
    * @return The JSON encoded query results according to the specification.
    */
   @Transaction(intent = Transaction.TYPE.SUBMIT)
-  public String doDelivery(Context ctx, String parameters) {
+  public String doDelivery(EnhancedContext ctx, String parameters) {
     // addTxInfo(ctx);
 
     // TPC-C 2.7.4.2
@@ -194,7 +194,7 @@ public class TPCC implements ContractInterface {
    * @return {Promise<{object}>} The JSON encoded query results according to the specification.
    */
   @Transaction(intent = Transaction.TYPE.SUBMIT)
-  public String doNewOrder(Context ctx, String parameters) {
+  public String doNewOrder(EnhancedContext ctx, String parameters) {
     // addTxInfo(ctx);
     // TPC-C 2.4.2.2
     // common.log("Starting NewOrder TX with parameters" + parameters, ctx, "info");
@@ -306,15 +306,6 @@ public class TPCC implements ContractInterface {
           errorOutput.put("o_id", order.o_id);
           errorOutput.put("message", "Item number is not valid");
 
-          // ErrorOutput errorOutput = new ErrorOutput();
-          // errorOutput.w_id = warehouse.w_id;
-          // errorOutput.d_id = district.d_id;
-          // errorOutput.c_id= customer.c_id;
-          // errorOutput.c_last= customer.c_last;
-          // errorOutput.c_credit= customer.c_credit;
-          // errorOutput.o_id= order.o_id;
-          // errorOutput.message= "Item number is not valid'";
-
           LOGGER.info("Item not found. Error output:" + errorOutput.toString());
           throw new Exception(new JSONObject(errorOutput).toString());
         }
@@ -407,14 +398,6 @@ public class TPCC implements ContractInterface {
                 brandGeneric,
                 item.i_price,
                 orderLine.ol_amount));
-        // itemsData.add("ol_supply_w_id", orderLine.ol_supply_w_id);
-        // itemsData.add("ol_i_id", orderLine.ol_i_id);
-        // itemsData.add("i_name", item.i_name);
-        // itemsData.add("ol_quantity", orderLine.ol_quantity);
-        // itemsData.add("s_quantity", stock.s_quantity);
-        // itemsData.add("brand_generic", brandGeneric);
-        // itemsData.add("i_price", item.i_price);
-        // itemsData.add("ol_amount", orderLine.ol_amount);
         LOGGER.info("ItemsData" + gson.toJson(itemsData));
       }
 
@@ -471,7 +454,7 @@ public class TPCC implements ContractInterface {
    * @return The JSON encoded query results according to the specification.
    */
   @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String doOrderStatus(Context ctx, String parameters) {
+  public String doOrderStatus(EnhancedContext ctx, String parameters) {
     // TPC-C 2.6.2.2
     // log(`Starting Order Status TX with parameters: ${parameters}`, ctx, 'info');
     try {
@@ -566,7 +549,7 @@ public class TPCC implements ContractInterface {
    * @return The JSON encoded query results according to the specification.
    */
   @Transaction(intent = Transaction.TYPE.SUBMIT)
-  public String doPayment(Context ctx, String parameters) {
+  public String doPayment(EnhancedContext ctx, String parameters) {
     // addTxInfo(ctx);
     // TPC-C 2.5.2.2
     LOGGER.info("Starting Payment TX with parameters: " + parameters);
@@ -739,7 +722,7 @@ public class TPCC implements ContractInterface {
    * @return The JSON encoded query results according to the specification.
    */
   @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String doStockLevel(Context ctx, String parameters) {
+  public String doStockLevel(EnhancedContext ctx, String parameters) {
     // addTxInfo(ctx);
     // TPC-C 2.8.2.2
     LOGGER.info("Starting Stock Level TX with parameters: " + parameters);
@@ -813,13 +796,13 @@ public class TPCC implements ContractInterface {
    * @param ctx The TX context.
    */
   @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public void instantiate(Context ctx) {
+  public void instantiate(EnhancedContext ctx) {
     Common.log("Instantiating TPC-C chaincode", ctx, "info");
     LOGGER.info("Instantiating TPC-C chaincode");
   }
 
   @Transaction(intent = Transaction.TYPE.SUBMIT)
-  public void initEntries(Context ctx) {
+  public void initEntries(EnhancedContext ctx) {
     LOGGER.info("Starting initEntries");
     try {
       Warehouse warehouse = new Warehouse();
@@ -1007,7 +990,7 @@ public class TPCC implements ContractInterface {
   }
 
   @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String readWarehouseEntry(Context ctx, int w_id) throws Exception {
+  public String readWarehouseEntry(EnhancedContext ctx, int w_id) throws Exception {
     LOGGER.info("Attemp to retrieve warehouse details  for " + w_id);
     Warehouse warehouse = LedgerUtils.getWarehouse(ctx, w_id);
     LOGGER.info("Warehouse " + warehouse.w_id + " Exist. " + gson.toJson(warehouse) + " returned");
@@ -1015,7 +998,7 @@ public class TPCC implements ContractInterface {
   }
 
   @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String getOrderEntry(Context ctx, int w_id, int d_id, int o_id) throws Exception {
+  public String getOrderEntry(EnhancedContext ctx, int w_id, int d_id, int o_id) throws Exception {
     LOGGER.info("retrieve details  for existing order entry" + w_id);
     Order order = LedgerUtils.getOrder(ctx, w_id, d_id, o_id);
     LOGGER.info("Order " + order.o_id + " Exist. " + gson.toJson(order) + " returned");
@@ -1023,7 +1006,7 @@ public class TPCC implements ContractInterface {
   }
 
   @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String getItemEntry(Context ctx, int i_id) throws Exception {
+  public String getItemEntry(EnhancedContext ctx, int i_id) throws Exception {
     LOGGER.info("retrieve details  for existing item entry " + i_id);
     Item item = LedgerUtils.getItem(ctx, i_id);
     LOGGER.info("Item " + item.i_id + " Exist. " + gson.toJson(item) + " returned");
@@ -1031,7 +1014,8 @@ public class TPCC implements ContractInterface {
   }
 
   @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String getNewOrderEntry(Context ctx, int w_id, int d_id, int o_id) throws Exception {
+  public String getNewOrderEntry(EnhancedContext ctx, int w_id, int d_id, int o_id)
+      throws Exception {
     LOGGER.info(
         "Attemp to retrieve oldest new order details  for warehouse"
             + w_id
@@ -1043,7 +1027,7 @@ public class TPCC implements ContractInterface {
   }
 
   @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String ping(Context ctx) {
+  public String ping(EnhancedContext ctx) {
     LOGGER.info("Received ping");
     return "pong";
   }
@@ -1056,7 +1040,7 @@ public class TPCC implements ContractInterface {
   //@ requires c_id < 2;
   // spotless:on
   @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String OJMTEST__getCustomer(Context ctx, int c_w_id, int c_d_id, int c_id)
+  public String OJMTEST__getCustomer(EnhancedContext ctx, int c_w_id, int c_d_id, int c_id)
       throws Exception {
     return gson.toJson(LedgerUtils.getCustomer(ctx, c_w_id, c_d_id, c_id));
   }

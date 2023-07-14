@@ -19,7 +19,7 @@ package hu.bme.mit.ftsrg.tpcc.entries;
 
 import hu.bme.mit.ftsrg.tpcc.entities.EntityBase;
 import hu.bme.mit.ftsrg.tpcc.utils.Common;
-
+import hu.bme.mit.ftsrg.tpcc.utils.Common.TABLES;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
@@ -64,7 +64,12 @@ public class Warehouse extends EntityBase {
   public Warehouse() {}
 
   @Override
-  public String[] getKeyParts(){
+  public String[] getKeyParts() {
     return new String[] {Common.pad(w_id)};
+  }
+
+  @Override
+  public String getType() {
+    return TABLES.WAREHOUSE;
   }
 }

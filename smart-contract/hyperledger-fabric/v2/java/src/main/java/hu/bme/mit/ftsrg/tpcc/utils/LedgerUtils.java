@@ -18,7 +18,6 @@ SPDX-License-Identifier: Apache-2.0
 package hu.bme.mit.ftsrg.tpcc.utils;
 
 import com.google.gson.Gson;
-import hu.bme.mit.ftsrg.tpcc.TPCC;
 import hu.bme.mit.ftsrg.tpcc.entries.*;
 import hu.bme.mit.ftsrg.tpcc.utils.Common.TABLES;
 import java.nio.charset.StandardCharsets;
@@ -37,7 +36,7 @@ import org.hyperledger.fabric.shim.ledger.KeyValue;
 /** Utility functions for accessing the state database. */
 @DataType()
 public class LedgerUtils {
-  private static final Logger LOGGER = Logger.getLogger(TPCC.class.getName());
+  private static final Logger LOGGER = Logger.getLogger(LedgerUtils.class.getName());
   static Gson gson = new Gson();
 
   /** LOW-LEVEL API */
@@ -637,7 +636,7 @@ public class LedgerUtils {
           Common.pad(order.o_d_id),
           Common.pad(Integer.MAX_VALUE - order.o_id)
         };
-    LedgerUtils.createEntry(ctx, TABLES.ORDERS, keyParts, entry);
+    LedgerUtils.createEntry(ctx, TABLES.ORDER, keyParts, entry);
     LOGGER.info(
         "CREATE ORDER ENTRY COMPLETED FOR " + order.o_w_id + "-" + order.o_d_id + "-" + order.o_id);
   }
@@ -655,7 +654,7 @@ public class LedgerUtils {
     String[] keyParts =
         new String[] {Common.pad(o_w_id), Common.pad(o_d_id), Common.pad(Integer.MAX_VALUE - o_id)};
     LOGGER.info("Begin getOrder with entry: " + keyParts);
-    String entry = LedgerUtils.getEntry(ctx, TABLES.ORDERS, keyParts);
+    String entry = LedgerUtils.getEntry(ctx, TABLES.ORDER, keyParts);
 
     if (entry == null) {
       throw new Exception("Could not retrieve Order(" + o_w_id + ", " + o_d_id + ", " + o_id + ")");
@@ -680,7 +679,7 @@ public class LedgerUtils {
 
     String[] keyParts = new String[] {Common.pad(o_w_id), Common.pad(o_d_id)};
     List<Object> lastOrders =
-        LedgerUtils.select(ctx, TABLES.ORDERS, keyParts, MatchData.OCIDMatchData(o_c_id), true);
+        LedgerUtils.select(ctx, TABLES.ORDER, keyParts, MatchData.OCIDMatchData(o_c_id), true);
     if (lastOrders == null) {
       throw new Exception(
           String.format(
@@ -707,7 +706,7 @@ public class LedgerUtils {
           Common.pad(entry.o_d_id),
           Common.pad(Integer.MAX_VALUE - entry.o_id)
         };
-    LedgerUtils.updateEntry(ctx, TABLES.ORDERS, keyParts, entry);
+    LedgerUtils.updateEntry(ctx, TABLES.ORDER, keyParts, entry);
     LOGGER.info("Order updated");
   }
 

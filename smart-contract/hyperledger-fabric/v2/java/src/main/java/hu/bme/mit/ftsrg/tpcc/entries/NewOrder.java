@@ -18,6 +18,8 @@ SPDX-License-Identifier: Apache-2.0
 package hu.bme.mit.ftsrg.tpcc.entries;
 
 import hu.bme.mit.ftsrg.tpcc.entities.EntityBase;
+import hu.bme.mit.ftsrg.tpcc.utils.Common;
+import hu.bme.mit.ftsrg.tpcc.utils.Common.TABLES;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
@@ -36,4 +38,14 @@ public class NewOrder extends EntityBase {
   public int no_w_id;
 
   public NewOrder() {}
+
+  @Override
+  public String getType() {
+    return TABLES.NEW_ORDER;
+  }
+
+  @Override
+  public String[] getKeyParts() {
+    return new String[] {Common.pad(no_w_id), Common.pad(no_d_id), Common.pad(no_o_id)};
+  }
 }
