@@ -2,7 +2,6 @@
 
 package hu.bme.mit.ftsrg.tpcc.utils;
 
-import com.google.gson.Gson;
 import hu.bme.mit.ftsrg.tpcc.TPCC;
 import hu.bme.mit.ftsrg.tpcc.entries.*;
 import hu.bme.mit.ftsrg.tpcc.utils.Common.TABLES;
@@ -21,7 +20,6 @@ import org.hyperledger.fabric.shim.ledger.KeyValue;
 /** Utility functions for accessing the state database. */
 public class LedgerUtils {
   private static final Logger LOGGER = Logger.getLogger(TPCC.class.getName());
-  static Gson gson = new Gson();
 
   /** LOW-LEVEL API */
 
@@ -40,7 +38,7 @@ public class LedgerUtils {
     CompositeKey key = ctx.getStub().createCompositeKey(type, keyParts);
     LOGGER.info("Created composite key " + key.toString());
 
-    String entryString = entry instanceof String ? (String) entry : gson.toJson(entry);
+    String entryString = entry instanceof String ? (String) entry : JSON.serialize(entry);
 
     byte[] buffer = entryString.getBytes(StandardCharsets.UTF_8);
 
@@ -70,7 +68,7 @@ public class LedgerUtils {
     LOGGER.info("Beginning updateEntry for type " + type + " " + keyParts);
     CompositeKey key = ctx.getStub().createCompositeKey(type, keyParts);
     LOGGER.info("COMPOSITE KEY: " + key.toString());
-    String entryString = entry instanceof String ? (String) entry : gson.toJson(entry);
+    String entryString = entry instanceof String ? (String) entry : JSON.serialize(entry);
 
     byte[] buffer = entryString.getBytes(StandardCharsets.UTF_8);
 
@@ -552,7 +550,7 @@ public class LedgerUtils {
     // oldest.no_o_id + ")");
     // }
     Object oldest = oldestNewOrders.get(0);
-    LOGGER.info("Retrieved oldest New Order( " + gson.toJson(oldest));
+    LOGGER.info("Retrieved oldest New Order( " + JSON.serialize(oldest));
     // SOMETHING WRONG HERE
     // Retrieved oldest New Order(
     // [{"o_id":0,"o_d_id":0,"o_w_id":0,"o_c_id":0,"o_carrier_id":0,"o_ol_cnt":0,"o_all_local":0}]
@@ -591,7 +589,7 @@ public class LedgerUtils {
    * @param entry The new order object. @
    */
   public static void deleteNewOrder(Context ctx, NewOrder entry) throws Exception {
-    LOGGER.info("Begin delete oldest NewOrder" + gson.toJson(entry));
+    LOGGER.info("Begin delete oldest NewOrder" + JSON.serialize(entry));
     String[] keyParts =
         new String[] {
           Common.pad(entry.no_w_id), Common.pad(entry.no_d_id), Common.pad(entry.no_o_id)
@@ -819,11 +817,11 @@ public class LedgerUtils {
     for (int current_o_id = o_id_min; current_o_id < o_id_max; current_o_id++) {
 
       Order order = LedgerUtils.getOrder(ctx, w_id, d_id, current_o_id);
-      LOGGER.info("RETRIEVED ORDER > " + gson.toJson(order));
+      LOGGER.info("RETRIEVED ORDER > " + JSON.serialize(order));
 
       for (int ol_number = 1; ol_number <= order.o_ol_cnt; ol_number++) {
         OrderLine orderLine = LedgerUtils.getOrderLine(ctx, w_id, d_id, current_o_id, ol_number);
-        LOGGER.info("RETRIEVED ORDERLINE " + gson.toJson(orderLine));
+        LOGGER.info("RETRIEVED ORDERLINE " + JSON.serialize(orderLine));
         itemIds.add(orderLine.ol_i_id);
         LOGGER.info("RETRIEVED ITEM IDS: " + itemIds);
         for (Integer strCurrentNumber : itemIds) {
@@ -872,7 +870,7 @@ public class LedgerUtils {
         TABLES.STOCK,
         new String[] {Common.pad(stock.s_w_id), Common.pad(stock.s_i_id)},
         entry);
-    LOGGER.info("CREATED STOCK ENTRY" + gson.toJson(stock));
+    LOGGER.info("CREATED STOCK ENTRY" + JSON.serialize(stock));
   }
 
   /**

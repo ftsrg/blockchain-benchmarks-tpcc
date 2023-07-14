@@ -2,7 +2,6 @@
 
 package hu.bme.mit.ftsrg.tpcc.utils;
 
-import com.google.gson.Gson;
 import hu.bme.mit.ftsrg.tpcc.TPCC;
 import hu.bme.mit.ftsrg.tpcc.entries.*;
 import hu.bme.mit.ftsrg.tpcc.inputs.*;
@@ -10,7 +9,6 @@ import java.util.logging.Logger;
 
 public class ParseUtils {
 
-  static Gson gson = new Gson();
   private static final Logger LOGGER = Logger.getLogger(TPCC.class.getName());
 
   /**
@@ -21,7 +19,7 @@ public class ParseUtils {
    */
   public static DoNewOrderInputParameters parseNewOrderParameters(String params) throws Exception {
     DoNewOrderInputParameters newOrderParams =
-        gson.fromJson(params, DoNewOrderInputParameters.class);
+        JSON.deserialize(params, DoNewOrderInputParameters.class);
     return newOrderParams;
   }
 
@@ -32,7 +30,8 @@ public class ParseUtils {
    * @return {PaymentParameters} The parsed parameters.
    */
   public static DoPaymentInputParameters parsePaymentParameters(String params) throws Exception {
-    DoPaymentInputParameters paymentParams = gson.fromJson(params, DoPaymentInputParameters.class);
+    DoPaymentInputParameters paymentParams =
+        JSON.deserialize(params, DoPaymentInputParameters.class);
     return paymentParams;
   }
 
@@ -45,7 +44,7 @@ public class ParseUtils {
   public static DoDeliveryInputParameters parseDeliveryParameters(String params) throws Exception {
     LOGGER.info("Parse Delivery parameters " + params);
     DoDeliveryInputParameters deliveryParams =
-        gson.fromJson(params, DoDeliveryInputParameters.class);
+        JSON.deserialize(params, DoDeliveryInputParameters.class);
     LOGGER.info("Delivery parameters are: " + deliveryParams);
     return deliveryParams;
   }
@@ -59,7 +58,7 @@ public class ParseUtils {
   public static DoOrderStatusInputParameters parseOrderStatusParameters(String params)
       throws Exception {
     DoOrderStatusInputParameters oStatusParams =
-        gson.fromJson(params, DoOrderStatusInputParameters.class);
+        JSON.deserialize(params, DoOrderStatusInputParameters.class);
     return oStatusParams;
   }
 
@@ -73,7 +72,7 @@ public class ParseUtils {
       throws Exception {
     LOGGER.info("parses stock level parameters");
     DoStockLevelInputParameters stockLevelParams =
-        gson.fromJson(params, DoStockLevelInputParameters.class);
+        JSON.deserialize(params, DoStockLevelInputParameters.class);
     LOGGER.info("stock level parameters: " + stockLevelParams);
     return stockLevelParams;
   }
@@ -86,7 +85,7 @@ public class ParseUtils {
    */
   public static Warehouse parseWarehouse(String jsonString) {
     LOGGER.info("Starting parseWarehouse for " + jsonString + "Warehouse parameters");
-    Warehouse warehouseParams = gson.fromJson(jsonString, Warehouse.class);
+    Warehouse warehouseParams = JSON.deserialize(jsonString, Warehouse.class);
     LOGGER.info("parseWarehouse returned " + warehouseParams.toString() + "Warehouse parameters");
     return warehouseParams;
   }
@@ -98,7 +97,7 @@ public class ParseUtils {
    * @return The district object.
    */
   public static District parseDistrict(String jsonString) {
-    District distParams = gson.fromJson(jsonString, District.class);
+    District distParams = JSON.deserialize(jsonString, District.class);
     return distParams;
   }
 
@@ -110,7 +109,7 @@ public class ParseUtils {
    */
   public static Customer parseCustomer(String jsonString) {
     LOGGER.info("parse customer parameters");
-    Customer custParams = gson.fromJson(jsonString, Customer.class);
+    Customer custParams = JSON.deserialize(jsonString, Customer.class);
     LOGGER.info("return parsed customer parameters");
     return custParams;
   }
@@ -122,7 +121,7 @@ public class ParseUtils {
    * @return {History} The history object.
    */
   public static History parseHistory(String jsonString) {
-    History historyParams = gson.fromJson(jsonString, History.class);
+    History historyParams = JSON.deserialize(jsonString, History.class);
     return historyParams;
   }
 
@@ -134,8 +133,8 @@ public class ParseUtils {
    */
   public static NewOrder parseNewOrder(String jsonString) {
     LOGGER.info("parse NewOrder Parameter");
-    NewOrder newOParams = gson.fromJson(jsonString, NewOrder.class);
-    LOGGER.info("Returned parsed NewOrder parameters: " + gson.toJson(newOParams));
+    NewOrder newOParams = JSON.deserialize(jsonString, NewOrder.class);
+    LOGGER.info("Returned parsed NewOrder parameters: " + JSON.serialize(newOParams));
     return newOParams;
   }
 
@@ -147,8 +146,8 @@ public class ParseUtils {
    */
   public static Order parseOrder(String jsonString) {
     LOGGER.info("parse order parameters: " + jsonString);
-    Order orderParams = gson.fromJson(jsonString, Order.class);
-    LOGGER.info("Returned parsed order parameters are: " + gson.toJson(orderParams));
+    Order orderParams = JSON.deserialize(jsonString, Order.class);
+    LOGGER.info("Returned parsed order parameters are: " + JSON.serialize(orderParams));
     return orderParams;
   }
 
@@ -159,7 +158,7 @@ public class ParseUtils {
    * @return {OrderLine} The order line object.
    */
   public static OrderLine parseOrderLine(String jsonString) {
-    OrderLine oLineParams = gson.fromJson(jsonString, OrderLine.class);
+    OrderLine oLineParams = JSON.deserialize(jsonString, OrderLine.class);
     return oLineParams;
   }
 
@@ -170,7 +169,7 @@ public class ParseUtils {
    * @return {Item} The item object.
    */
   public static Item parseItem(String jsonString) {
-    Item itemParams = gson.fromJson(jsonString, Item.class);
+    Item itemParams = JSON.deserialize(jsonString, Item.class);
     return itemParams;
   }
 
@@ -181,7 +180,7 @@ public class ParseUtils {
    * @return {Stock} The stock object.
    */
   public static Stock parseStock(String jsonString) {
-    Stock stockParams = gson.fromJson(jsonString, Stock.class);
+    Stock stockParams = JSON.deserialize(jsonString, Stock.class);
     return stockParams;
   }
 }

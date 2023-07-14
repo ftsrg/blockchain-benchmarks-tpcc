@@ -2,12 +2,9 @@
 
 package hu.bme.mit.ftsrg.tpcc.utils;
 
-import com.google.gson.Gson;
 import org.hyperledger.fabric.contract.Context;
 
 public class Common {
-
-  static Gson gson = new Gson();
 
   /** Enumerates the tables of the TPC-C benchmark. */
   public class TABLES {

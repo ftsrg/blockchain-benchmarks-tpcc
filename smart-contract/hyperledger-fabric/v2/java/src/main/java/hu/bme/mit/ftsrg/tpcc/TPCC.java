@@ -2,7 +2,6 @@
 
 package hu.bme.mit.ftsrg.tpcc;
 
-import com.google.gson.Gson;
 import hu.bme.mit.ftsrg.tpcc.entries.*;
 import hu.bme.mit.ftsrg.tpcc.inputs.*;
 import hu.bme.mit.ftsrg.tpcc.outputs.*;
@@ -39,7 +38,6 @@ import org.json.JSONObject;
 public class TPCC implements ContractInterface {
 
   private static final Logger LOGGER = Logger.getLogger(TPCC.class.getName());
-  Gson gson = new Gson();
 
   /**
    * Performs the Delivery read-write TX profile.
@@ -69,7 +67,7 @@ public class TPCC implements ContractInterface {
         // This is the oldest undelivered order of that district.
         // NO_O_ID, the order number, is retrieved.
         NewOrder newOrder = LedgerUtils.getOldestNewOrder(ctx, params.w_id, d_id);
-        LOGGER.info("Oldest new order retrieved is: " + gson.toJson(newOrder));
+        LOGGER.info("Oldest new order retrieved is: " + JSON.serialize(newOrder));
 
         if (newOrder == null) {
           // If no matching row is found, then the delivery of an order for this district
@@ -95,7 +93,7 @@ public class TPCC implements ContractInterface {
         }
 
         LedgerUtils.deleteNewOrder(ctx, newOrder);
-        LOGGER.info(gson.toJson(newOrder) + "DELETED");
+        LOGGER.info(JSON.serialize(newOrder) + "DELETED");
 
         // The row in the ORDER table with matching O_W_ID (equals W_ ID), O_D_ID
         // (equals D_ID),
@@ -111,7 +109,10 @@ public class TPCC implements ContractInterface {
         order.o_carrier_id = params.o_carrier_id;
         LedgerUtils.updateOrder(ctx, order);
         LOGGER.info(
-            "Updated order" + gson.toJson(order) + "with order.o_carrier_id" + params.o_carrier_id);
+            "Updated order"
+                + JSON.serialize(order)
+                + "with order.o_carrier_id"
+                + params.o_carrier_id);
 
         // All rows in the ORDER-LINE table with matching OL_W_ID (equals O_W_ID),
         // OL_D_ID
@@ -126,7 +127,7 @@ public class TPCC implements ContractInterface {
         for (int i = 1; i <= order.o_ol_cnt; i++) {
           LOGGER.info("getOrderLine");
           OrderLine orderLine = LedgerUtils.getOrderLine(ctx, params.w_id, d_id, order.o_id, i);
-          LOGGER.info("OrderLine: " + gson.toJson(orderLine) + "retrieved");
+          LOGGER.info("OrderLine: " + JSON.serialize(orderLine) + "retrieved");
           orderLineAmountTotal += orderLine.ol_amount;
           orderLine.ol_delivery_d = params.ol_delivery_d;
           LOGGER.info(
@@ -145,7 +146,7 @@ public class TPCC implements ContractInterface {
         LOGGER.info(
             "getCustomer with W_ID, D_ID and C_ID" + params.w_id + "," + d_id + "," + order.o_c_id);
         Customer customer = LedgerUtils.getCustomer(ctx, params.w_id, d_id, order.o_c_id);
-        LOGGER.info("Customer: " + gson.toJson(customer) + "retrieved");
+        LOGGER.info("Customer: " + JSON.serialize(customer) + "retrieved");
         customer.c_balance += orderLineAmountTotal;
         customer.c_delivery_cnt += 1;
         LOGGER.info(
@@ -159,9 +160,9 @@ public class TPCC implements ContractInterface {
       DoDeliveryOutput output =
           new DoDeliveryOutput(params.w_id, params.o_carrier_id, deliveredOrders, skipped);
 
-      LOGGER.info("Finished Delivery TX with output: " + gson.toJson(output));
+      LOGGER.info("Finished Delivery TX with output: " + JSON.serialize(output));
       // System.out.println("Output : " + output);
-      return gson.toJson(output);
+      return JSON.serialize(output);
     } catch (Exception err) {
       LOGGER.info(err.toString());
     }
@@ -188,13 +189,13 @@ public class TPCC implements ContractInterface {
       // The row in the WAREHOUSE table with matching W_ID is selected and W_TAX,
       // the warehouse tax rate, is retrieved.
       final Warehouse warehouse = LedgerUtils.getWarehouse(ctx, params.w_id);
-      LOGGER.info("Warehouse " + gson.toJson(warehouse) + "retrieved");
+      LOGGER.info("Warehouse " + JSON.serialize(warehouse) + "retrieved");
 
       // The row in the DISTRICT table with matching D_W_ID and D_ ID is selected,
       // D_TAX, the district tax rate, is retrieved, and D_NEXT_O_ID, the next
       // available order number for the district, is retrieved and incremented by one.
       District district = LedgerUtils.getDistrict(ctx, warehouse.w_id, params.d_id);
-      LOGGER.info("District " + gson.toJson(district) + "retrieved");
+      LOGGER.info("District " + JSON.serialize(district) + "retrieved");
       int nextOrderId = district.d_next_o_id;
       district.d_next_o_id += 1;
       LedgerUtils.updateDistrict(ctx, district);
@@ -202,7 +203,7 @@ public class TPCC implements ContractInterface {
           "Next available order number for District "
               + params.d_id
               + " incremented. New District values are: "
-              + gson.toJson(district));
+              + JSON.serialize(district));
 
       // The row in the CUSTOMER table with matching C_W_ID, C_D_ID, and C_ID is
       // selected and C_DISCOUNT, the customer's discount rate, C_LAST, the customer's
@@ -217,7 +218,7 @@ public class TPCC implements ContractInterface {
               + " and d_id "
               + district.d_id
               + " retrieved");
-      LOGGER.info(gson.toJson(customer));
+      LOGGER.info(JSON.serialize(customer));
 
       // A new row is inserted into both the NEW-ORDER table and the ORDER table to
       // reflect the creation of the new order. O_CARRIER_ID is set to a null value.
@@ -228,10 +229,10 @@ public class TPCC implements ContractInterface {
       newOrder.no_d_id = district.d_id;
       newOrder.no_w_id = warehouse.w_id;
 
-      String jsonNewOrder = gson.toJson(newOrder);
+      String jsonNewOrder = JSON.serialize(newOrder);
 
       LedgerUtils.createNewOrder(ctx, jsonNewOrder);
-      LOGGER.info("New Order " + gson.toJson(newOrder) + "created");
+      LOGGER.info("New Order " + JSON.serialize(newOrder) + "created");
 
       boolean allItemsLocal = true;
       for (int id : params.i_w_ids) {
@@ -251,9 +252,9 @@ public class TPCC implements ContractInterface {
       order.o_ol_cnt = params.i_ids.length;
       order.o_all_local = allItemsLocal ? 1 : 0;
 
-      String jsonOrder = gson.toJson(order);
+      String jsonOrder = JSON.serialize(order);
       LedgerUtils.createOrder(ctx, jsonOrder);
-      LOGGER.info("Created Order " + gson.toJson(order));
+      LOGGER.info("Created Order " + JSON.serialize(order));
 
       List<ItemsData> itemsData = new ArrayList<>();
 
@@ -270,7 +271,7 @@ public class TPCC implements ContractInterface {
         // "not-found" condition is signaled, resulting in a rollback of the
         // database transaction (see Clause 2.4.2.3).
         Item item = LedgerUtils.getItem(ctx, i_id);
-        LOGGER.info("Retrived item " + gson.toJson(item) + " with item id " + i_id);
+        LOGGER.info("Retrived item " + JSON.serialize(item) + " with item id " + i_id);
         if (item == null) {
           // 2.4.3.4 For transactions that are rolled back as a result of an
           // unused item number (1% of all New-Order transactions), the emulated
@@ -299,7 +300,7 @@ public class TPCC implements ContractInterface {
         // increased by OL_QUANTITY and S_ORDER_CNT is incremented by 1. If the
         // order-line is remote, then S_REMOTE_CNT is incremented by 1.
         Stock stock = LedgerUtils.getStock(ctx, i_w_id, i_id);
-        LOGGER.info("Stock " + gson.toJson(stock) + " retrieved");
+        LOGGER.info("Stock " + JSON.serialize(stock) + " retrieved");
 
         if (stock.s_quantity >= i_qty + 10) {
           stock.s_quantity -= i_qty;
@@ -315,7 +316,7 @@ public class TPCC implements ContractInterface {
         }
 
         LedgerUtils.updateStock(ctx, stock);
-        LOGGER.info("Updated stock with " + gson.toJson(stock));
+        LOGGER.info("Updated stock with " + JSON.serialize(stock));
 
         // The amount for the item in the order (OL_AMOUNT) is computed as:
         // OL_QUANTITY * I_PRICE
@@ -351,10 +352,10 @@ public class TPCC implements ContractInterface {
         orderLine.ol_amount = orderLineAmount;
         orderLine.ol_dist_info = ("s_dist_" + stockDistrictId);
 
-        String jsonOL = gson.toJson(orderLine);
+        String jsonOL = JSON.serialize(orderLine);
 
         LedgerUtils.createOrderLine(ctx, jsonOL);
-        LOGGER.info("OrderLine " + gson.toJson(orderLine) + " created");
+        LOGGER.info("OrderLine " + JSON.serialize(orderLine) + " created");
 
         // 2.4.3.3 The emulated terminal must display, in the appropriate fields of
         // the input/ output screen, all input data and the output data resulting
@@ -374,7 +375,7 @@ public class TPCC implements ContractInterface {
                 brandGeneric,
                 item.i_price,
                 orderLine.ol_amount));
-        LOGGER.info("ItemsData" + gson.toJson(itemsData));
+        LOGGER.info("ItemsData" + JSON.serialize(itemsData));
       }
 
       // The total-amount for the complete order is computed as:
@@ -407,11 +408,11 @@ public class TPCC implements ContractInterface {
               totalAmount,
               itemsData);
 
-      LOGGER.info("Finished New Order TX with output" + gson.toJson(output));
-      // System.out.println("console output print" + gson.toJson(output));
+      LOGGER.info("Finished New Order TX with output" + JSON.serialize(output));
+      // System.out.println("console output print" + JSON.serialize(output));
       // System.out.println("THIS IS THE OUTPUT" + output);
 
-      return gson.toJson(output);
+      return JSON.serialize(output);
     } catch (Exception err) {
       LOGGER.info("ERROR" + err.toString() + "occured");
       // throw err;
@@ -452,7 +453,7 @@ public class TPCC implements ContractInterface {
       // retrieved.
       Order order =
           LedgerUtils.getLastOrderOfCustomer(ctx, customer.c_w_id, customer.c_d_id, customer.c_id);
-      LOGGER.info("getLastOrderOfCustomer returned: " + gson.toJson(order));
+      LOGGER.info("getLastOrderOfCustomer returned: " + JSON.serialize(order));
 
       // All rows in the ORDER-LINE table with matching OL_W_ID (equals O_W_ID),
       // OL_D_ID (equals
@@ -504,8 +505,8 @@ public class TPCC implements ContractInterface {
       output.o_carrier_id = order.o_carrier_id;
       output.order_lines = orderLineData;
 
-      LOGGER.info("Finished Order Status TX with output: " + gson.toJson(output));
-      return gson.toJson(output);
+      LOGGER.info("Finished Order Status TX with output: " + JSON.serialize(output));
+      return JSON.serialize(output);
     } catch (Exception err) {
       Common.log(err.toString(), ctx, "error");
       // throw err;
@@ -550,7 +551,8 @@ public class TPCC implements ContractInterface {
       Customer customer =
           LedgerUtils.getCustomersByIdOrLastName(
               ctx, warehouse.w_id, district.d_id, params.c_id, params.c_last);
-      LOGGER.info("Customer " + gson.toJson(customer) + "retrieved by last name " + params.c_last);
+      LOGGER.info(
+          "Customer " + JSON.serialize(customer) + "retrieved by last name " + params.c_last);
 
       // C_BALANCE is decreased by H_AMOUNT. C_YTD_PAYMENT is increased by H_AMOUNT.
       // C_PAYMENT_CNT is incremented by 1.
@@ -618,7 +620,7 @@ public class TPCC implements ContractInterface {
       history.h_amount = params.h_amount;
       history.h_data = h_data;
 
-      String historyData = gson.toJson(history);
+      String historyData = JSON.serialize(history);
 
       LedgerUtils.createHistory(ctx, historyData);
       LOGGER.info("History created with data " + historyData);
@@ -668,9 +670,9 @@ public class TPCC implements ContractInterface {
         output.c_data = customer.c_data.substring(0, 200);
       }
 
-      LOGGER.info("Finished Payment TX with output: " + gson.toJson(output));
+      LOGGER.info("Finished Payment TX with output: " + JSON.serialize(output));
 
-      return gson.toJson(output);
+      return JSON.serialize(output);
     } catch (Exception err) {
       Common.log(err.toString(), ctx, "error");
       // throw err;
@@ -743,9 +745,9 @@ public class TPCC implements ContractInterface {
       output.threshold = params.threshold;
       output.low_stock = lowStock;
 
-      LOGGER.info("Finished Stock Level TX with output: " + gson.toJson(output));
+      LOGGER.info("Finished Stock Level TX with output: " + JSON.serialize(output));
 
-      return gson.toJson(output);
+      return JSON.serialize(output);
 
     } catch (Exception err) {
       Common.log(err.toString(), ctx, "error");
@@ -780,7 +782,7 @@ public class TPCC implements ContractInterface {
       warehouse.w_tax = 0.1000;
       warehouse.w_ytd = 10000;
 
-      String jsonWarehouse = gson.toJson(warehouse);
+      String jsonWarehouse = JSON.serialize(warehouse);
 
       LedgerUtils.createWarehouse(ctx, jsonWarehouse);
       LOGGER.info("Warehouse " + jsonWarehouse + "innitialized");
@@ -798,7 +800,7 @@ public class TPCC implements ContractInterface {
       district.d_ytd = 10000;
       district.d_next_o_id = 3001;
 
-      String jsonDistrict = gson.toJson(district);
+      String jsonDistrict = JSON.serialize(district);
       LedgerUtils.createDistrict(ctx, jsonDistrict);
       LOGGER.info("District " + jsonDistrict + "innitialized");
 
@@ -850,8 +852,8 @@ public class TPCC implements ContractInterface {
               0,
               "Good credit");
 
-      String jsonCustomer1 = gson.toJson(customer1);
-      String jsonCustomer2 = gson.toJson(customer2);
+      String jsonCustomer1 = JSON.serialize(customer1);
+      String jsonCustomer2 = JSON.serialize(customer2);
       LedgerUtils.createCustomer(ctx, jsonCustomer1);
       LedgerUtils.createCustomer(ctx, jsonCustomer2);
       LOGGER.info("Customer" + jsonCustomer1 + "innitialized");
@@ -863,7 +865,7 @@ public class TPCC implements ContractInterface {
       item1.i_price = 99.50;
       item1.i_data = "ORIGINAL";
 
-      String jsonItem1 = gson.toJson(item1);
+      String jsonItem1 = JSON.serialize(item1);
       LedgerUtils.createItem(ctx, jsonItem1);
 
       Item item2 = new Item();
@@ -873,7 +875,7 @@ public class TPCC implements ContractInterface {
       item2.i_price = 89.50;
       item2.i_data = "ORIGINAL";
 
-      String jsonItem2 = gson.toJson(item2);
+      String jsonItem2 = JSON.serialize(item2);
       LedgerUtils.createItem(ctx, jsonItem2);
 
       Item item3 = new Item();
@@ -883,7 +885,7 @@ public class TPCC implements ContractInterface {
       item3.i_price = 78.00;
       item3.i_data = "GENERIC";
 
-      String jsonItem3 = gson.toJson(item3);
+      String jsonItem3 = JSON.serialize(item3);
       LedgerUtils.createItem(ctx, jsonItem3);
 
       LOGGER.info("Created Items " + jsonItem1 + " , " + jsonItem2 + " and " + jsonItem3);
@@ -908,7 +910,7 @@ public class TPCC implements ContractInterface {
               0,
               "ORIGINAL");
 
-      String jsonStock = gson.toJson(stock);
+      String jsonStock = JSON.serialize(stock);
       LedgerUtils.createStock(ctx, jsonStock);
 
       Stock stock2 =
@@ -931,7 +933,7 @@ public class TPCC implements ContractInterface {
               0,
               "ORIGINAL");
 
-      String jsonStock2 = gson.toJson(stock2);
+      String jsonStock2 = JSON.serialize(stock2);
       LedgerUtils.createStock(ctx, jsonStock2);
 
       Stock stock3 =
@@ -939,7 +941,7 @@ public class TPCC implements ContractInterface {
               3, 1, 99, "good", "null", "null", "null", "null", "null", "null", "null", "null",
               "null", 0, 0, 0, "GENERIC");
 
-      String jsonStock3 = gson.toJson(stock3);
+      String jsonStock3 = JSON.serialize(stock3);
       LedgerUtils.createStock(ctx, jsonStock3);
 
       LOGGER.info(
@@ -957,24 +959,25 @@ public class TPCC implements ContractInterface {
   public String readWarehouseEntry(Context ctx, int w_id) throws Exception {
     LOGGER.info("Attemp to retrieve warehouse details  for " + w_id);
     Warehouse warehouse = LedgerUtils.getWarehouse(ctx, w_id);
-    LOGGER.info("Warehouse " + warehouse.w_id + " Exist. " + gson.toJson(warehouse) + " returned");
-    return gson.toJson(warehouse);
+    LOGGER.info(
+        "Warehouse " + warehouse.w_id + " Exist. " + JSON.serialize(warehouse) + " returned");
+    return JSON.serialize(warehouse);
   }
 
   @Transaction(intent = Transaction.TYPE.EVALUATE)
   public String getOrderEntry(Context ctx, int w_id, int d_id, int o_id) throws Exception {
     LOGGER.info("retrieve details  for existing order entry" + w_id);
     Order order = LedgerUtils.getOrder(ctx, w_id, d_id, o_id);
-    LOGGER.info("Order " + order.o_id + " Exist. " + gson.toJson(order) + " returned");
-    return gson.toJson(order);
+    LOGGER.info("Order " + order.o_id + " Exist. " + JSON.serialize(order) + " returned");
+    return JSON.serialize(order);
   }
 
   @Transaction(intent = Transaction.TYPE.EVALUATE)
   public String getItemEntry(Context ctx, int i_id) throws Exception {
     LOGGER.info("retrieve details  for existing item entry " + i_id);
     Item item = LedgerUtils.getItem(ctx, i_id);
-    LOGGER.info("Item " + item.i_id + " Exist. " + gson.toJson(item) + " returned");
-    return gson.toJson(item);
+    LOGGER.info("Item " + item.i_id + " Exist. " + JSON.serialize(item) + " returned");
+    return JSON.serialize(item);
   }
 
   @Transaction(intent = Transaction.TYPE.EVALUATE)
@@ -985,8 +988,8 @@ public class TPCC implements ContractInterface {
             + "and District "
             + d_id);
     NewOrder newOrder = LedgerUtils.getNewOrder(ctx, w_id, d_id, o_id);
-    LOGGER.info("Retrieved new order  " + gson.toJson(newOrder));
-    return gson.toJson(newOrder);
+    LOGGER.info("Retrieved new order  " + JSON.serialize(newOrder));
+    return JSON.serialize(newOrder);
   }
 
   @Transaction(intent = Transaction.TYPE.EVALUATE)
@@ -1005,6 +1008,6 @@ public class TPCC implements ContractInterface {
   @Transaction(intent = Transaction.TYPE.EVALUATE)
   public String OJMLTEST__getCustomer(Context ctx, int c_w_id, int c_d_id, int c_id)
       throws Exception {
-    return gson.toJson(LedgerUtils.getCustomer(ctx, c_w_id, c_d_id, c_id));
+    return JSON.serialize(LedgerUtils.getCustomer(ctx, c_w_id, c_d_id, c_id));
   }
 }

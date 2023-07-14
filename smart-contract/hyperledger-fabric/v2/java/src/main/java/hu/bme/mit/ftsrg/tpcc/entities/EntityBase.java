@@ -2,15 +2,13 @@
 
 package hu.bme.mit.ftsrg.tpcc.entities;
 
-import com.google.gson.Gson;
+import hu.bme.mit.ftsrg.tpcc.utils.JSON;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import org.hyperledger.fabric.contract.annotation.DataType;
 
 @DataType
 public class EntityBase implements EntityInterface {
-
-  Gson gson = new Gson();
 
   public EntityBase() {}
 
@@ -27,10 +25,10 @@ public class EntityBase implements EntityInterface {
 
   @Override
   public byte[] toBuffer() {
-    // return StandardCharsets.UTF_8.encode(gson.toJson(this)).array();
-    // return gson.toJson(this).getBytes(StandardCharsets.UTF_8);
+    // return StandardCharsets.UTF_8.encode(JSON.serialize(this)).array();
+    // return JSON.serialize(this).getBytes(StandardCharsets.UTF_8);
 
-    String entityToJson = gson.toJson(this);
+    String entityToJson = JSON.serialize(this);
     return entityToJson.getBytes(StandardCharsets.UTF_8);
   }
 
@@ -41,12 +39,12 @@ public class EntityBase implements EntityInterface {
 
   @Override
   public String toJson() {
-    return gson.toJson(this);
+    return JSON.serialize(this);
   }
 
   @Override
   public void fromJson(final String json) {
-    Object obj = gson.fromJson(json, this.getClass());
+    Object obj = JSON.deserialize(json, this.getClass());
     Field[] ourFields = this.getClass().getDeclaredFields();
     /*
      * Try to get values for our known fields from the deserialized
