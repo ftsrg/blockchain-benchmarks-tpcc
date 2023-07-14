@@ -2,13 +2,13 @@ package hu.bme.mit.ftsrg.tpcc.registry;
 
 import hu.bme.mit.ftsrg.tpcc.entities.EntityInterface;
 
-public interface RegistryInterface<AssetType> {
+public interface RegistryInterface {
 
-  void createEntity(EntityInterface entity);
+  void create(EntityInterface entity);
 
-  AssetType getEntity(String keyParts);
+  EntityInterface read(EntityInterface entity);
 
-  void updateEntity(EntityInterface entity);
+  void update(EntityInterface entity);
 
-  void deleteEntity(String type, String[] keyParts);
+  void delete(EntityInterface entity);
 }

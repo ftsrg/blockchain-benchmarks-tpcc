@@ -18,6 +18,8 @@ SPDX-License-Identifier: Apache-2.0
 package hu.bme.mit.ftsrg.tpcc.entries;
 
 import hu.bme.mit.ftsrg.tpcc.entities.EntityBase;
+import hu.bme.mit.ftsrg.tpcc.utils.Common;
+
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
@@ -45,4 +47,11 @@ public class Item extends EntityBase {
   @Property()
   // Brand information.
   public String i_data;
+
+
+  @Override
+  public String[] getKeyParts(){
+    return new String[] {Common.pad(i_id)};
+    
+  }
 }

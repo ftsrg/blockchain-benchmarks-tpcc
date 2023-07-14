@@ -23,7 +23,8 @@ public class ItemsData extends EntityBase {
       int s_quantity,
       String brand_generic,
       Double i_price,
-      Double ol_amount) {
+      Double ol_amount) 
+    {
     this.ol_supply_w_id = ol_supply_w_id;
     this.ol_i_id = ol_i_id;
     this.i_name = i_name;
@@ -33,4 +34,5 @@ public class ItemsData extends EntityBase {
     this.i_price = i_price;
     this.ol_amount = ol_amount;
   }
+
 }

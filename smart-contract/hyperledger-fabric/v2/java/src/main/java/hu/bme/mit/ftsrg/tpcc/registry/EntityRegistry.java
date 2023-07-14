@@ -1,36 +1,48 @@
 package hu.bme.mit.ftsrg.tpcc.registry;
 
 import hu.bme.mit.ftsrg.tpcc.entities.EntityInterface;
-import org.hyperledger.fabric.contract.Context;
+//import hu.bme.mit.ftsrg.tpcc.stub.ChaincodeStubMiddlewareBase;
 
-public class EntityRegistry<AssetType> implements RegistryInterface<AssetType> {
-  Context context;
+import java.util.logging.Logger;
+
+import org.hyperledger.fabric.contract.Context;
+import org.hyperledger.fabric.shim.ledger.CompositeKey;
+
+public class EntityRegistry implements RegistryInterface {
+    private static final Logger LOGGER = Logger.getLogger(EntityRegistry.class.getName());  
+    Context context;
 
   EntityRegistry(Context ctx) {
     this.context = ctx;
   }
 
   @Override
-  public void createEntity(EntityInterface entity) {
-
-    throw new UnsupportedOperationException("Unimplemented method 'createEntity'");
-  }
+  public void create(EntityInterface entity) {
+    LOGGER.info("Starting create Entity " + entity);
+    String type = entity.getType();
+    String [] keyParts = entity.getKeyParts();
+    
+    CompositeKey key = context.getStub().createCompositeKey(type, keyParts);
+           
+    byte[] buffer = entity.toBuffer();
+    context.getStub().putState(key.toString(), buffer);
+    }
 
   @Override
-  public AssetType getEntity(String keyParts) {
+  public EntityInterface read(EntityInterface entity) {
 
     throw new UnsupportedOperationException("Unimplemented method 'getEntity'");
   }
 
   @Override
-  public void updateEntity(EntityInterface entity) {
-
-    throw new UnsupportedOperationException("Unimplemented method 'updateEntity'");
+  public void update(EntityInterface entity) {
+    
+    throw new UnsupportedOperationException("Unimplemented method 'update'");
   }
 
   @Override
-  public void deleteEntity(String type, String[] keyParts) {
-
-    throw new UnsupportedOperationException("Unimplemented method 'deleteEntity'");
+  public void delete(EntityInterface entity) {
+    
+    throw new UnsupportedOperationException("Unimplemented method 'delete'");
   }
 }

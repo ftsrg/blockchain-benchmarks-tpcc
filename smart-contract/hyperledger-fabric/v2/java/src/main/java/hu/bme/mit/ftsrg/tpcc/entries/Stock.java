@@ -18,6 +18,8 @@ SPDX-License-Identifier: Apache-2.0
 package hu.bme.mit.ftsrg.tpcc.entries;
 
 import hu.bme.mit.ftsrg.tpcc.entities.EntityBase;
+import hu.bme.mit.ftsrg.tpcc.utils.Common;
+
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
@@ -129,5 +131,10 @@ public class Stock extends EntityBase {
     this.s_order_cnt = s_order_cnt;
     this.s_remote_cnt = s_remote_cnt;
     this.s_data = s_data;
+  }
+
+  @Override
+  public String[] getKeyParts(){
+    return new String[] {Common.pad(s_w_id), Common.pad(s_i_id)};
   }
 }

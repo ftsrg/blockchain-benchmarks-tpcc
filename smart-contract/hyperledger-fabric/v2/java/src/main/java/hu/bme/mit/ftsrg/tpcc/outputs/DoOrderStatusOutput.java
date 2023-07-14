@@ -1,9 +1,10 @@
 package hu.bme.mit.ftsrg.tpcc.outputs;
 
-import hu.bme.mit.ftsrg.tpcc.entries.OrderLineData;
 import java.util.List;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
+
+import hu.bme.mit.ftsrg.tpcc.entries.OrderLineData;
 
 @DataType()
 public class DoOrderStatusOutput {

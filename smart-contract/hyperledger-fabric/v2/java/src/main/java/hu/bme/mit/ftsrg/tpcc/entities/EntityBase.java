@@ -6,21 +6,22 @@ import java.nio.charset.StandardCharsets;
 import org.hyperledger.fabric.contract.annotation.DataType;
 
 @DataType()
-public class EntityBase implements EntityInterface {
+public abstract class EntityBase implements EntityInterface {
   Gson gson = new Gson();
 
   public EntityBase() {}
 
   @Override
   public String getType() {
+    
     throw new UnsupportedOperationException("Unimplemented method 'getType'");
   }
 
-  @Override
-  public String[] getKeyParts() {
-
-    throw new UnsupportedOperationException("Unimplemented method 'getKeyParts'");
-  }
+  // @Override
+  // public String[] getKeyParts() {
+    
+  //   throw new UnsupportedOperationException("Unimplemented method 'getKeyParts'");
+  // }
 
   @Override
   public byte[] toBuffer() {

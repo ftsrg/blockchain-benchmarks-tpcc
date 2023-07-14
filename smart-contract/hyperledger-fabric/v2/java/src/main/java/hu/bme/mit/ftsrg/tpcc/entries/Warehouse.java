@@ -18,6 +18,8 @@ SPDX-License-Identifier: Apache-2.0
 package hu.bme.mit.ftsrg.tpcc.entries;
 
 import hu.bme.mit.ftsrg.tpcc.entities.EntityBase;
+import hu.bme.mit.ftsrg.tpcc.utils.Common;
+
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
@@ -60,4 +62,9 @@ public class Warehouse extends EntityBase {
   public int w_ytd;
 
   public Warehouse() {}
+
+  @Override
+  public String[] getKeyParts(){
+    return new String[] {Common.pad(w_id)};
+  }
 }

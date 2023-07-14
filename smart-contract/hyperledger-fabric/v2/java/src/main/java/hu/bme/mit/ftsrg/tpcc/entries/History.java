@@ -18,6 +18,8 @@ SPDX-License-Identifier: Apache-2.0
 package hu.bme.mit.ftsrg.tpcc.entries;
 
 import hu.bme.mit.ftsrg.tpcc.entities.EntityBase;
+import hu.bme.mit.ftsrg.tpcc.utils.Common;
+
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
@@ -57,4 +59,10 @@ public class History extends EntityBase {
   public String h_data;
 
   public History() {}
+
+  @Override
+  public String[] getKeyParts(){
+    return new String[] {Common.pad(h_c_w_id),Common.pad(h_c_d_id),Common.pad(h_c_id),h_date};
+    
+  }
 }

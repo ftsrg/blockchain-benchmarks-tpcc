@@ -20,6 +20,8 @@ package hu.bme.mit.ftsrg.tpcc.entries;
 // import java.util.Date;
 
 import hu.bme.mit.ftsrg.tpcc.entities.EntityBase;
+import hu.bme.mit.ftsrg.tpcc.utils.Common;
+
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
@@ -67,4 +69,10 @@ public class OrderLine extends EntityBase {
   @Property()
   // Information about the district.
   public String ol_dist_info;
+
+  @Override
+  public String[] getKeyParts(){
+    return new String[] {
+      Common.pad(ol_w_id),Common.pad(ol_d_id),Common.pad(ol_o_id),Common.pad(ol_number)};
+  }
 }
