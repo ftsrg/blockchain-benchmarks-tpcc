@@ -21,9 +21,9 @@ public class Create {
   }
 
   public static String getEntry(Context ctx, String type, String[] keyParts) throws Exception {
-    CompositeKey key = ctx.getStub().createCompositeKey(type, keyParts);   
+    CompositeKey key = ctx.getStub().createCompositeKey(type, keyParts);
     byte[] data = ctx.getStub().getState(key.toString());
-  
+
     if (data.length > 0) {
       String entry = new String(data, StandardCharsets.UTF_8);
       return entry;
@@ -31,11 +31,8 @@ public class Create {
     return null;
   }
 
+  public Object getWarehouseEntry() {
 
-
-  
-  public Object getWarehouseEntry(){
-    
     return null;
   }
 }

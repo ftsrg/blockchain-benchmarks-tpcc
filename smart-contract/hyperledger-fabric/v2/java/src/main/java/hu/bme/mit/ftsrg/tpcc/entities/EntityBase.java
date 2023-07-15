@@ -25,11 +25,12 @@ public abstract class EntityBase implements EntityInterface {
 
   @Override
   public byte[] toBuffer() {
+    // this.toJson().getBytes(StandardCharsets.UTF_8);
     String entityToJson = gson.toJson(this);
     return entityToJson.getBytes(StandardCharsets.UTF_8);
   }
 
-  @Override //return type!!!
+  @Override
   public void fromBuffer(byte[] buffer) {
     this.fromJson(new String(buffer, StandardCharsets.UTF_8));
   }
@@ -39,7 +40,7 @@ public abstract class EntityBase implements EntityInterface {
     return gson.toJson(this);
   }
 
-  @Override ////retun type!!!!
+  @Override
   public void fromJson(final String json) {
     Object obj = gson.fromJson(json, this.getClass());
     Field[] ourFields = this.getClass().getDeclaredFields();
