@@ -3,21 +3,13 @@ package hu.bme.mit.ftsrg.tpcc.stub;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import org.hyperledger.fabric.contract.Context;
 import org.hyperledger.fabric.shim.ChaincodeStub;
 
-public class WriteBackCachedChaincodeStub extends ChaincodeStubMiddlewareBase {
-  private Context context;
+public class WriteBackCachedChaincodeStub extends ChaincodeStubMiddlewareBase {  
   private Map<String, CachedItem> cache;
 
-  WriteBackCachedChaincodeStub(ChaincodeStub nextLayer, Context ctx) {
+  WriteBackCachedChaincodeStub(ChaincodeStub nextLayer) {
     super(nextLayer);
-
-    if (ctx == null) {
-      throw new Error("The received ledger context is null");
-    }
-
-    this.context = ctx;
     this.cache = new HashMap<String, CachedItem>();
   }
 
@@ -26,7 +18,7 @@ public class WriteBackCachedChaincodeStub extends ChaincodeStubMiddlewareBase {
 
     // New read, add to cache
     if (cached == null) {
-      byte[] value = context.getStub().getState(key);
+      byte[] value = this.nextLayer.getState(key);
       cached = new CachedItem(key, value);
       cache.put(key, cached);
     }
@@ -76,9 +68,9 @@ public class WriteBackCachedChaincodeStub extends ChaincodeStubMiddlewareBase {
       }
 
       if (item.isToDelete()) {
-        context.getStub().delState(item.getKey());
+        this.nextLayer.delState(item.getKey());
       } else {
-        context.getStub().putState(item.getKey(), item.getValue());
+        this.nextLayer.putState(item.getKey(), item.getValue());
       }
     }
   }
