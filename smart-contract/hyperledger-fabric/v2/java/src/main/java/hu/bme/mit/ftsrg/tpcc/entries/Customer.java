@@ -20,7 +20,6 @@ package hu.bme.mit.ftsrg.tpcc.entries;
 import hu.bme.mit.ftsrg.tpcc.entities.EntityFactory;
 import hu.bme.mit.ftsrg.tpcc.entities.SerializableEntityBase;
 import hu.bme.mit.ftsrg.tpcc.utils.Common;
-//import hu.bme.mit.ftsrg.tpcc.utils.Common.TABLES;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
@@ -161,10 +160,32 @@ public class Customer extends SerializableEntityBase<Customer> {
   public EntityFactory<Customer> getFactory() {
     return new EntityFactory<Customer>() {
       @Override
-      public Customer create() { return new Customer(c_credit_lim, c_credit_lim, c_credit_lim, c_city, c_city, c_city, c_city, c_city, c_city, c_city, c_city, c_city, c_city, c_city, c_credit_lim, c_balance, c_balance, c_credit_lim, c_credit_lim, c_credit_lim, c_city); }
+      public Customer create() {
+        return new Customer(
+            c_credit_lim,
+            c_credit_lim,
+            c_credit_lim,
+            c_city,
+            c_city,
+            c_city,
+            c_city,
+            c_city,
+            c_city,
+            c_city,
+            c_city,
+            c_city,
+            c_city,
+            c_city,
+            c_credit_lim,
+            c_balance,
+            c_balance,
+            c_credit_lim,
+            c_credit_lim,
+            c_credit_lim,
+            c_city);
+      }
     };
   }
-  
 
   // @Override
   // public String getType() {

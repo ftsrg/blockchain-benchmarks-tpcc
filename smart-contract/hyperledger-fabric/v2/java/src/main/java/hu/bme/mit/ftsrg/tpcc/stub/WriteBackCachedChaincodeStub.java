@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.hyperledger.fabric.shim.ChaincodeStub;
 
-public class WriteBackCachedChaincodeStub extends ChaincodeStubMiddlewareBase {  
+public class WriteBackCachedChaincodeStub extends ChaincodeStubMiddlewareBase {
   private Map<String, CachedItem> cache;
 
   WriteBackCachedChaincodeStub(ChaincodeStub nextLayer) {

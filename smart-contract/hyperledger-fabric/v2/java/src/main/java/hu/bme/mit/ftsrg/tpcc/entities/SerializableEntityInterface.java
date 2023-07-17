@@ -1,6 +1,6 @@
 package hu.bme.mit.ftsrg.tpcc.entities;
 
-public interface SerializableEntityInterface<Type extends SerializableEntityInterface>{
+public interface SerializableEntityInterface<Type extends SerializableEntityInterface> {
   String getType();
 
   String[] getKeyParts();

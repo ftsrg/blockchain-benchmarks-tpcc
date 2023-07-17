@@ -18,12 +18,8 @@ SPDX-License-Identifier: Apache-2.0
 package hu.bme.mit.ftsrg.tpcc.entries;
 
 import hu.bme.mit.ftsrg.tpcc.entities.EntityFactory;
-
-// import java.util.Date;
-
 import hu.bme.mit.ftsrg.tpcc.entities.SerializableEntityBase;
 import hu.bme.mit.ftsrg.tpcc.utils.Common;
-//import hu.bme.mit.ftsrg.tpcc.utils.Common.TABLES;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
@@ -83,7 +79,9 @@ public class OrderLine extends SerializableEntityBase<OrderLine> {
   public EntityFactory<OrderLine> getFactory() {
     return new EntityFactory<OrderLine>() {
       @Override
-      public OrderLine create() { return new OrderLine(); }
+      public OrderLine create() {
+        return new OrderLine();
+      }
     };
   }
 

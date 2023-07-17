@@ -12,18 +12,18 @@ public class UpdateThrottledChaincodeStub extends ChaincodeStubMiddlewareBase {
   }
 
   public byte[] read(String key) {
-    return nextLayer.getState(key);
+    return this.nextLayer.getState(key);
     // return this.context.getStub().getState(key);
   }
 
   public void write(String key, byte[] value) {
     // this.context.getStub().putState(key, value);
-    nextLayer.putState(key, value);
+    this.nextLayer.putState(key, value);
   }
 
   public void delete(String key) {
     // this.context.getStub().deleteState(key);
-    nextLayer.delState(key);
+    this.nextLayer.delState(key);
   }
 
   public void dispose() {

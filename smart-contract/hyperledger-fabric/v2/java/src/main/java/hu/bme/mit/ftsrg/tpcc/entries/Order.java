@@ -17,7 +17,6 @@ package hu.bme.mit.ftsrg.tpcc.entries;
 import hu.bme.mit.ftsrg.tpcc.entities.EntityFactory;
 import hu.bme.mit.ftsrg.tpcc.entities.SerializableEntityBase;
 import hu.bme.mit.ftsrg.tpcc.utils.Common;
-//import hu.bme.mit.ftsrg.tpcc.utils.Common.TABLES;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
@@ -68,7 +67,9 @@ public class Order extends SerializableEntityBase<Order> {
   public EntityFactory<Order> getFactory() {
     return new EntityFactory<Order>() {
       @Override
-      public Order create() { return new Order(); }
+      public Order create() {
+        return new Order();
+      }
     };
   }
 

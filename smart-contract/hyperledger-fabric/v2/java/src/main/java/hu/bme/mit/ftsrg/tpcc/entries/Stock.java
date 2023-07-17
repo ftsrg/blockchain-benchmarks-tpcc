@@ -20,7 +20,6 @@ package hu.bme.mit.ftsrg.tpcc.entries;
 import hu.bme.mit.ftsrg.tpcc.entities.EntityFactory;
 import hu.bme.mit.ftsrg.tpcc.entities.SerializableEntityBase;
 import hu.bme.mit.ftsrg.tpcc.utils.Common;
-//import hu.bme.mit.ftsrg.tpcc.utils.Common.TABLES;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
@@ -143,7 +142,11 @@ public class Stock extends SerializableEntityBase<Stock> {
   public EntityFactory<Stock> getFactory() {
     return new EntityFactory<Stock>() {
       @Override
-      public Stock create() { return new Stock(s_i_id, s_i_id, s_i_id, s_data, s_data, s_data, s_data, s_data, s_data, s_data, s_data, s_data, s_data, s_i_id, s_i_id, s_i_id, s_data); }
+      public Stock create() {
+        return new Stock(
+            s_i_id, s_i_id, s_i_id, s_data, s_data, s_data, s_data, s_data, s_data, s_data, s_data,
+            s_data, s_data, s_i_id, s_i_id, s_i_id, s_data);
+      }
     };
   }
 

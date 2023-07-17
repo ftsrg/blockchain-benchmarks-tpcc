@@ -78,7 +78,9 @@ public class Warehouse extends SerializableEntityBase<Warehouse> {
   public EntityFactory<Warehouse> getFactory() {
     return new EntityFactory<Warehouse>() {
       @Override
-      public Warehouse create() { return new Warehouse(); }
+      public Warehouse create() {
+        return new Warehouse();
+      }
     };
   }
 }
