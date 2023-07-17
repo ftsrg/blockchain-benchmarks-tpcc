@@ -6,16 +6,15 @@ import java.nio.charset.StandardCharsets;
 import org.hyperledger.fabric.contract.annotation.DataType;
 
 @DataType()
-public abstract class EntityBase implements EntityInterface {
+public abstract class SerializableEntityBase<Type extends SerializableEntityInterface> implements SerializableEntityInterface<Type> {
   Gson gson = new Gson();
 
-  public EntityBase() {}
+  public SerializableEntityBase() {}
 
-  // @Override
-  // public String getType() {
-
-  //   throw new UnsupportedOperationException("Unimplemented method 'getType'");
-  // }
+  @Override
+  public String getType() {
+    return this.getClass().getName().toUpperCase();
+  }
 
   // @Override
   // public String[] getKeyParts() {

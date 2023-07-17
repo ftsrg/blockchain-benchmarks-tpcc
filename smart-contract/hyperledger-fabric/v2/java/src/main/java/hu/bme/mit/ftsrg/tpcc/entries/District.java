@@ -17,14 +17,15 @@ SPDX-License-Identifier: Apache-2.0
 
 package hu.bme.mit.ftsrg.tpcc.entries;
 
-import hu.bme.mit.ftsrg.tpcc.entities.EntityBase;
+import hu.bme.mit.ftsrg.tpcc.entities.EntityFactory;
+import hu.bme.mit.ftsrg.tpcc.entities.SerializableEntityBase;
 import hu.bme.mit.ftsrg.tpcc.utils.Common;
-import hu.bme.mit.ftsrg.tpcc.utils.Common.TABLES;
+//import hu.bme.mit.ftsrg.tpcc.utils.Common.TABLES;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
 @DataType()
-public class District extends EntityBase {
+public class District extends SerializableEntityBase<District> {
   @Property()
   // The district ID. Primary key.
   public int d_id;
@@ -101,8 +102,17 @@ public class District extends EntityBase {
     return new String[] {Common.pad(d_w_id), Common.pad(d_id)};
   }
 
+  // @Override
+  // public String getType() {
+  //   return TABLES.DISTRICT;
+  // }
+
   @Override
-  public String getType() {
-    return TABLES.DISTRICT;
+  public EntityFactory<District> getFactory() {
+    return new EntityFactory<District>() {
+      @Override
+      public District create() { return new District(); }
+    };
   }
+  
 }

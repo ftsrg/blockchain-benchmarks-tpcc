@@ -17,16 +17,18 @@ SPDX-License-Identifier: Apache-2.0
 
 package hu.bme.mit.ftsrg.tpcc.entries;
 
+import hu.bme.mit.ftsrg.tpcc.entities.EntityFactory;
+
 // import java.util.Date;
 
-import hu.bme.mit.ftsrg.tpcc.entities.EntityBase;
+import hu.bme.mit.ftsrg.tpcc.entities.SerializableEntityBase;
 import hu.bme.mit.ftsrg.tpcc.utils.Common;
-import hu.bme.mit.ftsrg.tpcc.utils.Common.TABLES;
+//import hu.bme.mit.ftsrg.tpcc.utils.Common.TABLES;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
 @DataType()
-public class OrderLine extends EntityBase {
+public class OrderLine extends SerializableEntityBase<OrderLine> {
 
   public OrderLine() {}
 
@@ -78,7 +80,15 @@ public class OrderLine extends EntityBase {
   }
 
   @Override
-  public String getType() {
-    return TABLES.ORDER_LINE;
+  public EntityFactory<OrderLine> getFactory() {
+    return new EntityFactory<OrderLine>() {
+      @Override
+      public OrderLine create() { return new OrderLine(); }
+    };
   }
+
+  // @Override
+  // public String getType() {
+  //   return TABLES.ORDER_LINE;
+  // }
 }

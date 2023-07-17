@@ -17,14 +17,15 @@ SPDX-License-Identifier: Apache-2.0
 
 package hu.bme.mit.ftsrg.tpcc.entries;
 
-import hu.bme.mit.ftsrg.tpcc.entities.EntityBase;
+import hu.bme.mit.ftsrg.tpcc.entities.EntityFactory;
+import hu.bme.mit.ftsrg.tpcc.entities.SerializableEntityBase;
 import hu.bme.mit.ftsrg.tpcc.utils.Common;
-import hu.bme.mit.ftsrg.tpcc.utils.Common.TABLES;
+//import hu.bme.mit.ftsrg.tpcc.utils.Common.TABLES;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
 @DataType()
-public class Customer extends EntityBase {
+public class Customer extends SerializableEntityBase<Customer> {
   // The customer ID. Primary key.
   @Property() public int c_id;
 
@@ -157,7 +158,16 @@ public class Customer extends EntityBase {
   }
 
   @Override
-  public String getType() {
-    return TABLES.CUSTOMER;
+  public EntityFactory<Customer> getFactory() {
+    return new EntityFactory<Customer>() {
+      @Override
+      public Customer create() { return new Customer(c_credit_lim, c_credit_lim, c_credit_lim, c_city, c_city, c_city, c_city, c_city, c_city, c_city, c_city, c_city, c_city, c_city, c_credit_lim, c_balance, c_balance, c_credit_lim, c_credit_lim, c_credit_lim, c_city); }
+    };
   }
+  
+
+  // @Override
+  // public String getType() {
+  //   return TABLES.CUSTOMER;
+  // }
 }

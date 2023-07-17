@@ -17,14 +17,15 @@ SPDX-License-Identifier: Apache-2.0
 
 package hu.bme.mit.ftsrg.tpcc.entries;
 
-import hu.bme.mit.ftsrg.tpcc.entities.EntityBase;
+import hu.bme.mit.ftsrg.tpcc.entities.EntityFactory;
+import hu.bme.mit.ftsrg.tpcc.entities.SerializableEntityBase;
 import hu.bme.mit.ftsrg.tpcc.utils.Common;
-import hu.bme.mit.ftsrg.tpcc.utils.Common.TABLES;
+//import hu.bme.mit.ftsrg.tpcc.utils.Common.TABLES;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
 @DataType()
-public class Stock extends EntityBase {
+public class Stock extends SerializableEntityBase<Stock> {
 
   @Property()
   // The ID of the item associated with the stock. Primary key.
@@ -139,7 +140,15 @@ public class Stock extends EntityBase {
   }
 
   @Override
-  public String getType() {
-    return TABLES.STOCK;
+  public EntityFactory<Stock> getFactory() {
+    return new EntityFactory<Stock>() {
+      @Override
+      public Stock create() { return new Stock(s_i_id, s_i_id, s_i_id, s_data, s_data, s_data, s_data, s_data, s_data, s_data, s_data, s_data, s_data, s_i_id, s_i_id, s_i_id, s_data); }
+    };
   }
+
+  // @Override
+  // public String getType() {
+  //   return TABLES.STOCK;
+  // }
 }

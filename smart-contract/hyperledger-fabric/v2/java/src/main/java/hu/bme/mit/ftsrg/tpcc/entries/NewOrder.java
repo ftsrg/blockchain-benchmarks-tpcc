@@ -17,14 +17,15 @@ SPDX-License-Identifier: Apache-2.0
 
 package hu.bme.mit.ftsrg.tpcc.entries;
 
-import hu.bme.mit.ftsrg.tpcc.entities.EntityBase;
+import hu.bme.mit.ftsrg.tpcc.entities.EntityFactory;
+import hu.bme.mit.ftsrg.tpcc.entities.SerializableEntityBase;
 import hu.bme.mit.ftsrg.tpcc.utils.Common;
-import hu.bme.mit.ftsrg.tpcc.utils.Common.TABLES;
+//import hu.bme.mit.ftsrg.tpcc.utils.Common.TABLES;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
 @DataType()
-public class NewOrder extends EntityBase {
+public class NewOrder extends SerializableEntityBase<NewOrder> {
   @Property()
   // The order ID. Primary key.
   public int no_o_id;
@@ -39,13 +40,21 @@ public class NewOrder extends EntityBase {
 
   public NewOrder() {}
 
-  @Override
-  public String getType() {
-    return TABLES.NEW_ORDER;
-  }
+  // @Override
+  // public String getType() {
+  //   return TABLES.NEW_ORDER;
+  // }
 
   @Override
   public String[] getKeyParts() {
     return new String[] {Common.pad(no_w_id), Common.pad(no_d_id), Common.pad(no_o_id)};
+  }
+
+  @Override
+  public EntityFactory<NewOrder> getFactory() {
+    return new EntityFactory<NewOrder>() {
+      @Override
+      public NewOrder create() { return new NewOrder(); }
+    };
   }
 }

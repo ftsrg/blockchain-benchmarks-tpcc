@@ -17,14 +17,15 @@ SPDX-License-Identifier: Apache-2.0
 
 package hu.bme.mit.ftsrg.tpcc.entries;
 
-import hu.bme.mit.ftsrg.tpcc.entities.EntityBase;
+import hu.bme.mit.ftsrg.tpcc.entities.EntityFactory;
+import hu.bme.mit.ftsrg.tpcc.entities.SerializableEntityBase;
 import hu.bme.mit.ftsrg.tpcc.utils.Common;
-import hu.bme.mit.ftsrg.tpcc.utils.Common.TABLES;
+//import hu.bme.mit.ftsrg.tpcc.utils.Common.TABLES;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
 @DataType()
-public class Item extends EntityBase {
+public class Item extends SerializableEntityBase<Item> {
 
   public Item() {}
 
@@ -53,8 +54,16 @@ public class Item extends EntityBase {
     return new String[] {Common.pad(i_id)};
   }
 
+  // @Override
+  // public String getType() {
+  //   return TABLES.ITEM;
+  // }
+
   @Override
-  public String getType() {
-    return TABLES.ITEM;
+  public EntityFactory<Item> getFactory() {
+    return new EntityFactory<Item>() {
+      @Override
+      public Item create() { return new Item(); }
+    };
   }
 }
