@@ -6,7 +6,7 @@ import java.nio.charset.StandardCharsets;
 import org.hyperledger.fabric.contract.annotation.DataType;
 
 @DataType()
-public abstract class SerializableEntityBase<Type extends SerializableEntityInterface>
+public abstract class SerializableEntityBase<Type extends SerializableEntityInterface<Type>>
     implements SerializableEntityInterface<Type> {
   Gson gson = new Gson();
 

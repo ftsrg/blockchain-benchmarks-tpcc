@@ -25,6 +25,7 @@ import org.hyperledger.fabric.contract.annotation.Property;
 
 @DataType()
 public class Stock extends SerializableEntityBase<Stock> {
+  public Stock() {}
 
   @Property()
   // The ID of the item associated with the stock. Primary key.

@@ -106,6 +106,8 @@ public class Customer extends SerializableEntityBase<Customer> {
   // Arbitrary information.
   public String c_data;
 
+  public Customer() {}
+
   public Customer(
       int c_id,
       int c_d_id,
@@ -161,28 +163,7 @@ public class Customer extends SerializableEntityBase<Customer> {
     return new EntityFactory<Customer>() {
       @Override
       public Customer create() {
-        return new Customer(
-            c_credit_lim,
-            c_credit_lim,
-            c_credit_lim,
-            c_city,
-            c_city,
-            c_city,
-            c_city,
-            c_city,
-            c_city,
-            c_city,
-            c_city,
-            c_city,
-            c_city,
-            c_city,
-            c_credit_lim,
-            c_balance,
-            c_balance,
-            c_credit_lim,
-            c_credit_lim,
-            c_credit_lim,
-            c_city);
+        return new Customer();
       }
     };
   }

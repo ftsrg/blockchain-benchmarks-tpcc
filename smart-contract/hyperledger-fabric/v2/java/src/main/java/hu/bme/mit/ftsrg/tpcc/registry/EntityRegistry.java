@@ -23,35 +23,29 @@ public class EntityRegistry implements RegistryInterface {
   }
 
   @Override
-  public <Type extends SerializableEntityInterface<Type>> void create(
-      Context ctx, Type entity, boolean strict) {
-    if (strict) {
-      assertNotExists(entity);
-    }
+  public <Type extends SerializableEntityInterface<Type>> void create(Context ctx, Type entity) {
+    assertNotExists(entity);
+
     String key = getKey(ctx, entity);
     byte[] buffer = entity.toBuffer();
     ctx.getStub().putState(key, buffer);
   }
 
   @Override
-  public <Type extends SerializableEntityInterface<Type>> void update(
-      Context ctx, Type entity, boolean strict) {
+  public <Type extends SerializableEntityInterface<Type>> void update(Context ctx, Type entity) {
     // LOGGER.info("Begin update entity ");
-    if (strict) {
-      assertExists(entity);
-    }
+    assertExists(entity);
+
     String key = getKey(ctx, entity);
     byte[] buffer = entity.toBuffer();
     ctx.getStub().putState(key, buffer);
   }
 
   @Override
-  public <Type extends SerializableEntityInterface<Type>> void delete(
-      Context ctx, Type entity, boolean strict) {
+  public <Type extends SerializableEntityInterface<Type>> void delete(Context ctx, Type entity) {
     // LOGGER.info("Begin delete entity");
-    if (strict) {
-      assertExists(entity);
-    }
+    assertExists(entity);
+
     String key = getKey(ctx, entity);
     ctx.getStub().delState(key);
   }
