@@ -15,6 +15,4 @@ public interface RegistryInterface {
   <Type extends SerializableEntityInterface<Type>> Type read(Context ctx, Type entity);
 
   <Type extends SerializableEntityInterface<Type>> List<Type> readAll(Context ctx, Type entity);
-
-  // <Type extends SerializableEntityInterface> void dispose();
 }

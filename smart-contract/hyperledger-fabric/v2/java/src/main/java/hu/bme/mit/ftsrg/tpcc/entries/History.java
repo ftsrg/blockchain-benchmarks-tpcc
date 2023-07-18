@@ -74,9 +74,4 @@ public class History extends SerializableEntityBase<History> {
       }
     };
   }
-
-  // @Override
-  // public String getType() {
-  //   return TABLES.HISTORY;
-  // }
 }

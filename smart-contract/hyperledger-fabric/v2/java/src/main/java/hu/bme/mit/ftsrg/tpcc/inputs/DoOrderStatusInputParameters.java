@@ -40,12 +40,4 @@ public class DoOrderStatusInputParameters {
   public String c_last;
 
   public DoOrderStatusInputParameters() {}
-
-  // public OrderStatusParameters(int w_id, int d_id, int c_id, String c_last){
-  //    this.w_id = w_id;
-  //    this.d_id = d_id;
-  //    this.c_id = c_id;
-  //    this.c_last = c_last;
-  // }
-
 }

@@ -84,9 +84,4 @@ public class OrderLine extends SerializableEntityBase<OrderLine> {
       }
     };
   }
-
-  // @Override
-  // public String getType() {
-  //   return TABLES.ORDER_LINE;
-  // }
 }

@@ -101,11 +101,6 @@ public class District extends SerializableEntityBase<District> {
     return new String[] {Common.pad(d_w_id), Common.pad(d_id)};
   }
 
-  // @Override
-  // public String getType() {
-  //   return TABLES.DISTRICT;
-  // }
-
   @Override
   public EntityFactory<District> getFactory() {
     return new EntityFactory<District>() {

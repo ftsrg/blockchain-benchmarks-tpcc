@@ -167,9 +167,4 @@ public class Customer extends SerializableEntityBase<Customer> {
       }
     };
   }
-
-  // @Override
-  // public String getType() {
-  //   return TABLES.CUSTOMER;
-  // }
 }

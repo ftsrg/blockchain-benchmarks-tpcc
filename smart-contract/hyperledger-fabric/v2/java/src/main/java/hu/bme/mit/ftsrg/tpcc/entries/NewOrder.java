@@ -39,10 +39,11 @@ public class NewOrder extends SerializableEntityBase<NewOrder> {
 
   public NewOrder() {}
 
-  // @Override
-  // public String getType() {
-  //   return TABLES.NEW_ORDER;
-  // }
+  public NewOrder(int no_o_id, int no_d_id, int no_w_id) {
+    this.no_o_id = no_o_id;
+    this.no_d_id = no_d_id;
+    this.no_w_id = no_w_id;
+  }
 
   @Override
   public String[] getKeyParts() {

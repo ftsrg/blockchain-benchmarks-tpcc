@@ -57,16 +57,22 @@ public class DoPaymentInputParameters {
 
   public DoPaymentInputParameters() {}
 
-  // public PaymentParameters(int w_id, int d_id, int h_amount, int c_w_id, int c_d_id, int c_id,
-  // String c_last, String h_date){
-  //     this.w_id = w_id;
-  //     this.d_id = d_id;
-  //     this.h_amount = h_amount;
-  //     this.c_w_id = c_w_id;
-  //     this.c_d_id = c_d_id;
-  //     this.c_id = c_id;
-  //     this.c_last = c_last;
-  //     this.h_date = h_date;
-  // }
-
+  public DoPaymentInputParameters(
+      int w_id,
+      int d_id,
+      Double h_amount,
+      int c_w_id,
+      int c_d_id,
+      int c_id,
+      String c_last,
+      String h_date) {
+    this.w_id = w_id;
+    this.d_id = d_id;
+    this.h_amount = h_amount;
+    this.c_w_id = c_w_id;
+    this.c_d_id = c_d_id;
+    this.c_id = c_id;
+    this.c_last = c_last;
+    this.h_date = h_date;
+  }
 }

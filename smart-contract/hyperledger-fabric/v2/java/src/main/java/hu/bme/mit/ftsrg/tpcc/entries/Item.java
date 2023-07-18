@@ -53,11 +53,6 @@ public class Item extends SerializableEntityBase<Item> {
     return new String[] {Common.pad(i_id)};
   }
 
-  // @Override
-  // public String getType() {
-  //   return TABLES.ITEM;
-  // }
-
   @Override
   public EntityFactory<Item> getFactory() {
     return new EntityFactory<Item>() {

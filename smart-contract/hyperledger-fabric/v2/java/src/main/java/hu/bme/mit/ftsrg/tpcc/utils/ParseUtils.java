@@ -24,14 +24,10 @@ import hu.bme.mit.ftsrg.tpcc.inputs.*;
 import java.util.logging.Logger;
 import org.hyperledger.fabric.contract.annotation.DataType;
 
-// import com.fasterxml.jackson.databind.ObjectMapper;
-
 @DataType
 public class ParseUtils {
   static Gson gson = new Gson();
   private static final Logger LOGGER = Logger.getLogger(TPCC.class.getName());
-
-  // private ObjectMapper objectMapper = new ObjectMapper();
 
   /**
    * Parses the parameters of a New Order TX. (To enable IDE code completion)
@@ -40,8 +36,6 @@ public class ParseUtils {
    * @return The parsed parameters.
    */
   public static DoNewOrderInputParameters parseNewOrderParameters(String params) throws Exception {
-    // return objectMapper.readValue(params, NewOrderParameters.class);
-    // return gson.fromJson(params, NewOrderParameters.class);
     DoNewOrderInputParameters newOrderParams =
         gson.fromJson(params, DoNewOrderInputParameters.class);
     return newOrderParams;
@@ -54,7 +48,6 @@ public class ParseUtils {
    * @return {PaymentParameters} The parsed parameters.
    */
   public static DoPaymentInputParameters parsePaymentParameters(String params) throws Exception {
-    // return objectMapper.readValue(params, PaymentParameters.class);
     DoPaymentInputParameters paymentParams = gson.fromJson(params, DoPaymentInputParameters.class);
     return paymentParams;
   }
@@ -66,7 +59,6 @@ public class ParseUtils {
    * @return {DeliveryParameters} The parsed parameters.
    */
   public static DoDeliveryInputParameters parseDeliveryParameters(String params) throws Exception {
-    // return objectMapper.readValue(params, DeliveryParameters.class);
     LOGGER.info("Parse Delivery parameters " + params);
     DoDeliveryInputParameters deliveryParams =
         gson.fromJson(params, DoDeliveryInputParameters.class);
@@ -82,7 +74,6 @@ public class ParseUtils {
    */
   public static DoOrderStatusInputParameters parseOrderStatusParameters(String params)
       throws Exception {
-    // return objectMapper.readValue(params, OrderStatusParameters.class);
     DoOrderStatusInputParameters oStatusParams =
         gson.fromJson(params, DoOrderStatusInputParameters.class);
     return oStatusParams;

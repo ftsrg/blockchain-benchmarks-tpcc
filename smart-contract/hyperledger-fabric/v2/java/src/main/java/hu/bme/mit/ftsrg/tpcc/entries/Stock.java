@@ -150,9 +150,4 @@ public class Stock extends SerializableEntityBase<Stock> {
       }
     };
   }
-
-  // @Override
-  // public String getType() {
-  //   return TABLES.STOCK;
-  // }
 }

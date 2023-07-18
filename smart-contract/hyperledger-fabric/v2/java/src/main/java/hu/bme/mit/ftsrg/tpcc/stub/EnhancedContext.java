@@ -10,6 +10,6 @@ public class EnhancedContext extends Context {
 
   public EnhancedContext(ChaincodeStub stub) {
     super(stub);
-    this.registry = new EntityRegistry(this);
+    this.registry = new EntityRegistry();
   }
 }

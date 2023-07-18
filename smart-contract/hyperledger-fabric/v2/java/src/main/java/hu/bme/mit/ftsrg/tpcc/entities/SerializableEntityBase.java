@@ -17,17 +17,9 @@ public abstract class SerializableEntityBase<Type extends SerializableEntityInte
     return this.getClass().getName().toUpperCase();
   }
 
-  // @Override
-  // public String[] getKeyParts() {
-
-  //   throw new UnsupportedOperationException("Unimplemented method 'getKeyParts'");
-  // }
-
   @Override
   public byte[] toBuffer() {
-    // this.toJson().getBytes(StandardCharsets.UTF_8);
-    String entityToJson = gson.toJson(this);
-    return entityToJson.getBytes(StandardCharsets.UTF_8);
+    return this.toJson().getBytes(StandardCharsets.UTF_8);
   }
 
   @Override
@@ -60,7 +52,6 @@ public abstract class SerializableEntityBase<Type extends SerializableEntityInte
           e.printStackTrace();
         }
       } catch (NoSuchFieldException e) {
-        /* ignore or: */
         e.printStackTrace();
       }
     }

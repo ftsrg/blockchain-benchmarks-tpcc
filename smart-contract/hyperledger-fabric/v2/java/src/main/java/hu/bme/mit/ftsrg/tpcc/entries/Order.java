@@ -72,9 +72,4 @@ public class Order extends SerializableEntityBase<Order> {
       }
     };
   }
-
-  // @Override
-  // public String getType() {
-  //   return TABLES.ORDER;
-  // }
 }
