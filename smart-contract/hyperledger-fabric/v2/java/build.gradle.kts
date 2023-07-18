@@ -32,6 +32,7 @@ dependencies {
   implementation("org.hyperledger.fabric:fabric-protos:0.3.0")
   implementation("org.json:json:20230227")
   implementation("com.google.code.gson:gson:2.10.1")
+  implementation("org.projectlombok:lombok:1.18.28")
   // Included also as implementation dependency so shadow will package it
   implementation(files("$openJMLDir/jmlruntime.jar"))
 

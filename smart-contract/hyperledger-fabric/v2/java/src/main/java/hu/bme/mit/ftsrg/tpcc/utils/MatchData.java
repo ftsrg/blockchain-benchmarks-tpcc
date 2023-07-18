@@ -2,7 +2,7 @@
 
 package hu.bme.mit.ftsrg.tpcc.utils;
 
-public class MatchData {
+public final class MatchData {
 
   public enum MatchType {
     CUSTOMER_LAST_NAME,

@@ -2,12 +2,14 @@
 
 package hu.bme.mit.ftsrg.tpcc.utils;
 
+import lombok.experimental.UtilityClass;
 import org.hyperledger.fabric.contract.Context;
 
-public class Common {
+@UtilityClass
+public final class Common {
 
   /** Enumerates the tables of the TPC-C benchmark. */
-  public class TABLES {
+  public final class TABLES {
     static final String WAREHOUSE = "WAREHOUSE";
     static final String DISTRICT = "DISTRICT";
     static final String CUSTOMER = "CUSTOMER";

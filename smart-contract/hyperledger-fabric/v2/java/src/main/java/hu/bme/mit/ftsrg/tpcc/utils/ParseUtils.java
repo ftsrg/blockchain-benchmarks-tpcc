@@ -6,8 +6,10 @@ import hu.bme.mit.ftsrg.tpcc.TPCC;
 import hu.bme.mit.ftsrg.tpcc.entries.*;
 import hu.bme.mit.ftsrg.tpcc.inputs.*;
 import java.util.logging.Logger;
+import lombok.experimental.UtilityClass;
 
-public class ParseUtils {
+@UtilityClass
+public final class ParseUtils {
 
   private static final Logger LOGGER = Logger.getLogger(TPCC.class.getName());
 

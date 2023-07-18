@@ -3,8 +3,10 @@
 package hu.bme.mit.ftsrg.tpcc.utils;
 
 import com.google.gson.Gson;
+import lombok.experimental.UtilityClass;
 
 /** A convenience facade for a concrete JSON-serializer. */
+@UtilityClass
 public final class JSON {
 
   private static final Gson gson = new Gson();
@@ -27,6 +29,6 @@ public final class JSON {
    * @return The resulting object
    */
   public static <T> T deserialize(final String json, final Class<T> clazz) {
-    return gson.fromJson(obj, clazz);
+    return gson.fromJson(json, clazz);
   }
 }

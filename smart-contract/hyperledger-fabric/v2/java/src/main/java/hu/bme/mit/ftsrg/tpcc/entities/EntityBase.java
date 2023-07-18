@@ -5,12 +5,12 @@ package hu.bme.mit.ftsrg.tpcc.entities;
 import hu.bme.mit.ftsrg.tpcc.utils.JSON;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
+import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;
 
+@EqualsAndHashCode
 @DataType
-public class EntityBase implements EntityInterface {
-
-  public EntityBase() {}
+public abstract class EntityBase implements EntityInterface {
 
   @Override
   public String getType() {
