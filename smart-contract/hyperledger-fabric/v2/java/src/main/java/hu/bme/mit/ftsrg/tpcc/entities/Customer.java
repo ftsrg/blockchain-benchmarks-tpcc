@@ -1,14 +1,15 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-package hu.bme.mit.ftsrg.tpcc.entries;
+package hu.bme.mit.ftsrg.tpcc.entities;
 
+import hu.bme.mit.ftsrg.tpcc.utils.Common;
 import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
 @EqualsAndHashCode
-@DataType
-public final class Customer {
+@DataType()
+public class Customer extends SerializableEntityBase<Customer> {
 
   /** The customer ID. Primary key. */
   @Property(schema = {"minimum", "0"})
@@ -89,6 +90,12 @@ public final class Customer {
   @Property(schema = {"maxLength", "500"})
   private String c_data;
 
+  Customer() {
+    this.c_id = -1;
+    this.c_d_id = -1;
+    this.c_w_id = -1;
+  }
+
   public Customer(
       final int id,
       final int d_id,
@@ -132,6 +139,16 @@ public final class Customer {
     this.c_payment_cnt = payment_cnt;
     this.c_delivery_cnt = delivery_cnt;
     this.c_data = data;
+  }
+
+  @Override
+  public String[] getKeyParts() {
+    return new String[] {Common.pad(c_w_id), Common.pad(c_d_id), Common.pad(c_id)};
+  }
+
+  @Override
+  public EntityFactory<Customer> getFactory() {
+    return Customer::new;
   }
 
   public int getC_id() {

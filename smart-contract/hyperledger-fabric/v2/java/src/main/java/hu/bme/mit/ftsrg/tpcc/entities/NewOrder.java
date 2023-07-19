@@ -1,14 +1,15 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-package hu.bme.mit.ftsrg.tpcc.entries;
+package hu.bme.mit.ftsrg.tpcc.entities;
 
+import hu.bme.mit.ftsrg.tpcc.utils.Common;
 import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
 @EqualsAndHashCode
 @DataType
-public final class NewOrder {
+public final class NewOrder extends SerializableEntityBase<NewOrder> {
 
   /** The order ID. Primary key. */
   @Property(schema = {"minimum", "0"})
@@ -22,10 +23,26 @@ public final class NewOrder {
   @Property(schema = {"minimum", "0"})
   private final int no_w_id;
 
+  NewOrder() {
+    this.no_o_id = -1;
+    this.no_d_id = -1;
+    this.no_w_id = -1;
+  }
+
   public NewOrder(final int o_id, final int d_id, final int w_id) {
     this.no_o_id = o_id;
     this.no_d_id = d_id;
     this.no_w_id = w_id;
+  }
+
+  @Override
+  public String[] getKeyParts() {
+    return new String[] {Common.pad(no_w_id), Common.pad(no_d_id), Common.pad(no_o_id)};
+  }
+
+  @Override
+  public EntityFactory<NewOrder> getFactory() {
+    return NewOrder::new;
   }
 
   public int getNo_o_id() {
@@ -35,6 +52,7 @@ public final class NewOrder {
   public int getNo_d_id() {
     return no_d_id;
   }
+
 
   public int getNo_w_id() {
     return no_w_id;

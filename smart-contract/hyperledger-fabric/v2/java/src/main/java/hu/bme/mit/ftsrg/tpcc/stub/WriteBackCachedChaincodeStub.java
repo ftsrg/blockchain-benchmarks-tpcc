@@ -5,30 +5,22 @@ package hu.bme.mit.ftsrg.tpcc.stub;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import org.hyperledger.fabric.contract.Context;
 import org.hyperledger.fabric.shim.ChaincodeStub;
 
-public class WriteBackCachedChaincodeStub extends ChaincodeStubMiddlewareBase {
-  private Context context;
-  private Map<String, CachedItem> cache;
+public final class WriteBackCachedChaincodeStub extends ChaincodeStubMiddlewareBase {
 
-  WriteBackCachedChaincodeStub(ChaincodeStub nextLayer, Context ctx) {
+  private final Map<String, CachedItem> cache = new HashMap<>();
+
+  WriteBackCachedChaincodeStub(final ChaincodeStub nextLayer) {
     super(nextLayer);
-
-    if (ctx == null) {
-      throw new Error("The received ledger context is null");
-    }
-
-    this.context = ctx;
-    this.cache = new HashMap<String, CachedItem>();
   }
 
-  public byte[] read(String key) {
+  public byte[] read(final String key) {
     CachedItem cached = cache.get(key);
 
     // New read, add to cache
     if (cached == null) {
-      byte[] value = context.getStub().getState(key);
+      final byte[] value = this.nextLayer.getState(key);
       cached = new CachedItem(key, value);
       cache.put(key, cached);
     }
@@ -41,7 +33,7 @@ public class WriteBackCachedChaincodeStub extends ChaincodeStubMiddlewareBase {
     return cached.getValue();
   }
 
-  public void write(String key, byte[] value) {
+  public void write(final String key, final byte[] value) {
     CachedItem cached = cache.get(key);
 
     // Blind write!
@@ -57,7 +49,7 @@ public class WriteBackCachedChaincodeStub extends ChaincodeStubMiddlewareBase {
     cached.setValue(value); // Sets the dirty flag if needed
   }
 
-  public void delete(String key) {
+  public void delete(final String key) {
     CachedItem cached = cache.get(key);
 
     // Blind delete!
@@ -71,71 +63,69 @@ public class WriteBackCachedChaincodeStub extends ChaincodeStubMiddlewareBase {
 
   public void dispose() {
     for (Map.Entry<String, CachedItem> entry : cache.entrySet()) {
-      CachedItem item = entry.getValue();
+      final CachedItem item = entry.getValue();
 
       if (item == null || !item.isDirty() || item.getValue() == null) {
         continue;
       }
 
       if (item.isToDelete()) {
-        context.getStub().delState(item.getKey());
+        this.nextLayer.delState(item.getKey());
       } else {
-        context.getStub().putState(item.getKey(), item.getValue());
+        this.nextLayer.putState(item.getKey(), item.getValue());
       }
     }
   }
 }
 
 class CachedItem {
-  private String _key;
-  private byte[] _value;
-  private boolean _toDelete;
-  private boolean _isDirty;
+  private final String key;
+  private byte[] value;
+  private boolean toDelete = false;
+  private boolean dirty = false;
 
-  CachedItem(String key, byte[] value) {
-    this._key = key;
-    this._value = value;
-    this._toDelete = false;
-    this._isDirty = false;
+  CachedItem(final String key, final byte[] value) {
+    this.key = key;
+    this.value = value;
   }
 
   public String getKey() {
-    return this._key;
+    return this.key;
   }
 
   public byte[] getValue() {
-    return this._value;
+    return this.value;
   }
 
-  public void setValue(byte[] value) {
-    if (this._value == null && value == null) {
+  public void setValue(final byte[] value) {
+    if (this.value == null && value == null) {
       return;
     }
 
-    if (this._value != null && value != null && Arrays.equals(this._value, value)) {
+    if (this.value != null && value != null && Arrays.equals(this.value, value)) {
       return;
     }
 
-    this._value = value;
-    this._isDirty = true;
+    this.value = value;
+    this.dirty = true;
   }
 
   public boolean isDirty() {
-    return this._isDirty;
+    return this.dirty;
   }
 
   public boolean isToDelete() {
-    return this._toDelete;
+    return this.toDelete;
   }
 
   public void delete() {
-    if (!this._toDelete) {
-      this._toDelete = true;
-      this._isDirty = true;
+    if (!this.toDelete) {
+      this.toDelete = true;
+      this.dirty = true;
     }
   }
 
   public boolean hasValue() {
-    return this._value != null;
+    return this.value != null;
   }
 }

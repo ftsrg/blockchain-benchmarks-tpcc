@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-package hu.bme.mit.ftsrg.tpcc.entries.extra;
+package hu.bme.mit.ftsrg.tpcc.entities.extra;
 
 import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;

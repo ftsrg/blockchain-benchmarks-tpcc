@@ -2,17 +2,15 @@
 
 package hu.bme.mit.ftsrg.tpcc;
 
-import hu.bme.mit.ftsrg.tpcc.entries.*;
-import hu.bme.mit.ftsrg.tpcc.entries.extra.*;
+import hu.bme.mit.ftsrg.tpcc.entities.*;
+import hu.bme.mit.ftsrg.tpcc.entities.extra.*;
 import hu.bme.mit.ftsrg.tpcc.inputs.*;
 import hu.bme.mit.ftsrg.tpcc.outputs.*;
+import hu.bme.mit.ftsrg.tpcc.stub.EnhancedContext;
 import hu.bme.mit.ftsrg.tpcc.utils.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
-import org.hyperledger.fabric.contract.Context;
 import org.hyperledger.fabric.contract.ContractInterface;
 import org.hyperledger.fabric.contract.annotation.Contact;
 import org.hyperledger.fabric.contract.annotation.Contract;
@@ -20,7 +18,6 @@ import org.hyperledger.fabric.contract.annotation.Default;
 import org.hyperledger.fabric.contract.annotation.Info;
 import org.hyperledger.fabric.contract.annotation.License;
 import org.hyperledger.fabric.contract.annotation.Transaction;
-import org.json.JSONObject;
 
 @Contract(
     name = "TPCC",
@@ -29,12 +26,11 @@ import org.json.JSONObject;
             title = "tpcc contract",
             description = "My Smart Contract",
             version = "0.0.1",
-            license = @License(name = "Apache-2.0", url = ""),
+            license = @License(name = "Apache-2.0"),
             contact = @Contact(email = "tpcc@example.com", name = "tpcc", url = "http://tpcc.me")))
 
 /**
- * The implementation of the TPC-C benchmark smart contract according to the specification version
- * v5.11.0.
+ * The implementation of the TPC-C benchmark smart contract according to the specification version v5.11.0.
  */
 @Default
 public final class TPCC implements ContractInterface {
@@ -49,9 +45,7 @@ public final class TPCC implements ContractInterface {
    * @return The JSON encoded query results according to the specification.
    */
   @Transaction(intent = Transaction.TYPE.SUBMIT)
-  public String doDelivery(final Context ctx, final String parameters) {
-    // addTxInfo(ctx);
-
+  public String doDelivery(final EnhancedContext ctx, final String parameters) {
     // TPC-C 2.7.4.2
     LOGGER.info("Starting Delivery TX with parameters" + parameters);
     try {
@@ -67,19 +61,21 @@ public final class TPCC implements ContractInterface {
         // NO_D_ID (equals D_ID) and with the lowest NO_O_ID value is selected.
         // This is the oldest undelivered order of that district.
         // NO_O_ID, the order number, is retrieved.
-        final NewOrder newOrder = LedgerUtils.getOldestNewOrder(ctx, params.getW_id(), d_id);
+
+        final NewOrder newOrder = NewOrder.builder().w_id(params.getW_id()).d_id(d_id).build();
+        final List<NewOrder> orders = ctx.registry.readAll(ctx, newOrder);
+        // FIXME sort
+        final NewOrder oldestNewOrder = orders.get(0);
         LOGGER.info("Oldest new order retrieved is: " + JSON.serialize(newOrder));
 
-        if (newOrder == null) {
+        // FIXME never null like this
+        if (oldestNewOrder == null) {
           // If no matching row is found, then the delivery of an order for this district
           // is skipped. The condition in which no outstanding order is present at a given
           // district must be handled by skipping the delivery of an order for that
           // district only and resuming the delivery of an order from all remaining districts of
           // the selected warehouse. If this condition occurs in more than 1%, or in more than
           // one, whichever is greater, of the business transactions, it must be reported.
-          // common.log("Could not find new order for District( " + params.w_id + "," +
-          // d_id + " ) skipping it",
-          // ctx, "info");
           LOGGER.info(
               "Could not find new order for District( "
                   + params.getW_id()
@@ -89,24 +85,23 @@ public final class TPCC implements ContractInterface {
           skipped++;
           continue;
         }
-
-        LedgerUtils.deleteNewOrder(ctx, newOrder);
-        LOGGER.info(JSON.serialize(newOrder) + "DELETED");
-
+        ctx.registry.delete(ctx, oldestNewOrder);
+        LOGGER.info(JSON.serialize(oldestNewOrder) + "DELETED");
         // The row in the ORDER table with matching O_W_ID (equals W_ ID), O_D_ID
         // (equals D_ID),
         // and O_ID (equals NO_O_ID) is selected, O_C_ID, the customer number, is
         // retrieved,
         // and O_CARRIER_ID is updated.
         final Order order =
-            LedgerUtils.getOrder(ctx, params.getW_id(), d_id, newOrder.getNo_o_id());
+            Order.builder().w_id(params.getW_id()).d_id(d_id).id(newOrder.getNo_o_id()).build();
+        ctx.registry.read(ctx, order);
         LOGGER.info(
             "retrieved order details with no_o_id: "
-                + newOrder.getNo_o_id()
+                + oldestNewOrder.getNo_o_id()
                 + " and Warehouse and District IDs "
                 + params.getW_id());
         order.setO_carrier_id(params.getO_carrier_id());
-        LedgerUtils.updateOrder(ctx, order);
+        ctx.registry.update(ctx, order);
         LOGGER.info(
             "Updated order"
                 + JSON.serialize(order)
@@ -121,12 +116,18 @@ public final class TPCC implements ContractInterface {
         // operating
         // system and the sum of all OL_AMOUNT is retrieved.
         double orderLineAmountTotal = 0;
-        // ctx.getTxinfo().md_tpcc_delivery_total_order_lines += order.o_ol_cnt;
         for (int i = 1; i <= order.getO_ol_cnt(); i++) {
           LOGGER.info("getOrderLine");
           final OrderLine orderLine =
-              LedgerUtils.getOrderLine(ctx, params.getW_id(), d_id, order.getO_id(), i);
+              OrderLine.builder()
+                  .w_id(params.getW_id())
+                  .d_id(d_id)
+                  .o_id(order.getO_id())
+                  .number(i)
+                  .build();
+          ctx.registry.read(ctx, orderLine);
           LOGGER.info("OrderLine: " + JSON.serialize(orderLine) + "retrieved");
+
           orderLineAmountTotal += orderLine.getOl_amount();
           orderLine.setOl_delivery_d(params.getOl_delivery_d());
           LOGGER.info(
@@ -134,7 +135,7 @@ public final class TPCC implements ContractInterface {
                   + orderLineAmountTotal
                   + "and ol_delivery_d "
                   + orderLine.getOl_delivery_d());
-          LedgerUtils.updateOrderLine(ctx, orderLine);
+          ctx.registry.update(ctx, orderLine);
         }
 
         // The row in the CUSTOMER table with matching C_W_ID (equals W_ID), C_D_ID
@@ -149,15 +150,17 @@ public final class TPCC implements ContractInterface {
                 + d_id
                 + ","
                 + order.getO_c_id());
+
         final Customer customer =
-            LedgerUtils.getCustomer(ctx, params.getW_id(), d_id, order.getO_c_id());
+            Customer.builder().w_id(params.getW_id()).d_id(d_id).id(order.getO_c_id()).build();
+        ctx.registry.read(ctx, customer);
         LOGGER.info("Customer: " + JSON.serialize(customer) + "retrieved");
         customer.setC_balance(customer.getC_balance() + orderLineAmountTotal);
         customer.setC_delivery_cnt(customer.getC_delivery_cnt() + 1);
         LOGGER.info(
             "updateCustomer. C_BALANCE is increased by the sum of all order-line amounts (OL_AMOUNT)"
                 + "previously retrieved and C_DELIVERY_CNT is incremented by 1 ");
-        LedgerUtils.updateCustomer(ctx, customer);
+        ctx.registry.update(ctx, customer);
 
         deliveredOrders.add(new DeliveredOrder(d_id, order.getO_id()));
       }
@@ -167,7 +170,6 @@ public final class TPCC implements ContractInterface {
               params.getW_id(), params.getO_carrier_id(), deliveredOrders, skipped);
 
       LOGGER.info("Finished Delivery TX with output: " + JSON.serialize(output));
-      // System.out.println("Output : " + output);
       return JSON.serialize(output);
     } catch (Exception err) {
       LOGGER.info(err.toString());
@@ -183,10 +185,9 @@ public final class TPCC implements ContractInterface {
    * @return The JSON encoded query results according to the specification.
    */
   @Transaction(intent = Transaction.TYPE.SUBMIT)
-  public String doNewOrder(final Context ctx, final String parameters) {
+  public String doNewOrder(final EnhancedContext ctx, final String parameters) {
     // addTxInfo(ctx);
     // TPC-C 2.4.2.2
-    // common.log("Starting NewOrder TX with parameters" + parameters, ctx, "info");
     LOGGER.info("Starting NewOrder TX with parameters" + parameters);
 
     try {
@@ -194,17 +195,21 @@ public final class TPCC implements ContractInterface {
 
       // The row in the WAREHOUSE table with matching W_ID is selected and W_TAX,
       // the warehouse tax rate, is retrieved.
-      final Warehouse warehouse = LedgerUtils.getWarehouse(ctx, params.getW_id());
+      final Warehouse warehouse = Warehouse.builder().id(params.getW_id()).build();
+      ctx.registry.read(ctx, warehouse);
       LOGGER.info("Warehouse " + JSON.serialize(warehouse) + "retrieved");
 
       // The row in the DISTRICT table with matching D_W_ID and D_ ID is selected,
       // D_TAX, the district tax rate, is retrieved, and D_NEXT_O_ID, the next
       // available order number for the district, is retrieved and incremented by one.
-      final District district = LedgerUtils.getDistrict(ctx, warehouse.getW_id(), params.getD_id());
+      final District district =
+          District.builder().w_id(warehouse.getW_id()).id(params.getD_id()).build();
+      ctx.registry.read(ctx, district);
       LOGGER.info("District " + JSON.serialize(district) + "retrieved");
+
       final int nextOrderId = district.getD_next_o_id();
       district.setD_next_o_id(nextOrderId + 1);
-      LedgerUtils.updateDistrict(ctx, district);
+      ctx.registry.update(ctx, district);
       LOGGER.info(
           "Next available order number for District "
               + params.getD_id()
@@ -215,7 +220,12 @@ public final class TPCC implements ContractInterface {
       // selected and C_DISCOUNT, the customer's discount rate, C_LAST, the customer's
       // last name, and C_CREDIT, the customer's credit status, are retrieved.
       final Customer customer =
-          LedgerUtils.getCustomer(ctx, warehouse.getW_id(), district.getD_id(), params.getC_id());
+          Customer.builder()
+              .w_id(warehouse.getW_id())
+              .d_id(district.getD_id())
+              .id(params.getC_id())
+              .build();
+      ctx.registry.read(ctx, customer);
       LOGGER.info(
           "Customer "
               + params.getC_id()
@@ -236,9 +246,7 @@ public final class TPCC implements ContractInterface {
               .d_id(district.getD_id())
               .w_id(warehouse.getW_id())
               .build();
-
-      final String jsonNewOrder = JSON.serialize(newOrder);
-      LedgerUtils.createNewOrder(ctx, jsonNewOrder);
+      ctx.registry.create(ctx, newOrder);
       LOGGER.info("New Order " + JSON.serialize(newOrder) + "created");
 
       boolean allItemsLocal = true;
@@ -260,9 +268,7 @@ public final class TPCC implements ContractInterface {
               .ol_cnt(params.getI_ids().length)
               .all_local(allItemsLocal ? 1 : 0)
               .build();
-
-      final String jsonOrder = JSON.serialize(order);
-      LedgerUtils.createOrder(ctx, jsonOrder);
+      ctx.registry.create(ctx, order);
       LOGGER.info("Created Order " + JSON.serialize(order));
 
       final List<ItemsData> itemsData = new ArrayList<>();
@@ -279,26 +285,9 @@ public final class TPCC implements ContractInterface {
         // I_DATA are retrieved. If I_ID has an unused value (see Clause 2.4.1.5), a
         // "not-found" condition is signaled, resulting in a rollback of the
         // database transaction (see Clause 2.4.2.3).
-        final Item item = LedgerUtils.getItem(ctx, i_id);
+        final Item item = Item.builder().id(i_id).build();
+        ctx.registry.read(ctx, item);
         LOGGER.info("Retrieved item " + JSON.serialize(item) + " with item id " + i_id);
-        if (item == null) {
-          // 2.4.3.4 For transactions that are rolled back as a result of an
-          // unused item number (1% of all New-Order transactions), the emulated
-          // terminal must display in the appropriate fields of the input/output
-          // screen the fields: W_ID, D_ID, C_ID, C_LAST, C_CREDIT, O_ID, and the
-          // execution status message "Item number is not valid".
-          final Map<String, Object> errorOutput = new HashMap<>();
-          errorOutput.put("w_id", warehouse.getW_id());
-          errorOutput.put("d_id", district.getD_id());
-          errorOutput.put("c_id", customer.getC_id());
-          errorOutput.put("c_last", customer.getC_last());
-          errorOutput.put("c_credit", customer.getC_credit());
-          errorOutput.put("o_id", order.getO_id());
-          errorOutput.put("message", "Item number is not valid");
-
-          LOGGER.info("Item not found. Error output:" + errorOutput.toString());
-          throw new Exception(new JSONObject(errorOutput).toString());
-        }
 
         // The row in the STOCK table with matching S_I_ID (equals OL_I_ID) and
         // S_W_ID (equals OL_SUPPLY_W_ID) is selected. S_QUANTITY, the quantity in
@@ -308,7 +297,8 @@ public final class TPCC implements ContractInterface {
         // S_QUANTITY is updated to (S_QUANTITY - OL_QUANTITY)+91. S_YTD is
         // increased by OL_QUANTITY and S_ORDER_CNT is incremented by 1. If the
         // order-line is remote, then S_REMOTE_CNT is incremented by 1.
-        final Stock stock = LedgerUtils.getStock(ctx, i_w_id, i_id);
+        final Stock stock = Stock.builder().w_id(i_w_id).i_id(i_id).build();
+        ctx.registry.read(ctx, stock);
         LOGGER.info("Stock " + JSON.serialize(stock) + " retrieved");
 
         if (stock.getS_quantity() >= i_qty + 10) {
@@ -324,7 +314,7 @@ public final class TPCC implements ContractInterface {
           stock.setS_remote_cnt(stock.getS_remote_cnt() + 1);
         }
 
-        LedgerUtils.updateStock(ctx, stock);
+        ctx.registry.update(ctx, stock);
         LOGGER.info("Updated stock with " + JSON.serialize(stock));
 
         // The amount for the item in the order (OL_AMOUNT) is computed as:
@@ -362,9 +352,7 @@ public final class TPCC implements ContractInterface {
                 .amount(orderLineAmount)
                 .dist_info("s_dist_" + stockDistrictId)
                 .build();
-
-        final String jsonOL = JSON.serialize(orderLine);
-        LedgerUtils.createOrderLine(ctx, jsonOL);
+        ctx.registry.create(ctx, orderLine);
         LOGGER.info("OrderLine " + JSON.serialize(orderLine) + " created");
 
         // 2.4.3.3 The emulated terminal must display, in the appropriate fields of
@@ -423,15 +411,11 @@ public final class TPCC implements ContractInterface {
               .build();
 
       LOGGER.info("Finished New Order TX with output" + JSON.serialize(output));
-      // System.out.println("console output print" + JSON.serialize(output));
-      // System.out.println("THIS IS THE OUTPUT" + output);
-
       return JSON.serialize(output);
     } catch (Exception err) {
-      LOGGER.info("ERROR" + err.toString() + "occured");
-      // throw err;
+      LOGGER.info("ERROR" + err + "occurred");
     }
-    LOGGER.info("Error occured. NULL retured");
+    LOGGER.info("Error occurred. NULL returned");
     return null;
   }
 
@@ -443,15 +427,17 @@ public final class TPCC implements ContractInterface {
    * @return The JSON encoded query results according to the specification.
    */
   @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String doOrderStatus(final Context ctx, final String parameters) {
+  public String doOrderStatus(final EnhancedContext ctx, final String parameters) {
     // TPC-C 2.6.2.2
-    // log(`Starting Order Status TX with parameters: ${parameters}`, ctx, 'info');
     try {
       final DoOrderStatusInputParameters params = ParseUtils.parseOrderStatusParameters(parameters);
 
       final Customer customer =
           LedgerUtils.getCustomersByIdOrLastName(
               ctx, params.getW_id(), params.getD_id(), params.getC_id(), params.getC_last());
+      if (customer == null) {
+        throw new RuntimeException("Could not get customer by ID or last name");
+      }
       LOGGER.info(
           "getCustomersByIdOrLastName returned Customer: "
               + customer.getC_first()
@@ -479,7 +465,13 @@ public final class TPCC implements ContractInterface {
 
       for (int i = 1; i <= order.getO_ol_cnt(); i++) {
         final OrderLine orderLine =
-            LedgerUtils.getOrderLine(ctx, order.getO_w_id(), order.getO_d_id(), order.getO_id(), i);
+            OrderLine.builder()
+                .w_id(order.getO_w_id())
+                .d_id(order.getO_d_id())
+                .o_id(order.getO_id())
+                .number(i)
+                .build();
+        ctx.registry.read(ctx, orderLine);
         LOGGER.info("getOrderLine with order.o_ids: " + order.getO_id() + "retrieved");
 
         OrderLineData olData =
@@ -490,10 +482,8 @@ public final class TPCC implements ContractInterface {
                 .ol_amount(orderLine.getOl_amount())
                 .ol_delivery_d(orderLine.getOl_delivery_d())
                 .build();
-
         orderLineData.add(olData);
-
-        LOGGER.info("ordeline data retrived: " + orderLineData);
+        LOGGER.info("ordeline data retrieved: " + orderLineData);
       }
 
       // 2.6.3.3 The emulated terminal must display, in the appropriate fields of the
@@ -527,7 +517,6 @@ public final class TPCC implements ContractInterface {
       return JSON.serialize(output);
     } catch (Exception err) {
       Common.log(err.toString(), ctx, "error");
-      // throw err;
     }
     return null;
   }
@@ -540,8 +529,7 @@ public final class TPCC implements ContractInterface {
    * @return The JSON encoded query results according to the specification.
    */
   @Transaction(intent = Transaction.TYPE.SUBMIT)
-  public String doPayment(final Context ctx, final String parameters) {
-    // addTxInfo(ctx);
+  public String doPayment(final EnhancedContext ctx, final String parameters) {
     // TPC-C 2.5.2.2
     LOGGER.info("Starting Payment TX with parameters: " + parameters);
     try {
@@ -551,25 +539,31 @@ public final class TPCC implements ContractInterface {
       // W_STREET_1, W_STREET_2, W_CITY, W_STATE, and W_ZIP are retrieved and W_YTD,
       // the
       // warehouse's year-to-date balance, is increased by H_ AMOUNT.
-      final Warehouse warehouse = LedgerUtils.getWarehouse(ctx, params.getW_id());
-      LOGGER.info("Parameters retrieved for warehouse " + params.getW_id());
+      final Warehouse warehouse = Warehouse.builder().id(params.getW_id()).build();
+      ctx.registry.read(ctx, warehouse);
+      LOGGER.info("Retrieved warehouse with ID " + params.getW_id());
       warehouse.setW_ytd(warehouse.getW_ytd() + params.getH_amount());
-      LedgerUtils.updateWarehouse(ctx, warehouse);
+      ctx.registry.update(ctx, warehouse);
       LOGGER.info(
           "Updated warehouse's year-to-date balance  with new value: " + warehouse.getW_ytd());
 
       // The row in the DISTRICT table with matching D_W_ID and D_ID is selected.
       // D_NAME, D_STREET_1, D_STREET_2, D_CITY, D_STATE, and D_ZIP are retrieved and
       // D_YTD, the district's year-to-date balance, is increased by H_AMOUNT.
-      final District district = LedgerUtils.getDistrict(ctx, warehouse.getW_id(), params.getD_id());
-      LOGGER.info("get parameters for  district " + params.getD_id());
+      final District district =
+          District.builder().w_id(warehouse.getW_id()).id(params.getD_id()).build();
+      ctx.registry.read(ctx, district);
+      LOGGER.info("Read entry for  district " + params.getD_id());
       district.setD_ytd(district.getD_ytd() + params.getH_amount());
-      LedgerUtils.updateDistrict(ctx, district);
+      ctx.registry.update(ctx, district);
       LOGGER.info("Update district's year-to-date balance with value: " + district.getD_ytd());
 
       final Customer customer =
           LedgerUtils.getCustomersByIdOrLastName(
               ctx, warehouse.getW_id(), district.getD_id(), params.getC_id(), params.getC_last());
+      if (customer == null) {
+        throw new RuntimeException("Could not find customer by ID or last name");
+      }
       LOGGER.info(
           "Customer " + JSON.serialize(customer) + "retrieved by last name " + params.getC_last());
 
@@ -619,7 +613,7 @@ public final class TPCC implements ContractInterface {
           customer.setC_data(customer.getC_data().substring(0, 500));
       }
 
-      LedgerUtils.updateCustomer(ctx, customer);
+      ctx.registry.update(ctx, customer);
       LOGGER.info("customer updated with the new C_DATA field.");
 
       // H_DATA is built by concatenating W_NAME and D_NAME separated by 4 spaces.
@@ -638,10 +632,8 @@ public final class TPCC implements ContractInterface {
               .amount(params.getH_amount())
               .data(h_data)
               .build();
-
-      final String historyData = JSON.serialize(history);
-      LedgerUtils.createHistory(ctx, historyData);
-      LOGGER.info("History created with data " + historyData);
+      ctx.registry.create(ctx, history);
+      LOGGER.info("History created with data " + JSON.serialize(history));
 
       // 2.5.3.3 The emulated terminal must display, in the appropriate fields of the
       // input/output screen, all input data and the output data resulting from the
@@ -695,7 +687,6 @@ public final class TPCC implements ContractInterface {
       return JSON.serialize(output);
     } catch (Exception err) {
       Common.log(err.toString(), ctx, "error");
-      // throw err;
     }
     return null;
   }
@@ -708,16 +699,17 @@ public final class TPCC implements ContractInterface {
    * @return The JSON encoded query results according to the specification.
    */
   @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String doStockLevel(final Context ctx, final String parameters) {
+  public String doStockLevel(final EnhancedContext ctx, final String parameters) {
     // addTxInfo(ctx);
     // TPC-C 2.8.2.2
     LOGGER.info("Starting Stock Level TX with parameters: " + parameters);
     try {
       final DoStockLevelInputParameters params = ParseUtils.parseStockLevelParameters(parameters);
-
       // The row in the DISTRICT table with matching D_W_ID and D_ID is selected and
       // D_NEXT_O_ID is retrieved.
-      final District district = LedgerUtils.getDistrict(ctx, params.getW_id(), params.getD_id());
+      final District district =
+          District.builder().w_id(params.getW_id()).id(params.getD_id()).build();
+      ctx.registry.read(ctx, district);
       LOGGER.info("District " + district.getD_id() + " RETRIEVED");
 
       // All rows in the ORDER-LINE table with matching OL_W_ID (equals W_ID), OL_D_ID
@@ -739,7 +731,8 @@ public final class TPCC implements ContractInterface {
       // (giving low_stock).
       int lowStock = 0;
       for (final int i_id : recentItemIds) {
-        final Stock stock = LedgerUtils.getStock(ctx, params.getW_id(), i_id);
+        final Stock stock = Stock.builder().w_id(params.getW_id()).i_id(i_id).build();
+        ctx.registry.read(ctx, stock);
         LOGGER.info("get stock for items> " + i_id);
         if (stock.getS_quantity() < params.getThreshold()) {
           LOGGER.info("The stock quantity is less than the threshold");
@@ -767,7 +760,6 @@ public final class TPCC implements ContractInterface {
 
     } catch (Exception err) {
       Common.log(err.toString(), ctx, "error");
-      // throw err;
     }
     return null;
   }
@@ -778,13 +770,13 @@ public final class TPCC implements ContractInterface {
    * @param ctx The TX context.
    */
   @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public void instantiate(final Context ctx) {
+  public void instantiate(final EnhancedContext ctx) {
     Common.log("Instantiating TPC-C chaincode", ctx, "info");
     LOGGER.info("Instantiating TPC-C chaincode");
   }
 
   @Transaction(intent = Transaction.TYPE.SUBMIT)
-  public void initEntries(final Context ctx) {
+  public void initEntries(final EnhancedContext ctx) {
     LOGGER.info("Starting initEntries");
     try {
       final Warehouse warehouse =
@@ -799,9 +791,8 @@ public final class TPCC implements ContractInterface {
               .tax(0.1000)
               .ytd(10000)
               .build();
-      final String jsonWarehouse = JSON.serialize(warehouse);
-      LedgerUtils.createWarehouse(ctx, jsonWarehouse);
-      LOGGER.info("Warehouse " + jsonWarehouse + " initialized");
+      ctx.registry.create(ctx, warehouse);
+      LOGGER.info("Warehouse " + JSON.serialize(warehouse) + " initialized");
 
       final District district =
           District.builder()
@@ -817,9 +808,8 @@ public final class TPCC implements ContractInterface {
               .ytd(10000)
               .next_o_id(3001)
               .build();
-      final String jsonDistrict = JSON.serialize(district);
-      LedgerUtils.createDistrict(ctx, jsonDistrict);
-      LOGGER.info("District " + jsonDistrict + " initialized");
+      ctx.registry.create(ctx, district);
+      LOGGER.info("District " + JSON.serialize(district) + " initialized");
 
       final Customer customer1 =
           Customer.builder()
@@ -869,11 +859,10 @@ public final class TPCC implements ContractInterface {
               .delivery_cnt(0)
               .data("Good credit")
               .build();
-      final String jsonCustomer1 = JSON.serialize(customer1);
-      final String jsonCustomer2 = JSON.serialize(customer2);
-      LedgerUtils.createCustomer(ctx, jsonCustomer1);
-      LedgerUtils.createCustomer(ctx, jsonCustomer2);
-      LOGGER.info("Customers initialized: " + jsonCustomer1 + "," + jsonCustomer2);
+      ctx.registry.create(ctx, customer1);
+      ctx.registry.create(ctx, customer2);
+      LOGGER.info(
+          "Customers initialized: " + JSON.serialize(customer1) + "," + JSON.serialize(customer2));
 
       final Item item1 =
           Item.builder().id(1).im_id(123).name("Cup").price(99.50).data("ORIGINAL").build();
@@ -881,15 +870,18 @@ public final class TPCC implements ContractInterface {
           Item.builder().id(2).im_id(234).name("Plate").price(89.50).data("ORIGINAL").build();
       final Item item3 =
           Item.builder().id(3).im_id(456).name("Glass").price(78.00).data("GENERIC").build();
-      final String jsonItem1 = JSON.serialize(item1);
-      final String jsonItem2 = JSON.serialize(item2);
-      final String jsonItem3 = JSON.serialize(item3);
-      LedgerUtils.createItem(ctx, jsonItem1);
-      LedgerUtils.createItem(ctx, jsonItem2);
-      LedgerUtils.createItem(ctx, jsonItem3);
-      LOGGER.info("Items initialized: " + jsonItem1 + "," + jsonItem2 + "," + jsonItem3);
+      ctx.registry.create(ctx, item1);
+      ctx.registry.create(ctx, item2);
+      ctx.registry.create(ctx, item3);
+      LOGGER.info(
+          "Items initialized: "
+              + JSON.serialize(item1)
+              + ","
+              + JSON.serialize(item2)
+              + ","
+              + JSON.serialize(item3));
 
-      final Stock stock =
+      final Stock stock1 =
           Stock.builder()
               .i_id(1)
               .w_id(1)
@@ -925,62 +917,69 @@ public final class TPCC implements ContractInterface {
               .remote_cnt(0)
               .data("GENERIC")
               .build();
-      final String jsonStock = JSON.serialize(stock);
-      final String jsonStock2 = JSON.serialize(stock2);
-      final String jsonStock3 = JSON.serialize(stock3);
-      LedgerUtils.createStock(ctx, jsonStock);
-      LedgerUtils.createStock(ctx, jsonStock2);
-      LedgerUtils.createStock(ctx, jsonStock3);
-      LOGGER.info("Stocks initialized: " + jsonStock + "," + jsonStock2 + "," + jsonStock3);
+      ctx.registry.create(ctx, stock1);
+      ctx.registry.create(ctx, stock2);
+      ctx.registry.create(ctx, stock3);
+      LOGGER.info(
+          "Stocks initialized: "
+              + JSON.serialize(stock1)
+              + ","
+              + JSON.serialize(stock2)
+              + ","
+              + JSON.serialize(stock3));
 
-      LOGGER.info("ENTRIES INNITIALIZED");
+      LOGGER.info("ENTRIES INITIALIZED");
     } catch (Exception e) {
-      LOGGER.info("Problem occured while innitializing entries, caused by  " + e);
+      LOGGER.info("Problem occured while initializing entries, caused by  " + e);
       e.printStackTrace();
     }
   }
 
   @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String readWarehouseEntry(final Context ctx, final int w_id) throws Exception {
-    LOGGER.info("Attemp to retrieve warehouse details  for " + w_id);
-    final Warehouse warehouse = LedgerUtils.getWarehouse(ctx, w_id);
-    LOGGER.info(
-        "Warehouse " + warehouse.getW_id() + " Exist. " + JSON.serialize(warehouse) + " returned");
+  public String readWarehouseEntry(final EnhancedContext ctx, final int w_id) {
+    LOGGER.info("Attempt to retrieve warehouse details  for " + w_id);
+    final Warehouse warehouse = Warehouse.builder().id(w_id).build();
+    ctx.registry.read(ctx, warehouse);
+    LOGGER.info("Warehouse" + JSON.serialize(warehouse) + " returned");
     return JSON.serialize(warehouse);
   }
 
   @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String getOrderEntry(final Context ctx, final int w_id, final int d_id, final int o_id)
-      throws Exception {
+  public String getOrderEntry(
+      final EnhancedContext ctx, final int w_id, final int d_id, final int o_id) {
     LOGGER.info("retrieve details  for existing order entry" + w_id);
-    final Order order = LedgerUtils.getOrder(ctx, w_id, d_id, o_id);
-    LOGGER.info("Order " + order.getO_id() + " Exist. " + JSON.serialize(order) + " returned");
+    final Order order = Order.builder().w_id(w_id).d_id(d_id).id(o_id).build();
+    ctx.registry.read(ctx, order);
+    LOGGER.info("Order " + JSON.serialize(order) + " returned");
     return JSON.serialize(order);
   }
 
   @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String getItemEntry(final Context ctx, final int i_id) throws Exception {
+  public String getItemEntry(final EnhancedContext ctx, final int i_id) {
     LOGGER.info("retrieve details  for existing item entry " + i_id);
-    final Item item = LedgerUtils.getItem(ctx, i_id);
-    LOGGER.info("Item " + item.getI_id() + " Exist. " + JSON.serialize(item) + " returned");
+    final Item item = Item.builder().id(i_id).build();
+    ctx.registry.read(ctx, item);
+    LOGGER.info("Item " + JSON.serialize(item) + " returned");
     return JSON.serialize(item);
   }
 
   @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String getNewOrderEntry(final Context ctx, final int w_id, final int d_id, final int o_id)
-      throws Exception {
+  public String getNewOrderEntry(
+      final EnhancedContext ctx, final int w_id, final int d_id, final int o_id) {
     LOGGER.info(
-        "Attemp to retrieve oldest new order details  for warehouse"
+        "Attempt to retrieve oldest new order details  for warehouse"
             + w_id
             + "and District "
             + d_id);
-    final NewOrder newOrder = LedgerUtils.getNewOrder(ctx, w_id, d_id, o_id);
+    final NewOrder newOrder = NewOrder.builder().w_id(w_id).d_id(d_id).o_id(o_id).build();
+    ctx.registry.read(ctx, newOrder);
     LOGGER.info("Retrieved new order  " + JSON.serialize(newOrder));
     return JSON.serialize(newOrder);
   }
 
+  @SuppressWarnings("SameReturnValue")
   @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String ping(final Context _ctx) {
+  public String ping(final EnhancedContext _ctx) {
     LOGGER.info("Received ping");
     return "pong";
   }
@@ -993,8 +992,9 @@ public final class TPCC implements ContractInterface {
   //@ requires c_id < 2;
   // spotless:on
   @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String OJMLTEST__getCustomer(
-      final Context ctx, final int c_w_id, final int c_d_id, final int c_id) throws Exception {
-    return JSON.serialize(LedgerUtils.getCustomer(ctx, c_w_id, c_d_id, c_id));
+  public String OJMTEST__getCustomer(
+      final EnhancedContext ctx, final int c_w_id, final int c_d_id, final int c_id) {
+    final Customer customer = Customer.builder().w_id(c_w_id).d_id(c_d_id).id(c_id).build();
+    return JSON.serialize(ctx.registry.read(ctx, customer));
   }
 }

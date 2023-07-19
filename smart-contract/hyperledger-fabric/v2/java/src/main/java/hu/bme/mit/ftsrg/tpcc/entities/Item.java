@@ -1,14 +1,15 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-package hu.bme.mit.ftsrg.tpcc.entries;
+package hu.bme.mit.ftsrg.tpcc.entities;
 
+import hu.bme.mit.ftsrg.tpcc.utils.Common;
 import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
 @EqualsAndHashCode
 @DataType
-public final class Item {
+public final class Item extends SerializableEntityBase<Item> {
 
   /** The ID of the item. Primary key. */
   @Property(schema = {"minimum", "0"})
@@ -30,6 +31,10 @@ public final class Item {
   @Property(schema = {"maxLength", "50"})
   private String i_data;
 
+  Item() {
+    this.i_id = -1;
+  }
+
   public Item(
       final int id, final int im_id, final String name, final double price, final String data) {
     this.i_id = id;
@@ -37,6 +42,16 @@ public final class Item {
     this.i_name = name;
     this.i_price = price;
     this.i_data = data;
+  }
+
+  @Override
+  public String[] getKeyParts() {
+    return new String[] {Common.pad(i_id)};
+  }
+
+  @Override
+  public EntityFactory<Item> getFactory() {
+    return Item::new;
   }
 
   public int getI_id() {

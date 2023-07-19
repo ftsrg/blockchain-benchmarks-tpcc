@@ -1,14 +1,15 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-package hu.bme.mit.ftsrg.tpcc.entries;
+package hu.bme.mit.ftsrg.tpcc.entities;
 
+import hu.bme.mit.ftsrg.tpcc.utils.Common;
 import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
 @EqualsAndHashCode
 @DataType
-public final class OrderLine {
+public final class OrderLine extends SerializableEntityBase<OrderLine> {
 
   /** The order ID associated with the order line. Primary key. */
   @Property(schema = {"minimum", "0"})
@@ -48,6 +49,13 @@ public final class OrderLine {
   @Property(schema = {"maxLength", "24"})
   private String ol_dist_info;
 
+  OrderLine() {
+    this.ol_o_id = -1;
+    this.ol_d_id = -1;
+    this.ol_w_id = -1;
+    this.ol_number = -1;
+  }
+
   public OrderLine(
       final int o_id,
       final int d_id,
@@ -69,6 +77,18 @@ public final class OrderLine {
     this.ol_quantity = quantity;
     this.ol_amount = amount;
     this.ol_dist_info = dist_info;
+  }
+
+  @Override
+  public String[] getKeyParts() {
+    return new String[] {
+            Common.pad(ol_w_id), Common.pad(ol_d_id), Common.pad(ol_o_id), Common.pad(ol_number)
+    };
+  }
+
+  @Override
+  public EntityFactory<OrderLine> getFactory() {
+    return OrderLine::new;
   }
 
   public int getOl_o_id() {
@@ -218,4 +238,5 @@ public final class OrderLine {
           this.dist_info);
     }
   }
+
 }

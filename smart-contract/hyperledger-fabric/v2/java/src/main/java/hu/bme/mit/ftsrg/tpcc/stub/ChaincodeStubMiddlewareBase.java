@@ -15,13 +15,13 @@ import org.hyperledger.fabric.shim.ledger.KeyValue;
 import org.hyperledger.fabric.shim.ledger.QueryResultsIterator;
 import org.hyperledger.fabric.shim.ledger.QueryResultsIteratorWithMetadata;
 
-public class ChaincodeStubMiddlewareBase implements ChaincodeStub {
+public abstract class ChaincodeStubMiddlewareBase implements ChaincodeStub {
 
-  ChaincodeStubMiddlewareBase(ChaincodeStub nextLayer) {
+  ChaincodeStubMiddlewareBase(final ChaincodeStub nextLayer) {
     this.nextLayer = nextLayer;
   }
 
-  private ChaincodeStub nextLayer;
+  protected ChaincodeStub nextLayer;
 
   @Override
   public List<byte[]> getArgs() {
@@ -55,162 +55,166 @@ public class ChaincodeStubMiddlewareBase implements ChaincodeStub {
   }
 
   @Override
-  public Response invokeChaincode(String chaincodeName, List<byte[]> args, String channel) {
+  public Response invokeChaincode(
+      final String chaincodeName, final List<byte[]> args, final String channel) {
     return this.nextLayer.invokeChaincode(chaincodeName, args, channel);
   }
 
   @Override
-  public byte[] getState(String key) {
+  public byte[] getState(final String key) {
     return this.nextLayer.getState(key);
   }
 
   @Override
-  public byte[] getStateValidationParameter(String key) {
+  public byte[] getStateValidationParameter(final String key) {
     return this.nextLayer.getStateValidationParameter(key);
   }
 
   @Override
-  public void putState(String key, byte[] value) {
+  public void putState(final String key, final byte[] value) {
     this.nextLayer.putState(key, value);
   }
 
   @Override
-  public void setStateValidationParameter(String key, byte[] value) {
+  public void setStateValidationParameter(final String key, final byte[] value) {
     this.nextLayer.setStateValidationParameter(key, value);
   }
 
   @Override
-  public void delState(String key) {
+  public void delState(final String key) {
     this.nextLayer.delState(key);
   }
 
   @Override
-  public QueryResultsIterator<KeyValue> getStateByRange(String startKey, String endKey) {
+  public QueryResultsIterator<KeyValue> getStateByRange(
+      final String startKey, final String endKey) {
     return this.nextLayer.getStateByRange(startKey, endKey);
   }
 
   @Override
   public QueryResultsIteratorWithMetadata<KeyValue> getStateByRangeWithPagination(
-      String startKey, String endKey, int pageSize, String bookmark) {
-
+      final String startKey, final String endKey, final int pageSize, final String bookmark) {
     return this.nextLayer.getStateByRangeWithPagination(startKey, endKey, pageSize, bookmark);
   }
 
   @Override
-  public QueryResultsIterator<KeyValue> getStateByPartialCompositeKey(String compositeKey) {
+  public QueryResultsIterator<KeyValue> getStateByPartialCompositeKey(final String compositeKey) {
     return this.nextLayer.getStateByPartialCompositeKey(compositeKey);
   }
 
   @Override
   public QueryResultsIterator<KeyValue> getStateByPartialCompositeKey(
-      String objectType, String... attributes) {
+      final String objectType, final String... attributes) {
     return this.nextLayer.getStateByPartialCompositeKey(objectType, attributes);
   }
 
   @Override
-  public QueryResultsIterator<KeyValue> getStateByPartialCompositeKey(CompositeKey compositeKey) {
+  public QueryResultsIterator<KeyValue> getStateByPartialCompositeKey(
+      final CompositeKey compositeKey) {
     return this.nextLayer.getStateByPartialCompositeKey(compositeKey);
   }
 
   @Override
   public QueryResultsIteratorWithMetadata<KeyValue> getStateByPartialCompositeKeyWithPagination(
-      CompositeKey compositeKey, int pageSize, String bookmark) {
+      final CompositeKey compositeKey, final int pageSize, final String bookmark) {
     return this.nextLayer.getStateByPartialCompositeKeyWithPagination(
         compositeKey, pageSize, bookmark);
   }
 
   @Override
-  public CompositeKey createCompositeKey(String objectType, String... attributes) {
+  public CompositeKey createCompositeKey(final String objectType, final String... attributes) {
     return this.nextLayer.createCompositeKey(objectType, attributes);
   }
 
   @Override
-  public CompositeKey splitCompositeKey(String compositeKey) {
+  public CompositeKey splitCompositeKey(final String compositeKey) {
     return this.nextLayer.splitCompositeKey(compositeKey);
   }
 
   @Override
-  public QueryResultsIterator<KeyValue> getQueryResult(String query) {
+  public QueryResultsIterator<KeyValue> getQueryResult(final String query) {
     return this.nextLayer.getQueryResult(query);
   }
 
   @Override
   public QueryResultsIteratorWithMetadata<KeyValue> getQueryResultWithPagination(
-      String query, int pageSize, String bookmark) {
+      final String query, final int pageSize, final String bookmark) {
     return this.nextLayer.getQueryResultWithPagination(query, pageSize, bookmark);
   }
 
   @Override
-  public QueryResultsIterator<KeyModification> getHistoryForKey(String key) {
+  public QueryResultsIterator<KeyModification> getHistoryForKey(final String key) {
     return this.getHistoryForKey(key);
   }
 
   @Override
-  public byte[] getPrivateData(String collection, String key) {
+  public byte[] getPrivateData(final String collection, final String key) {
     return this.nextLayer.getPrivateData(collection, key);
   }
 
   @Override
-  public byte[] getPrivateDataHash(String collection, String key) {
+  public byte[] getPrivateDataHash(final String collection, final String key) {
     return this.nextLayer.getPrivateDataHash(collection, key);
   }
 
   @Override
-  public byte[] getPrivateDataValidationParameter(String collection, String key) {
+  public byte[] getPrivateDataValidationParameter(final String collection, final String key) {
     return this.nextLayer.getPrivateDataValidationParameter(collection, key);
   }
 
   @Override
-  public void putPrivateData(String collection, String key, byte[] value) {
+  public void putPrivateData(final String collection, final String key, final byte[] value) {
     this.nextLayer.putPrivateData(collection, key, value);
   }
 
   @Override
-  public void setPrivateDataValidationParameter(String collection, String key, byte[] value) {
+  public void setPrivateDataValidationParameter(
+      final String collection, final String key, final byte[] value) {
     this.nextLayer.setPrivateDataValidationParameter(collection, key, value);
   }
 
   @Override
-  public void delPrivateData(String collection, String key) {
+  public void delPrivateData(final String collection, final String key) {
     this.nextLayer.delPrivateData(collection, key);
   }
 
   @Override
-  public void purgePrivateData(String collection, String key) {
+  public void purgePrivateData(final String collection, final String key) {
     this.nextLayer.purgePrivateData(collection, key);
   }
 
   @Override
   public QueryResultsIterator<KeyValue> getPrivateDataByRange(
-      String collection, String startKey, String endKey) {
+      final String collection, final String startKey, final String endKey) {
     return this.nextLayer.getPrivateDataByRange(collection, startKey, endKey);
   }
 
   @Override
   public QueryResultsIterator<KeyValue> getPrivateDataByPartialCompositeKey(
-      String collection, String compositeKey) {
+      final String collection, final String compositeKey) {
     return this.nextLayer.getPrivateDataByPartialCompositeKey(collection, compositeKey);
   }
 
   @Override
   public QueryResultsIterator<KeyValue> getPrivateDataByPartialCompositeKey(
-      String collection, CompositeKey compositeKey) {
+      final String collection, final CompositeKey compositeKey) {
     return this.nextLayer.getPrivateDataByPartialCompositeKey(collection, compositeKey);
   }
 
   @Override
   public QueryResultsIterator<KeyValue> getPrivateDataByPartialCompositeKey(
-      String collection, String objectType, String... attributes) {
+      final String collection, final String objectType, final String... attributes) {
     return this.nextLayer.getPrivateDataByPartialCompositeKey(collection, objectType, attributes);
   }
 
   @Override
-  public QueryResultsIterator<KeyValue> getPrivateDataQueryResult(String collection, String query) {
+  public QueryResultsIterator<KeyValue> getPrivateDataQueryResult(
+      final String collection, final String query) {
     return this.nextLayer.getPrivateDataQueryResult(collection, query);
   }
 
   @Override
-  public void setEvent(String name, byte[] payload) {
+  public void setEvent(final String name, final byte[] payload) {
     this.nextLayer.setEvent(name, payload);
   }
 

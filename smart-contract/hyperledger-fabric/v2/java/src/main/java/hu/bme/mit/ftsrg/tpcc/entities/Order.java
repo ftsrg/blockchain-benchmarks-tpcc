@@ -1,14 +1,15 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-package hu.bme.mit.ftsrg.tpcc.entries;
+package hu.bme.mit.ftsrg.tpcc.entities;
 
+import hu.bme.mit.ftsrg.tpcc.utils.Common;
 import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
 @EqualsAndHashCode
 @DataType
-public final class Order {
+public final class Order extends SerializableEntityBase<Order> {
 
   /** The order ID. Primary key. */
   @Property(schema = {"minimum", "0"})
@@ -40,6 +41,12 @@ public final class Order {
   @Property(schema = {"minimum", "0", "maximum", "1"})
   private int o_all_local;
 
+  Order() {
+    this.o_id = -1;
+    this.o_d_id = -1;
+    this.o_w_id = -1;
+  }
+
   public Order(
       final int id,
       final int d_id,
@@ -57,6 +64,18 @@ public final class Order {
     this.o_carrier_id = carrier_id;
     this.o_ol_cnt = ol_cnt;
     this.o_all_local = all_local;
+  }
+
+  @Override
+  public String[] getKeyParts() {
+    return new String[] {
+            Common.pad(o_w_id), Common.pad(o_d_id), Common.pad(Integer.MAX_VALUE - o_id)
+    };
+  }
+
+  @Override
+  public EntityFactory<Order> getFactory() {
+    return Order::new;
   }
 
   public int getO_id() {
@@ -90,6 +109,7 @@ public final class Order {
   public int getO_carrier_id() {
     return o_carrier_id;
   }
+
 
   public void setO_carrier_id(final int o_carrier_id) {
     this.o_carrier_id = o_carrier_id;

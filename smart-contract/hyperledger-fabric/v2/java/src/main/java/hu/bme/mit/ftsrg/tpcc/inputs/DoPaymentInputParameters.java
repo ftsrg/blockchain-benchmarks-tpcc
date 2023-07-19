@@ -18,7 +18,7 @@ public final class DoPaymentInputParameters {
   @Property(schema = {"minimum", "0"})
   private int d_id;
 
-  /** The The payment amount. */
+  /** The payment amount. */
   @Property private double h_amount;
 
   /** The warehouse ID to which the customer belongs to. */

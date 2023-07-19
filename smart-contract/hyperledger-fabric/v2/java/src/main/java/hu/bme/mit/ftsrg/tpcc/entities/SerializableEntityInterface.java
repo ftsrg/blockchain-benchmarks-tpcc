@@ -2,7 +2,8 @@
 
 package hu.bme.mit.ftsrg.tpcc.entities;
 
-public interface EntityInterface {
+public interface SerializableEntityInterface<Type extends SerializableEntityInterface<Type>> {
+
   String getType();
 
   String[] getKeyParts();
@@ -14,4 +15,6 @@ public interface EntityInterface {
   String toJson();
 
   void fromJson(String json);
+
+  EntityFactory<Type> getFactory();
 }

@@ -1,14 +1,15 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-package hu.bme.mit.ftsrg.tpcc.entries;
+package hu.bme.mit.ftsrg.tpcc.entities;
 
+import hu.bme.mit.ftsrg.tpcc.utils.Common;
 import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
 @EqualsAndHashCode
 @DataType
-public final class Stock {
+public final class Stock extends SerializableEntityBase<Stock> {
 
   /** The ID of the item associated with the stock. Primary key. */
   @Property(schema = {"minimum", "0"})
@@ -77,6 +78,11 @@ public final class Stock {
   @Property(schema = {"maxLength", "50"})
   private String s_data;
 
+  Stock() {
+    this.s_i_id = -1;
+    this.s_w_id = -1;
+  }
+
   public Stock(
       int i_id,
       int w_id,
@@ -112,6 +118,16 @@ public final class Stock {
     this.s_order_cnt = order_cnt;
     this.s_remote_cnt = remote_cnt;
     this.s_data = data;
+  }
+
+  @Override
+  public String[] getKeyParts() {
+    return new String[] {Common.pad(s_w_id), Common.pad(s_i_id)};
+  }
+
+  @Override
+  public EntityFactory<Stock> getFactory() {
+    return Stock::new;
   }
 
   public int getS_i_id() {
@@ -387,4 +403,5 @@ public final class Stock {
           this.data);
     }
   }
+
 }

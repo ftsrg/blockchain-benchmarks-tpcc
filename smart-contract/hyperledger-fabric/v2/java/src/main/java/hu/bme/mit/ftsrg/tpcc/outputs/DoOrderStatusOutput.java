@@ -2,7 +2,7 @@
 
 package hu.bme.mit.ftsrg.tpcc.outputs;
 
-import hu.bme.mit.ftsrg.tpcc.entries.extra.OrderLineData;
+import hu.bme.mit.ftsrg.tpcc.entities.extra.OrderLineData;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;

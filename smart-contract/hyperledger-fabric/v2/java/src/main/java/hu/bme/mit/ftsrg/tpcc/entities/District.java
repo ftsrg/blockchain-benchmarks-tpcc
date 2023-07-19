@@ -1,14 +1,15 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-package hu.bme.mit.ftsrg.tpcc.entries;
+package hu.bme.mit.ftsrg.tpcc.entities;
 
+import hu.bme.mit.ftsrg.tpcc.utils.Common;
 import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
 @EqualsAndHashCode
-@DataType
-public final class District {
+@DataType()
+public final class District extends SerializableEntityBase<District> {
 
   /** The district ID. Primary key. */
   @Property(schema = {"minimum", "0"})
@@ -52,6 +53,11 @@ public final class District {
   @Property(schema = {"minimum", "0"})
   private int d_next_o_id;
 
+  District() {
+    this.d_id = -1;
+    this.d_w_id = -1;
+  }
+
   public District(
       final int id,
       final int w_id,
@@ -75,6 +81,16 @@ public final class District {
     this.d_zip = zip;
     this.d_next_o_id = next_o_id;
     this.d_ytd = ytd;
+  }
+
+  @Override
+  public String[] getKeyParts() {
+    return new String[] {Common.pad(d_w_id), Common.pad(d_id)};
+  }
+
+  @Override
+  public EntityFactory<District> getFactory() {
+    return District::new;
   }
 
   public int getD_id() {
@@ -247,4 +263,5 @@ public final class District {
           this.ytd);
     }
   }
+
 }

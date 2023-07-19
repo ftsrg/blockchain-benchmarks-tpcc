@@ -4,9 +4,11 @@ package hu.bme.mit.ftsrg.tpcc.stub;
 
 import org.hyperledger.fabric.shim.ChaincodeStub;
 
-public class UpdateThrottledChaincodeStub extends ChaincodeStubMiddlewareBase {
+public final class UpdateThrottledChaincodeStub extends ChaincodeStubMiddlewareBase {
 
-  UpdateThrottledChaincodeStub(ChaincodeStub nextLayer) {
+  public UpdateThrottledChaincodeStub(final ChaincodeStub nextLayer) {
     super(nextLayer);
   }
+
+  /* TODO implement ... */
 }

@@ -1,14 +1,15 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-package hu.bme.mit.ftsrg.tpcc.entries;
+package hu.bme.mit.ftsrg.tpcc.entities;
 
+import hu.bme.mit.ftsrg.tpcc.utils.Common;
 import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
 @EqualsAndHashCode
 @DataType
-public final class History {
+public final class History extends SerializableEntityBase<History> {
 
   /** The customer ID. Primary key. */
   @Property(schema = {"minimum", "0"})
@@ -40,14 +41,21 @@ public final class History {
   @Property(schema = {"maxLength", "24"})
   private String h_data;
 
+  History() {
+    this.h_c_id = -1;
+    this.h_c_d_id = -1;
+    this.h_c_w_id = -1;
+  }
+
   public History(
-      final int c_id,
-      final int c_d_id,
-      final int c_w_id,
-      final int d_id,
-      final int w_id,
-      final String date,
-      final double amount) {
+          final int c_id,
+          final int c_d_id,
+          final int c_w_id,
+          final int d_id,
+          final int w_id,
+          final String date,
+          final double amount,
+          final String data) {
     this.h_c_id = c_id;
     this.h_c_d_id = c_d_id;
     this.h_c_w_id = c_w_id;
@@ -55,6 +63,17 @@ public final class History {
     this.h_w_id = w_id;
     this.h_date = date;
     this.h_amount = amount;
+    this.h_data = data;
+  }
+
+  @Override
+  public String[] getKeyParts() {
+    return new String[] {Common.pad(h_c_w_id), Common.pad(h_c_d_id), Common.pad(h_c_id), h_date};
+  }
+
+  @Override
+  public EntityFactory<History> getFactory() {
+    return History::new;
   }
 
   public int getH_c_id() {
@@ -168,7 +187,8 @@ public final class History {
 
     public History build() {
       return new History(
-          this.c_id, this.c_d_id, this.c_w_id, this.d_id, this.w_id, this.date, this.amount);
+          this.c_id, this.c_d_id, this.c_w_id, this.d_id, this.w_id, this.date, this.amount, this.data);
     }
   }
+
 }

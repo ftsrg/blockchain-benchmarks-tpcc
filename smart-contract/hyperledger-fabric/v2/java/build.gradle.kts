@@ -75,9 +75,10 @@ tasks.withType<JavaCompile>().configureEach {
           "esc" -> "esc"
           else -> "rac"
         }
-    options.isFork = true
-    options.compilerArgs.addAll(listOf("-jml", "-$mode", "-timeout", "30", "--nullable-by-default"))
-    options.forkOptions.javaHome = openJMLJavaHomeDir.asFile
+    // options.isFork = true
+    // options.compilerArgs.addAll(listOf("-jml", "-$mode", "-timeout", "30",
+    // "--nullable-by-default"))
+    // options.forkOptions.javaHome = openJMLJavaHomeDir.asFile
   }
 }
 

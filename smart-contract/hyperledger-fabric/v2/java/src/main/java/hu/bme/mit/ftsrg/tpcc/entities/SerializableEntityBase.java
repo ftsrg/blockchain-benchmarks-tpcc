@@ -10,30 +10,20 @@ import org.hyperledger.fabric.contract.annotation.DataType;
 
 @EqualsAndHashCode
 @DataType
-public abstract class EntityBase implements EntityInterface {
+public abstract class SerializableEntityBase<Type extends SerializableEntityInterface<Type>> implements SerializableEntityInterface<Type> {
 
   @Override
   public String getType() {
-    throw new UnsupportedOperationException("Unimplemented method 'getType'");
-  }
-
-  @Override
-  public String[] getKeyParts() {
-
-    throw new UnsupportedOperationException("Unimplemented method 'getKeyParts'");
+    return this.getClass().getName().toUpperCase();
   }
 
   @Override
   public byte[] toBuffer() {
-    // return StandardCharsets.UTF_8.encode(JSON.serialize(this)).array();
-    // return JSON.serialize(this).getBytes(StandardCharsets.UTF_8);
-
-    String entityToJson = JSON.serialize(this);
-    return entityToJson.getBytes(StandardCharsets.UTF_8);
+    return this.toJson().getBytes(StandardCharsets.UTF_8);
   }
 
   @Override
-  public void fromBuffer(byte[] buffer) {
+  public void fromBuffer(final byte[] buffer) {
     this.fromJson(new String(buffer, StandardCharsets.UTF_8));
   }
 
@@ -44,8 +34,8 @@ public abstract class EntityBase implements EntityInterface {
 
   @Override
   public void fromJson(final String json) {
-    Object obj = JSON.deserialize(json, this.getClass());
-    Field[] ourFields = this.getClass().getDeclaredFields();
+    final Object obj = JSON.deserialize(json, this.getClass());
+    final Field[] ourFields = this.getClass().getDeclaredFields();
     /*
      * Try to get values for our known fields from the deserialized
      * object.  This process is forgiving: if one of our fields does not
@@ -53,16 +43,15 @@ public abstract class EntityBase implements EntityInterface {
      * deserialized object contains fields we do not recognize, we
      * silently ignore them.
      */
-    for (Field ourField : ourFields) {
+    for (final Field ourField : ourFields) {
       try {
-        Field theirField = obj.getClass().getField(ourField.getName());
+        final Field theirField = obj.getClass().getField(ourField.getName());
         try {
           if (ourField.get(this) == null) ourField.set(this, theirField.get(obj));
         } catch (IllegalArgumentException | IllegalAccessException e) {
           e.printStackTrace();
         }
       } catch (NoSuchFieldException e) {
-        /* ignore or: */
         e.printStackTrace();
       }
     }
