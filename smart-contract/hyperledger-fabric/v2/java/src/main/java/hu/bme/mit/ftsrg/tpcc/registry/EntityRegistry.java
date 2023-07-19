@@ -10,7 +10,7 @@ import org.hyperledger.fabric.shim.ledger.CompositeKey;
 import org.hyperledger.fabric.shim.ledger.KeyValue;
 
 public class EntityRegistry implements RegistryInterface {
-  public EntityRegistry(){}
+  public EntityRegistry() {}
 
   private <Type extends SerializableEntityInterface<Type>> String getKey(Context ctx, Type obj) {
     CompositeKey compositeKey = ctx.getStub().createCompositeKey(obj.getType(), obj.getKeyParts());

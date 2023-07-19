@@ -496,11 +496,10 @@ public class TPCC implements ContractInterface {
       // recent order placed by that customer. O_ID, O_ENTRY_D, and O_CARRIER_ID are
       // retrieved.
 
-      ///////////////////////////////////////////////////////////////////////////////////////////
       Order order =
           LedgerUtils.getLastOrderOfCustomer(ctx, customer.c_w_id, customer.c_d_id, customer.c_id);
       LOGGER.info("getLastOrderOfCustomer returned: " + gson.toJson(order));
-      ///////////////////////////////////////////////////////////////////////////////////////////////
+
       // All rows in the ORDER-LINE table with matching OL_W_ID (equals O_W_ID),
       // OL_D_ID (equals
       // O_D_ID), and OL_O_ID (equals O_ID) are selected and the corresponding sets of
@@ -766,10 +765,9 @@ public class TPCC implements ContractInterface {
       final int o_id_max = district.d_next_o_id;
       LOGGER.info("o_id_min = " + o_id_min + " and o_id_max = " + o_id_max);
       LOGGER.info("get recent 5 orders");
-      ////////////////////////////////////////////////////////////////////////////
       List<Integer> recentItemIds =
           LedgerUtils.getItemIdsOfRecentOrders(ctx, params.w_id, district.d_id, o_id_min, o_id_max);
-      ///////////////////////////////////////////////////////////////////////////////////////
+
       LOGGER.info("getItemIdsOfRecentOrders returned " + recentItemIds);
       // ctx.txinfo.md_tpcc_stock_level_recent_items = recentItemIds.length;
 

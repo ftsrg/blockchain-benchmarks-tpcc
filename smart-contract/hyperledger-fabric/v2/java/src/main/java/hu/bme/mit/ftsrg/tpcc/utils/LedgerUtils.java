@@ -20,19 +20,13 @@ package hu.bme.mit.ftsrg.tpcc.utils;
 import com.google.gson.Gson;
 import hu.bme.mit.ftsrg.tpcc.entries.*;
 import hu.bme.mit.ftsrg.tpcc.stub.EnhancedContext;
-import hu.bme.mit.ftsrg.tpcc.utils.Common.TABLES;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 import org.hyperledger.fabric.contract.Context;
 import org.hyperledger.fabric.contract.annotation.DataType;
-import org.hyperledger.fabric.shim.ledger.CompositeKey;
-import org.hyperledger.fabric.shim.ledger.KeyValue;
 
 /** Utility functions for accessing the state database. */
 @DataType()
@@ -51,84 +45,88 @@ public class LedgerUtils {
    * @return The retrieved entries.
    * @throws Exception
    */
-  public static List<Object> select(
-      Context ctx, String type, String[] keyParts, MatchData matchData, boolean firstMatch)
-      throws Exception {
-    LOGGER.info("Start of select function:");
-    CompositeKey compositeKey = ctx.getStub().createCompositeKey(type, keyParts);
-    LOGGER.info("Reading ledger using COMPOSITE KEY: " + compositeKey.toString());
-    Iterator<KeyValue> iterator =
-        ctx.getStub().getStateByPartialCompositeKey(compositeKey.toString()).iterator();
-    LOGGER.info("iterator: " + iterator);
+  // public static List<Object> select(
+  //     Context ctx, String type, String[] keyParts, MatchData matchData, boolean firstMatch)
+  //     throws Exception {
+  //   ////////////////////////////////////////////////////////////////////////////////////////
 
-    ArrayList<Object> matches = new ArrayList<>();
-    // int retrieved = 0;
-    try {
-      LOGGER.info("iteration to retrieve next entry");
-      while (iterator.hasNext()) {
-        LOGGER.info("Begin while loop");
-        KeyValue res = iterator.next();
-        if (res == null) {
-          LOGGER.info("ERROR: NULL ITERATOR");
-          break;
-        }
-        // retrieved += 1;
-        byte[] buffer = res.getValue();
-        String entry = new String(buffer, StandardCharsets.UTF_8);
-        LOGGER.info("Enumerated entry:" + entry);
+  //   // Registry.READALL()
+  //   LOGGER.info("Start of select function:");
+  //   CompositeKey compositeKey = ctx.getStub().createCompositeKey(type, keyParts);
+  //   LOGGER.info("Reading ledger using COMPOSITE KEY: " + compositeKey.toString());
+  //   Iterator<KeyValue> iterator =
+  //       ctx.getStub().getStateByPartialCompositeKey(compositeKey.toString()).iterator();
+  //   LOGGER.info("iterator: " + iterator);
 
-        Object match = null;
-        switch (matchData.type) {
-          case CUSTOMER_LAST_NAME:
-            Customer customer = ParseUtils.parseCustomer(entry);
-            if (customer.c_last.equals(matchData.c_last)) {
-              LOGGER.info(
-                  "Customer's last name "
-                      + customer.c_last
-                      + "== "
-                      + "Last Name"
-                      + matchData.c_last);
-              match = customer;
-            } else {
-              LOGGER.info(
-                  "Customer's last name "
-                      + customer.c_last
-                      + "!= to"
-                      + "Last Name"
-                      + matchData.c_last);
-            }
-            LOGGER.info("SELECT() CASE CUSTOMER_LAST_NAME");
-            break;
+  //   ArrayList<Object> matches = new ArrayList<>();
+  //   // int retrieved = 0;
+  //   try {
+  //     LOGGER.info("iteration to retrieve next entry");
+  //     while (iterator.hasNext()) {
+  //       LOGGER.info("Begin while loop");
+  //       KeyValue res = iterator.next();
+  //       if (res == null) {
+  //         LOGGER.info("ERROR: NULL ITERATOR");
+  //         break;
+  //       }
+  //       // retrieved += 1;
+  //       byte[] buffer = res.getValue();
+  //       String entry = new String(buffer, StandardCharsets.UTF_8);
+  //       LOGGER.info("Enumerated entry:" + entry);
+  //       ///////////////////////////////////////////////////////////////////////////////////////////////
 
-          case ORDER_CUSTOMER_ID:
-            Order order = ParseUtils.parseOrder(entry);
-            if (order.o_c_id == matchData.o_c_id) {
-              match = order;
-            }
-            LOGGER.info("SELECT() CASE ORDER_CUSTOMER_ID");
-            break;
+  //       Object match = null;
+  //       switch (matchData.type) {
+  //         case CUSTOMER_LAST_NAME:
+  //           Customer customer = gson.fromJson(entry, Customer.class);
+  //           if (customer.c_last.equals(matchData.c_last)) {
+  //             LOGGER.info(
+  //                 "Customer's last name "
+  //                     + customer.c_last
+  //                     + "== "
+  //                     + "Last Name"
+  //                     + matchData.c_last);
+  //             match = customer;
+  //           } else {
+  //             LOGGER.info(
+  //                 "Customer's last name "
+  //                     + customer.c_last
+  //                     + "!= to"
+  //                     + "Last Name"
+  //                     + matchData.c_last);
+  //           }
+  //           LOGGER.info("SELECT() CASE CUSTOMER_LAST_NAME");
+  //           break;
 
-          case PARSEABLE_NEWORDER:
-            match = ParseUtils.parseNewOrder(entry);
-            LOGGER.info("SELECT() CASE PARSEABLE_NEWORDER");
-            break;
-        }
-        if (match != null) {
-          LOGGER.info("Add matches to list");
-          matches.add(match);
-          if (firstMatch) {
-            break;
-          }
-        }
-      }
-      LOGGER.info("Exit SELECT()");
-    } catch (Exception e) {
-      Common.log(e.toString(), ctx, "error");
-      throw e;
-    }
-    // return firstMatch ? matches.subList(0, 1) : matches;
-    return matches;
-  }
+  //         case ORDER_CUSTOMER_ID:
+  //           Order order = gson.fromJson(entry, Order.class);
+  //           if (order.o_c_id == matchData.o_c_id) {
+  //             match = order;
+  //           }
+  //           LOGGER.info("SELECT() CASE ORDER_CUSTOMER_ID");
+  //           break;
+
+  //         case PARSEABLE_NEWORDER:
+  //           match = gson.fromJson(entry, NewOrder.class);
+  //           LOGGER.info("SELECT() CASE PARSEABLE_NEWORDER");
+  //           break;
+  //       }
+  //       if (match != null) {
+  //         LOGGER.info("Add matches to list");
+  //         matches.add(match);
+  //         if (firstMatch) {
+  //           break;
+  //         }
+  //       }
+  //     }
+  //     LOGGER.info("Exit SELECT()");
+  //   } catch (Exception e) {
+  //     Common.log(e.toString(), ctx, "error");
+  //     throw e;
+  //   }
+  //   // return firstMatch ? matches.subList(0, 1) : matches;
+  //   return matches;
+  // }
 
   /**
    * Retrieves a warehouse record from the ledger.
@@ -325,7 +323,9 @@ public class LedgerUtils {
    */
   public static Customer getCustomersByIdOrLastName(
       EnhancedContext ctx, int c_w_id, int c_d_id, Integer c_id, String c_last) throws Exception {
-    if (c_id != null) {
+    if (c_id == null && c_last == null) {
+      throw new Exception("Customer ID or customer C_LAST should be given");
+    } else if (c_id != null) {
       Customer custByID = new Customer();
       custByID.c_w_id = c_w_id;
       custByID.c_d_id = c_d_id;
@@ -343,23 +343,34 @@ public class LedgerUtils {
       Customer custByLastName = new Customer();
       custByLastName.c_w_id = c_w_id;
       custByLastName.c_d_id = c_d_id;
-      custByLastName.c_last = c_last;
+      // custByLastName.c_last = c_last;
       List<Customer> customerList = ctx.registry.readAll(ctx, custByLastName);
-      // List<Customer> customerList = LedgerUtils.getCustomersByLastName(ctx, custByLastName);
+
       if (customerList.size() == 0) {
-        throw new Exception(
-            String.format(
-                "Could not find Customers(%d, %d, c_id) matching last name \"%s\"", c_last));
+        throw new Exception(String.format("Could not find any Customers \"%s\""));
       }
-      customerList.sort(
-          new Comparator<Customer>() {
-            @Override
-            public int compare(final Customer c1, final Customer c2) {
-              return c1.c_first.compareTo(c2.c_first);
-            }
-          });
-      int position = (int) Math.ceil(customerList.size() / 2.0);
-      return customerList.get(position - 1);
+      for (Customer cust : customerList) {
+        if (cust.c_last.equals(c_last)) {
+          if (cust.c_id == c_id) {
+            return cust;
+          }
+        }
+      }
+
+      ////////////////////////////////////////////////////////////////////////////////////
+      // I'm not sure if we need this sorting anymore!!
+
+      // customerList.sort(
+      //     new Comparator<Customer>() {
+      //       @Override
+      //       public int compare(final Customer c1, final Customer c2) {
+      //         return c1.c_first.compareTo(c2.c_first);
+      //       }
+      //     });
+      // int position = (int) Math.ceil(customerList.size() / 2.0);
+      // return customerList.get(position - 1);
+      ///////////////////////////////////
+      return null;
     } else {
       throw new Exception(
           "Neither the customer ID nor the customer last name parameter is supplied");
@@ -570,22 +581,29 @@ public class LedgerUtils {
    * @return The retrieved order.
    * @throws Exception if the last order is not found.
    */
-  public static Order getLastOrderOfCustomer(Context ctx, int o_w_id, int o_d_id, int o_c_id)
-      throws Exception {
-    LOGGER.info("Searching for last Order of Customer(" + o_w_id + "," + o_d_id + "," + o_c_id);
-
-    String[] keyParts = new String[] {Common.pad(o_w_id), Common.pad(o_d_id)};
-    List<Object> lastOrders =
-        LedgerUtils.select(ctx, TABLES.ORDER, keyParts, MatchData.OCIDMatchData(o_c_id), true);
-    if (lastOrders == null) {
+  public static Order getLastOrderOfCustomer(
+      EnhancedContext ctx, int o_w_id, int o_d_id, int o_c_id) throws Exception {
+    Order custOrder = new Order();
+    custOrder.o_w_id = o_w_id;
+    custOrder.o_d_id = o_d_id;
+    List<Order> allOrders = ctx.registry.readAll(ctx, custOrder);
+    if (allOrders == null) {
       throw new Exception(
           String.format(
               "Could not find last Order(%d, %d, o_id) of Customer(%d, %d, %d)",
               o_w_id, o_d_id, o_w_id, o_d_id, o_c_id));
     }
-    Object lastOrder = lastOrders.get(0);
+    List<Order> ordersOfCust = new ArrayList<>();
+    for (Order order : ordersOfCust) {
+      if (order.o_c_id == o_c_id) {
+        ordersOfCust.add(order);
+      }
+    }
+    //// MIGHT NEED TO DO SORTING FIRST HERE BEFORE RETURNING THE FIRST ITEM IN THE LIST
+    //// TODO //////
+    Order lastOrderOfCustomer = ordersOfCust.get(0);
     LOGGER.info("Retrieved last Order of Customer " + o_c_id);
-    return (Order) lastOrder;
+    return lastOrderOfCustomer;
   }
 
   /**
@@ -729,17 +747,27 @@ public class LedgerUtils {
    * @return The unique IDs of items from the recent orders.
    */
   public static List<Integer> getItemIdsOfRecentOrders(
-      Context ctx, int w_id, int d_id, int o_id_min, int o_id_max) throws Exception {
+      EnhancedContext ctx, int w_id, int d_id, int o_id_min, int o_id_max) throws Exception {
     LOGGER.info("Counts the number of items whose stock is below a given threshold.");
     Set<Integer> itemIds = new HashSet<>();
     LOGGER.info("Retrieving item IDs for Orders with w_id " + w_id + " and d_id " + d_id);
     for (int current_o_id = o_id_min; current_o_id < o_id_max; current_o_id++) {
 
-      Order order = LedgerUtils.getOrder(ctx, w_id, d_id, current_o_id);
+      Order anOrder = new Order();
+      anOrder.o_w_id = w_id;
+      anOrder.o_d_id = d_id;
+      anOrder.o_id = current_o_id;
+      Order order = ctx.registry.read(ctx, anOrder);
+
       LOGGER.info("RETRIEVED ORDER > " + gson.toJson(order));
 
       for (int ol_number = 1; ol_number <= order.o_ol_cnt; ol_number++) {
-        OrderLine orderLine = LedgerUtils.getOrderLine(ctx, w_id, d_id, current_o_id, ol_number);
+        OrderLine ol = new OrderLine();
+        ol.ol_w_id = w_id;
+        ol.ol_d_id = d_id;
+        ol.ol_o_id = current_o_id;
+        ol.ol_number = ol_number;
+        OrderLine orderLine = ctx.registry.read(ctx, ol);
         LOGGER.info("RETRIEVED ORDERLINE " + gson.toJson(orderLine));
         itemIds.add(orderLine.ol_i_id);
         LOGGER.info("RETRIEVED ITEM IDS: " + itemIds);
