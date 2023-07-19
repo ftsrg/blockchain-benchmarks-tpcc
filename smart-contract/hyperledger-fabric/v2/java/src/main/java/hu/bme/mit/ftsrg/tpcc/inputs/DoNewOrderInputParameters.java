@@ -1,54 +1,92 @@
-/*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-/*
-SPDX-License-Identifier: Apache-2.0
-*/
+/* SPDX-License-Identifier: Apache-2.0 */
 
 package hu.bme.mit.ftsrg.tpcc.inputs;
 
+import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
-@DataType()
-public class DoNewOrderInputParameters {
-  @Property()
-  // The warehouse ID.
-  public int w_id;
+@EqualsAndHashCode
+@DataType
+public final class DoNewOrderInputParameters {
 
-  @Property()
-  // The district ID.
-  public int d_id;
+  /** The warehouse ID. */
+  @Property(schema = {"minimum", "0"})
+  private int w_id;
 
-  @Property()
-  // The customer ID.
-  public int c_id;
+  /** The district ID. */
+  @Property(schema = {"minimum", "0"})
+  private int d_id;
 
-  @Property()
-  // The date ISO string for the order entry.
-  public String o_entry_d;
+  /** The customer ID. */
+  @Property(schema = {"minimum", "0"})
+  private int c_id;
 
-  @Property()
-  // The array of item IDs for the order lines.
-  public int[] i_ids;
+  /** The date ISO string for the order entry. */
+  @Property private String o_entry_d;
 
-  @Property()
-  // The array of warehouse IDs for the order lines.
-  public int[] i_w_ids;
+  /** The array of item IDs for the order lines. */
+  @Property private int[] i_ids;
 
-  @Property()
-  // The array of quantities for the order lines.
-  public int[] i_qtys;
+  /** The array of warehouse IDs for the order lines. */
+  @Property private int[] i_w_ids;
 
-  public DoNewOrderInputParameters() {}
+  /** The array of quantities for the order lines. */
+  @Property private int[] i_qtys;
+
+  public int getW_id() {
+    return w_id;
+  }
+
+  public void setW_id(final int w_id) {
+    this.w_id = w_id;
+  }
+
+  public int getD_id() {
+    return d_id;
+  }
+
+  public void setD_id(final int d_id) {
+    this.d_id = d_id;
+  }
+
+  public int getC_id() {
+    return c_id;
+  }
+
+  public void setC_id(final int c_id) {
+    this.c_id = c_id;
+  }
+
+  public String getO_entry_d() {
+    return o_entry_d;
+  }
+
+  public void setO_entry_d(final String o_entry_d) {
+    this.o_entry_d = o_entry_d;
+  }
+
+  public int[] getI_ids() {
+    return i_ids;
+  }
+
+  public void setI_ids(final int[] i_ids) {
+    this.i_ids = i_ids;
+  }
+
+  public int[] getI_w_ids() {
+    return i_w_ids;
+  }
+
+  public void setI_w_ids(final int[] i_w_ids) {
+    this.i_w_ids = i_w_ids;
+  }
+
+  public int[] getI_qtys() {
+    return i_qtys;
+  }
+
+  public void setI_qtys(final int[] i_qtys) {
+    this.i_qtys = i_qtys;
+  }
 }

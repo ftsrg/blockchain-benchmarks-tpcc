@@ -1,43 +1,60 @@
-/*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-/*
-SPDX-License-Identifier: Apache-2.0
-*/
+/* SPDX-License-Identifier: Apache-2.0 */
 
 package hu.bme.mit.ftsrg.tpcc.inputs;
 
+import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
-@DataType()
-public class DoOrderStatusInputParameters {
+@EqualsAndHashCode
+@DataType
+public final class DoOrderStatusInputParameters {
 
-  @Property()
-  // The warehouse ID.
-  public int w_id;
+  /** The warehouse ID. */
+  @Property(schema = {"minimum", "0"})
+  private int w_id;
 
-  @Property()
-  // The district ID.
-  public int d_id;
+  /** The district ID. */
+  @Property(schema = {"minimum", "0"})
+  private int d_id;
 
-  @Property()
-  // The customer ID if provided.
-  public int c_id;
+  /** The customer ID if provided. */
+  @Property(schema = {"minimum", "0"})
+  private int c_id;
 
-  @Property()
-  // The last name of the customer if provided.
-  public String c_last;
+  /** The last name of the customer if provided. */
+  @Property(schema = {"maxLength", "16"})
+  private String c_last;
 
-  public DoOrderStatusInputParameters() {}
+  public int getW_id() {
+    return w_id;
+  }
+
+  public void setW_id(final int w_id) {
+    this.w_id = w_id;
+  }
+
+  public int getD_id() {
+    return d_id;
+  }
+
+  public void setD_id(final int d_id) {
+    this.d_id = d_id;
+  }
+
+  public int getC_id() {
+    return c_id;
+  }
+
+  public void setC_id(final int c_id) {
+    this.c_id = c_id;
+  }
+
+  public String getC_last() {
+    return c_last;
+  }
+
+  public void setC_last(final String c_last) {
+    this.c_last = c_last;
+  }
 }

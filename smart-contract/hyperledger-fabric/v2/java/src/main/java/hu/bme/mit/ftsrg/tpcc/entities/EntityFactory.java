@@ -1,5 +1,5 @@
 package hu.bme.mit.ftsrg.tpcc.entities;
 
-public interface EntityFactory<Type extends SerializableEntityInterface> {
+public interface EntityFactory<Type extends SerializableEntityInterface<Type>> {
   Type create();
 }

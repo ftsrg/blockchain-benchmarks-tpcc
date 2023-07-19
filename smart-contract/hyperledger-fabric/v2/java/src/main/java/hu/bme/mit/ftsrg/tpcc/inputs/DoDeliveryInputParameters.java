@@ -1,44 +1,46 @@
-/*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-/*
-SPDX-License-Identifier: Apache-2.0
-*/
+/* SPDX-License-Identifier: Apache-2.0 */
 
 package hu.bme.mit.ftsrg.tpcc.inputs;
 
-// import java.util.Date;
-
+import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
-@DataType()
-public class DoDeliveryInputParameters {
-  @Property()
-  // The warehouse ID.
-  public int w_id;
+@EqualsAndHashCode
+@DataType
+public final class DoDeliveryInputParameters {
 
-  @Property()
-  // The carrier ID for the order.
-  public int o_carrier_id;
+  /** The warehouse ID. */
+  @Property(schema = {"minimum", "0"})
+  private int w_id;
 
-  @Property()
-  // The delivery date of the order.
-  public String ol_delivery_d;
+  /** The carrier ID for the order. */
+  @Property private int o_carrier_id;
 
-  public DoDeliveryInputParameters(int w_id, int o_carrier_id, String ol_delivery_d) {
+  /** The delivery date of the order. */
+  @Property private String ol_delivery_d;
+
+  public int getW_id() {
+    return w_id;
+  }
+
+  public void setW_id(final int w_id) {
     this.w_id = w_id;
+  }
+
+  public int getO_carrier_id() {
+    return o_carrier_id;
+  }
+
+  public void setO_carrier_id(final int o_carrier_id) {
     this.o_carrier_id = o_carrier_id;
+  }
+
+  public String getOl_delivery_d() {
+    return ol_delivery_d;
+  }
+
+  public void setOl_delivery_d(final String ol_delivery_d) {
     this.ol_delivery_d = ol_delivery_d;
   }
 }

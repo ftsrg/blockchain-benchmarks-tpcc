@@ -1,38 +1,47 @@
-/*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-/*
-SPDX-License-Identifier: Apache-2.0
-*/
+/* SPDX-License-Identifier: Apache-2.0 */
 
 package hu.bme.mit.ftsrg.tpcc.inputs;
 
+import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
-@DataType()
-public class DoStockLevelInputParameters {
-  @Property()
-  // The warehouse ID.
-  public int w_id;
+@EqualsAndHashCode
+@DataType
+public final class DoStockLevelInputParameters {
 
-  @Property()
-  // The district ID.
-  public int d_id;
+  /** The warehouse ID. */
+  @Property(schema = {"minimum", "0"})
+  private int w_id;
 
-  @Property()
-  // The threshold of minimum quantity in stock to report.
-  public int threshold;
+  /** The district ID. */
+  @Property(schema = {"minimum", "0"})
+  private int d_id;
 
-  public DoStockLevelInputParameters() {}
+  /** The threshold of minimum quantity in stock to report. */
+  @Property private int threshold;
+
+  public int getW_id() {
+    return w_id;
+  }
+
+  public void setW_id(final int w_id) {
+    this.w_id = w_id;
+  }
+
+  public int getD_id() {
+    return d_id;
+  }
+
+  public void setD_id(final int d_id) {
+    this.d_id = d_id;
+  }
+
+  public int getThreshold() {
+    return threshold;
+  }
+
+  public void setThreshold(final int threshold) {
+    this.threshold = threshold;
+  }
 }

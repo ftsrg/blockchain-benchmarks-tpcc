@@ -1,314 +1,24 @@
-/*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-/*
-SPDX-License-Identifier: Apache-2.0
-*/
+/* SPDX-License-Identifier: Apache-2.0 */
 
 package hu.bme.mit.ftsrg.tpcc.utils;
 
-import com.google.gson.Gson;
-import hu.bme.mit.ftsrg.tpcc.entries.*;
+import hu.bme.mit.ftsrg.tpcc.TPCC;
+import hu.bme.mit.ftsrg.tpcc.entities.Customer;
+import hu.bme.mit.ftsrg.tpcc.entities.Order;
+import hu.bme.mit.ftsrg.tpcc.entities.OrderLine;
 import hu.bme.mit.ftsrg.tpcc.stub.EnhancedContext;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
-import org.hyperledger.fabric.contract.Context;
-import org.hyperledger.fabric.contract.annotation.DataType;
+import lombok.experimental.UtilityClass;
 
 /** Utility functions for accessing the state database. */
-@DataType()
-public class LedgerUtils {
-  private static final Logger LOGGER = Logger.getLogger(LedgerUtils.class.getName());
-  static Gson gson = new Gson();
+@UtilityClass
+public final class LedgerUtils {
 
-  /**
-   * Retrieves entries from the state database that matches certain criteria.
-   *
-   * @param ctx The TX context.
-   * @param type The type of entries to search.
-   * @param keyParts The parts of the entries private key.
-   * @param matchData Data structure that determines what to match.
-   * @param firstMatch Indicates whether only the first match should be returned.
-   * @return The retrieved entries.
-   * @throws Exception
-   */
-  // public static List<Object> select(
-  //     Context ctx, String type, String[] keyParts, MatchData matchData, boolean firstMatch)
-  //     throws Exception {
-  //   ////////////////////////////////////////////////////////////////////////////////////////
-
-  //   // Registry.READALL()
-  //   LOGGER.info("Start of select function:");
-  //   CompositeKey compositeKey = ctx.getStub().createCompositeKey(type, keyParts);
-  //   LOGGER.info("Reading ledger using COMPOSITE KEY: " + compositeKey.toString());
-  //   Iterator<KeyValue> iterator =
-  //       ctx.getStub().getStateByPartialCompositeKey(compositeKey.toString()).iterator();
-  //   LOGGER.info("iterator: " + iterator);
-
-  //   ArrayList<Object> matches = new ArrayList<>();
-  //   // int retrieved = 0;
-  //   try {
-  //     LOGGER.info("iteration to retrieve next entry");
-  //     while (iterator.hasNext()) {
-  //       LOGGER.info("Begin while loop");
-  //       KeyValue res = iterator.next();
-  //       if (res == null) {
-  //         LOGGER.info("ERROR: NULL ITERATOR");
-  //         break;
-  //       }
-  //       // retrieved += 1;
-  //       byte[] buffer = res.getValue();
-  //       String entry = new String(buffer, StandardCharsets.UTF_8);
-  //       LOGGER.info("Enumerated entry:" + entry);
-  //       ///////////////////////////////////////////////////////////////////////////////////////////////
-
-  //       Object match = null;
-  //       switch (matchData.type) {
-  //         case CUSTOMER_LAST_NAME:
-  //           Customer customer = gson.fromJson(entry, Customer.class);
-  //           if (customer.c_last.equals(matchData.c_last)) {
-  //             LOGGER.info(
-  //                 "Customer's last name "
-  //                     + customer.c_last
-  //                     + "== "
-  //                     + "Last Name"
-  //                     + matchData.c_last);
-  //             match = customer;
-  //           } else {
-  //             LOGGER.info(
-  //                 "Customer's last name "
-  //                     + customer.c_last
-  //                     + "!= to"
-  //                     + "Last Name"
-  //                     + matchData.c_last);
-  //           }
-  //           LOGGER.info("SELECT() CASE CUSTOMER_LAST_NAME");
-  //           break;
-
-  //         case ORDER_CUSTOMER_ID:
-  //           Order order = gson.fromJson(entry, Order.class);
-  //           if (order.o_c_id == matchData.o_c_id) {
-  //             match = order;
-  //           }
-  //           LOGGER.info("SELECT() CASE ORDER_CUSTOMER_ID");
-  //           break;
-
-  //         case PARSEABLE_NEWORDER:
-  //           match = gson.fromJson(entry, NewOrder.class);
-  //           LOGGER.info("SELECT() CASE PARSEABLE_NEWORDER");
-  //           break;
-  //       }
-  //       if (match != null) {
-  //         LOGGER.info("Add matches to list");
-  //         matches.add(match);
-  //         if (firstMatch) {
-  //           break;
-  //         }
-  //       }
-  //     }
-  //     LOGGER.info("Exit SELECT()");
-  //   } catch (Exception e) {
-  //     Common.log(e.toString(), ctx, "error");
-  //     throw e;
-  //   }
-  //   // return firstMatch ? matches.subList(0, 1) : matches;
-  //   return matches;
-  // }
-
-  /**
-   * Retrieves a warehouse record from the ledger.
-   *
-   * @param ctx The TX context.
-   * @param w_id The warehouse ID.
-   * @return The retrieved warehouse.
-   */
-  public static Warehouse getWarehouse(Context ctx, int w_id) throws Exception {
-    return null;
-    // LOGGER.info(
-    //     "LedgerUtils.getWarehouse: Attempt to retrieve warehouse details  for warehouse: " +
-    // w_id);
-    // String entry = LedgerUtils.getEntry(ctx, TABLES.WAREHOUSE, new String[] {Common.pad(w_id)});
-
-    // if (entry == null) {
-    //   throw new Exception("Could not retrieve Warehouse(" + w_id + ")");
-    // }
-    // LOGGER.info("LedgerUtils.getWarehouse: retrieved warehouse details " + entry);
-    // return entry != null ? ParseUtils.parseWarehouse(entry) : null;
-  }
-
-  /**
-   * Updates a warehouse in the state database.
-   *
-   * @param ctx The TX context.
-   * @param entry The warehouse object.
-   * @throws Exception
-   */
-  public static void updateWarehouse(Context ctx, Warehouse entry) throws Exception {
-    // LOGGER.info("Begin update Warehouse ");
-    // LedgerUtils.updateEntry(ctx, TABLES.WAREHOUSE, new String[] {Common.pad(entry.w_id)}, entry);
-    // LOGGER.info("updateWarehouse COMPLETE!!!");
-  }
-
-  /** DISTRICT API */
-
-  /**
-   * Adds a new district to the state database.
-   *
-   * @param ctx The TX context.
-   * @param entry The JSON string or District object.
-   * @throws Exception
-   */
-  public static void createDistrict(Context ctx, Object entry) throws Exception {
-    // LOGGER.info("Begin create entry for District with entry " + entry);
-    // District district =
-    //     entry instanceof String ? ParseUtils.parseDistrict((String) entry) : (District) entry;
-    // LedgerUtils.createEntry(
-    //     ctx,
-    //     TABLES.DISTRICT,
-    //     new String[] {Common.pad(district.d_w_id), Common.pad(district.d_id)},
-    //     entry);
-    // LOGGER.info("CreateDistrict SUCCESS!!!");
-  }
-
-  /**
-   * Retrieves a district record from the ledger.
-   *
-   * @param ctx The TX context.
-   * @param d_w_id The warehouse ID.
-   * @param d_id The district ID.
-   * @return The retrieved district.
-   */
-  public static District getDistrict(Context ctx, int d_w_id, int d_id) throws Exception {
-    return null;
-    // String[] keyParts = new String[] {Common.pad(d_w_id), Common.pad(d_id)};
-    // LOGGER.info("Begin getDistrict with key " + keyParts);
-
-    // String entry = LedgerUtils.getEntry(ctx, TABLES.DISTRICT, keyParts);
-    // if (entry == null) {
-    //   throw new Exception("Could not retrieve District(" + d_w_id + ", " + d_id + ")");
-    // }
-    // LOGGER.info("getDistrict for " + keyParts + " returned with entry " + entry);
-    // return entry != null ? ParseUtils.parseDistrict(entry) : null;
-  }
-
-  /**
-   * Updates a district in the state database.
-   *
-   * @param ctx The TX context.
-   * @param entry The district object.
-   * @throws Exeption
-   */
-  public static void updateDistrict(Context ctx, District entry) throws Exception {
-    // String[] keyParts = new String[] {Common.pad(entry.d_w_id), Common.pad(entry.d_id)};
-    // LOGGER.info("updateDistrict entry: " + keyParts);
-    // LedgerUtils.updateEntry(ctx, TABLES.DISTRICT, keyParts, entry);
-    // LOGGER.info("Distruct entry updated");
-  }
-
-  /** CUSTOMER API */
-
-  /**
-   * Adds a new customer to the state database.
-   *
-   * @param ctx The TX context.
-   * @param entry The JSON string.
-   * @throws Exception
-   */
-  public static void createCustomer(Context ctx, Object entry) throws Exception {
-    // LOGGER.info("Starting createCustomer");
-    // Customer customer =
-    //     entry instanceof String ? ParseUtils.parseCustomer((String) entry) : (Customer) entry;
-
-    // String[] keyParts =
-    //     new String[] {
-    //       Common.pad(customer.c_w_id), Common.pad(customer.c_d_id), Common.pad(customer.c_id)
-    //     };
-    // LOGGER.info("Begin createCustomer entry with keypart: " + keyParts);
-    // LedgerUtils.createEntry(ctx, TABLES.CUSTOMER, keyParts, entry);
-
-    // String[] lastNameKeyParts =
-    //     new String[] {
-    //       Common.pad(customer.c_w_id),
-    //       Common.pad(customer.c_d_id),
-    //       customer.c_last,
-    //       Common.pad(customer.c_id)
-    //     };
-    // LOGGER.info("createCustomer entry with last name : " + lastNameKeyParts);
-    // LedgerUtils.createEntry(ctx, TABLES.CUSTOMER_LAST_NAME, lastNameKeyParts, entry);
-
-    // LOGGER.info("Create customer Complete for " + keyParts + " last name " + lastNameKeyParts);
-  }
-
-  /**
-   * Retrieves a customer record from the ledger.
-   *
-   * @param ctx The TX context.
-   * @param c_w_id The warehouse ID.
-   * @param c_d_id The district ID.
-   * @param c_id The customer ID.
-   * @return The retrieved customer.
-   */
-  public static Customer getCustomer(Context ctx, int c_w_id, int c_d_id, int c_id)
-      throws Exception {
-    return null;
-    // String[] keyParts = new String[] {Common.pad(c_w_id), Common.pad(c_d_id), Common.pad(c_id)};
-    // LOGGER.info("getCustomer with key " + keyParts);
-    // String entry = LedgerUtils.getEntry(ctx, TABLES.CUSTOMER, keyParts);
-    // if (entry == null) {
-    //   throw new Exception(
-    //       "Could not retrieve Customer(" + c_w_id + ", " + c_d_id + " , " + c_id + ")");
-    // }
-    // LOGGER.info("Customer entry" + entry + "retrieved");
-    // return entry != null ? ParseUtils.parseCustomer(entry) : null;
-  }
-
-  /**
-   * Retrieves the customers from the state database that match the given partial key
-   *
-   * @param ctx The TX context.
-   * @param c_w_id The warehouse ID of the customer.
-   * @param c_d_id The district ID of the customer.
-   * @param c_last The last name of the customer.
-   * @return The retrieved customers.
-   * @throws Exception
-   */
-  public static List<Customer> getCustomersByLastName(
-      Context ctx, int c_w_id, int c_d_id, String c_last) throws Exception {
-    return null;
-    // LOGGER.info("getCustomerByLastName");
-    // String[] keyParts = new String[] {Common.pad(c_w_id), Common.pad(c_d_id), c_last};
-    // List<Object> entries =
-    //     LedgerUtils.select(
-    //         ctx, TABLES.CUSTOMER_LAST_NAME, keyParts, MatchData.CLastMatchData(c_last), false);
-
-    // if (entries.size() == 0) {
-    //   throw new Exception(
-    //       String.format(
-    //           "Could not find Customers(%d, %d, c_id) matching last name \"%s\"",
-    //           c_w_id, c_d_id, c_last));
-    // }
-
-    // List<Customer> customers = new ArrayList<>();
-    // for (Object entry : entries) {
-    //   customers.add((Customer) entry);
-    //   LOGGER.info("List of Customers");
-    // }
-
-    // return customers;
-  }
+  private static final Logger LOGGER = Logger.getLogger(TPCC.class.getName());
 
   /**
    * Retrieves the customers from the state database that match the given ID or last name
@@ -322,253 +32,42 @@ public class LedgerUtils {
    * @throws Exception if neither the customer ID nor the customer last name parameter is supplied
    */
   public static Customer getCustomersByIdOrLastName(
-      EnhancedContext ctx, int c_w_id, int c_d_id, Integer c_id, String c_last) throws Exception {
+      final EnhancedContext ctx,
+      final int c_w_id,
+      final int c_d_id,
+      final Integer c_id,
+      final String c_last)
+      throws Exception {
     if (c_id == null && c_last == null) {
       throw new Exception("Customer ID or customer C_LAST should be given");
-    } else if (c_id != null) {
-      Customer custByID = new Customer();
-      custByID.c_w_id = c_w_id;
-      custByID.c_d_id = c_d_id;
-      custByID.c_id = c_id;
+    }
+
+    if (c_id != null) {
+      final Customer custByID = Customer.builder().w_id(c_w_id).d_id(c_d_id).id(c_id).build();
       // Case 1, the customer is selected based on customer number: the row in the CUSTOMER
       // table with matching C_W_ID, C_D_ID, and C_ID is selected and C_BALANCE, C_FIRST,
       // C_MIDDLE, and C_LAST are retrieved.
       return ctx.registry.read(ctx, custByID);
-    } else if (c_last != null) {
+    } else {
       // Case 2, the customer is selected based on customer last name: all rows in the
       // CUSTOMER table with matching C_W_ID, C_D_ID and C_LAST are selected sorted by
       // C_FIRST in ascending order. Let n be the number of rows selected. C_BALANCE,
       // C_FIRST, C_MIDDLE, and C_LAST are retrieved from the row at position n/ 2 rounded up
       // in the sorted set of selected rows from the CUSTOMER table.
-      Customer custByLastName = new Customer();
-      custByLastName.c_w_id = c_w_id;
-      custByLastName.c_d_id = c_d_id;
-      // custByLastName.c_last = c_last;
-      List<Customer> customerList = ctx.registry.readAll(ctx, custByLastName);
+      final Customer custByLastName = Customer.builder().w_id(c_w_id).d_id(c_d_id).build();
+      final List<Customer> customerList = ctx.registry.readAll(ctx, custByLastName);
 
-      if (customerList.size() == 0) {
-        throw new Exception(String.format("Could not find any Customers \"%s\""));
+      if (customerList.isEmpty()) {
+        throw new RuntimeException("Could not find any Customers");
       }
-      for (Customer cust : customerList) {
-        if (cust.c_last.equals(c_last)) {
-          if (cust.c_id == c_id) {
-            return cust;
-          }
+      for (final Customer cust : customerList) {
+        if (cust.getC_last().equals(c_last)) {
+          return cust;
         }
       }
-
-      ////////////////////////////////////////////////////////////////////////////////////
-      // I'm not sure if we need this sorting anymore!!
-
-      // customerList.sort(
-      //     new Comparator<Customer>() {
-      //       @Override
-      //       public int compare(final Customer c1, final Customer c2) {
-      //         return c1.c_first.compareTo(c2.c_first);
-      //       }
-      //     });
-      // int position = (int) Math.ceil(customerList.size() / 2.0);
-      // return customerList.get(position - 1);
-      ///////////////////////////////////
-      return null;
-    } else {
-      throw new Exception(
-          "Neither the customer ID nor the customer last name parameter is supplied");
     }
-  }
 
-  /**
-   * Updates a customer in the state database.
-   *
-   * @param ctx The TX context.
-   * @param entry The customer object.
-   * @throws Exception
-   */
-  public static void updateCustomer(Context ctx, Customer entry) throws Exception {
-
-    // String[] keyParts =
-    //     new String[] {Common.pad(entry.c_w_id), Common.pad(entry.c_d_id),
-    // Common.pad(entry.c_id)};
-    // LOGGER.info("update customer entry" + keyParts);
-    // LedgerUtils.updateEntry(ctx, TABLES.CUSTOMER, keyParts, entry);
-
-    // String[] lastNameKeyParts =
-    //     new String[] {
-    //       Common.pad(entry.c_w_id), Common.pad(entry.c_d_id), entry.c_last,
-    // Common.pad(entry.c_id)
-    //     };
-    // LOGGER.info("update customer Last name entry table with" + lastNameKeyParts);
-    // LedgerUtils.updateEntry(ctx, TABLES.CUSTOMER_LAST_NAME, lastNameKeyParts, entry);
-  }
-
-  /** HISTORY API */
-
-  /**
-   * Adds a new history to the state database.
-   *
-   * @param ctx The TX context.
-   * @param entry The JSON string.
-   * @throws Exception
-   */
-  public static void createHistory(Context ctx, Object entry) throws Exception {
-    // History history =
-    //     entry instanceof String ? ParseUtils.parseHistory((String) entry) : (History) entry;
-
-    // String[] keyParts =
-    //     new String[] {
-    //       Common.pad(history.h_c_w_id),
-    //       Common.pad(history.h_c_d_id),
-    //       Common.pad(history.h_c_id),
-    //       history.h_date
-    //     };
-    // LedgerUtils.createEntry(ctx, TABLES.HISTORY, keyParts, entry);
-  }
-
-  /** NEW ORDER API */
-
-  /**
-   * Adds a new new order to the state database.
-   *
-   * @param ctx The TX context.
-   * @param entry The JSON string. @
-   */
-  public static void createNewOrder(Context ctx, Object entry) throws Exception {
-    // LOGGER.info("Create new order entry");
-    // NewOrder newOrder =
-    //     entry instanceof String ? ParseUtils.parseNewOrder((String) entry) : (NewOrder) entry;
-
-    // String[] keyParts =
-    //     new String[] {
-    //       Common.pad(newOrder.no_w_id), Common.pad(newOrder.no_d_id),
-    // Common.pad(newOrder.no_o_id)
-    //     };
-    // LedgerUtils.createEntry(ctx, TABLES.NEW_ORDER, keyParts, entry);
-    // LOGGER.info("Create new order entry COMPLETE!!");
-  }
-
-  /**
-   * Retrieves the oldest new order from the state database that matches the given partial key.
-   *
-   * @param ctx The TX context.
-   * @param no_w_id The new order's warehouse ID.
-   * @param no_d_id The new order's district ID.
-   * @return The oldest new order.
-   */
-  public static NewOrder getOldestNewOrder(EnhancedContext ctx, int no_w_id, int no_d_id)
-      throws Exception {
     return null;
-    // LOGGER.info(
-    //     "Searching for oldest New Order for warehouse " + no_w_id + " and district " + no_d_id);
-    // List<Object> oldestNewOrders =
-    //     LedgerUtils.select(
-    //         ctx,
-    //         TABLES.NEW_ORDER,
-    //         new String[] {Common.pad(no_w_id), Common.pad(no_d_id)},
-    //         MatchData.ParseNewOrderMatchData(),
-    //         true);
-    // // if (oldest != null) {
-    // //     LOGGER.info("Retrieved oldest oldest New Order( " + no_w_id + "," + no_d_id + "," +
-    // // oldest.no_o_id + ")");
-    // // }
-    // Object oldest = oldestNewOrders.get(0);
-    // LOGGER.info("Retrieved oldest New Order( " + gson.toJson(oldest));
-    // // SOMETHING WRONG HERE
-    // // Retrieved oldest New Order(
-    // //
-    // [{"o_id":0,"o_d_id":0,"o_w_id":0,"o_c_id":0,"o_carrier_id":0,"o_ol_cnt":0,"o_all_local":0}]
-    // return (NewOrder) oldest;
-  }
-
-  //////////////////////////////////////////////////////////////////////////////////////////////////
-  /**
-   * Retrieves new order from the state database that matches the given partial key.
-   *
-   * @param ctx The TX context.
-   * @param no_w_id The new order's warehouse ID.
-   * @param no_d_id The new order's district ID.
-   * @return The new order entry.
-   */
-  public static NewOrder getNewOrder(Context ctx, int no_w_id, int no_d_id, int no_o_id)
-      throws Exception {
-    return null;
-    // String[] keyParts =
-    //     new String[] {Common.pad(no_w_id), Common.pad(no_d_id), Common.pad(no_o_id)};
-    // LOGGER.info("Begin getNewOrder with entry: " + keyParts);
-    // String entry = LedgerUtils.getEntry(ctx, TABLES.NEW_ORDER, keyParts);
-
-    // if (entry == null) {
-    //   throw new Exception(
-    //       "Could not retrieve NewOrder(" + no_w_id + ", " + no_d_id + ", " + no_o_id + ")");
-    // }
-    // LOGGER.info("getNewOrder returned " + entry);
-    // return entry != null ? ParseUtils.parseNewOrder(entry) : null;
-  }
-
-  ///////////////////////////////////////////////////////////////////////////////////////////////
-  /**
-   * Deletes a new order from the state database.
-   *
-   * @param ctx The TX context.
-   * @param entry The new order object. @
-   */
-  public static void deleteNewOrder(Context ctx, NewOrder entry) throws Exception {
-    // LOGGER.info("Begin delete oldest NewOrder" + gson.toJson(entry));
-    // String[] keyParts =
-    //     new String[] {
-    //       Common.pad(entry.no_w_id), Common.pad(entry.no_d_id), Common.pad(entry.no_o_id)
-    //     };
-    // LOGGER.info("delete oldest NewOrder entry with key " + keyParts);
-    // LedgerUtils.deleteEntry(ctx, TABLES.NEW_ORDER, keyParts);
-    // LOGGER.info("Oldest NewOrder entry with key " + keyParts + "deleted");
-  }
-
-  /** ORDER API */
-
-  /**
-   * Adds a new order to the state database.
-   *
-   * @param ctx The TX context.
-   * @param entry The JSON string. @
-   */
-  public static void createOrder(Context ctx, Object entry) throws Exception {
-    // LOGGER.info("CREATE ORDER ENTRY");
-    // Order order = entry instanceof String ? ParseUtils.parseOrder((String) entry) : (Order)
-    // entry;
-    // String[] keyParts =
-    //     new String[] {
-    //       Common.pad(order.o_w_id),
-    //       Common.pad(order.o_d_id),
-    //       Common.pad(Integer.MAX_VALUE - order.o_id)
-    //     };
-    // LedgerUtils.createEntry(ctx, TABLES.ORDER, keyParts, entry);
-    // LOGGER.info(
-    //     "CREATE ORDER ENTRY COMPLETED FOR " + order.o_w_id + "-" + order.o_d_id + "-" +
-    // order.o_id);
-  }
-
-  /**
-   * Retrieves an order record from the ledger.
-   *
-   * @param ctx The TX context.
-   * @param o_w_id The order's warehouse ID.
-   * @param o_d_id The order's district ID.
-   * @param o_id The order ID.
-   * @return The retrieved order.
-   */
-  public static Order getOrder(Context ctx, int o_w_id, int o_d_id, int o_id) throws Exception {
-    return null;
-    // String[] keyParts =
-    //     new String[] {Common.pad(o_w_id), Common.pad(o_d_id), Common.pad(Integer.MAX_VALUE -
-    // o_id)};
-    // LOGGER.info("Begin getOrder with entry: " + keyParts);
-    // String entry = LedgerUtils.getEntry(ctx, TABLES.ORDER, keyParts);
-
-    // if (entry == null) {
-    //   throw new Exception("Could not retrieve Order(" + o_w_id + ", " + o_d_id + ", " + o_id +
-    // ")");
-    // }
-    // LOGGER.info("getOrder returned " + entry);
-    // return entry != null ? ParseUtils.parseOrder(entry) : null;
   }
 
   /**
@@ -582,158 +81,26 @@ public class LedgerUtils {
    * @throws Exception if the last order is not found.
    */
   public static Order getLastOrderOfCustomer(
-      EnhancedContext ctx, int o_w_id, int o_d_id, int o_c_id) throws Exception {
-    Order custOrder = new Order();
-    custOrder.o_w_id = o_w_id;
-    custOrder.o_d_id = o_d_id;
-    List<Order> allOrders = ctx.registry.readAll(ctx, custOrder);
+      final EnhancedContext ctx, final int o_w_id, final int o_d_id, final int o_c_id)
+      throws Exception {
+    final Order custOrder = Order.builder().w_id(o_w_id).d_id(o_d_id).build();
+    final List<Order> allOrders = ctx.registry.readAll(ctx, custOrder);
     if (allOrders == null) {
       throw new Exception(
           String.format(
               "Could not find last Order(%d, %d, o_id) of Customer(%d, %d, %d)",
               o_w_id, o_d_id, o_w_id, o_d_id, o_c_id));
     }
-    List<Order> ordersOfCust = new ArrayList<>();
-    for (Order order : ordersOfCust) {
-      if (order.o_c_id == o_c_id) {
+    final List<Order> ordersOfCust = new ArrayList<>();
+    for (final Order order : allOrders) {
+      if (order.getO_c_id() == o_c_id) {
         ordersOfCust.add(order);
       }
     }
-    //// MIGHT NEED TO DO SORTING FIRST HERE BEFORE RETURNING THE FIRST ITEM IN THE LIST
-    //// TODO //////
-    Order lastOrderOfCustomer = ordersOfCust.get(0);
+    // TODO sort
+    final Order lastOrderOfCustomer = ordersOfCust.get(0);
     LOGGER.info("Retrieved last Order of Customer " + o_c_id);
     return lastOrderOfCustomer;
-  }
-
-  /**
-   * Updates an order in the state database.
-   *
-   * @param ctx The TX context.
-   * @param entry The order object.
-   * @throws Exception
-   */
-  public static void updateOrder(Context ctx, Order entry) throws Exception {
-    // LOGGER.info("Begin update Order");
-    // String[] keyParts =
-    //     new String[] {
-    //       Common.pad(entry.o_w_id),
-    //       Common.pad(entry.o_d_id),
-    //       Common.pad(Integer.MAX_VALUE - entry.o_id)
-    //     };
-    // LedgerUtils.updateEntry(ctx, TABLES.ORDER, keyParts, entry);
-    // LOGGER.info("Order updated");
-  }
-
-  /** ORDER LINE API */
-
-  /**
-   * Adds a new order line to the state database.
-   *
-   * @param ctx The TX context.
-   * @param entry The JSON string. @
-   */
-  public static void createOrderLine(Context ctx, Object entry) throws Exception {
-    // LOGGER.info("BEGIN CREATE ORDERLINE");
-    // OrderLine orderLine =
-    //     entry instanceof String ? ParseUtils.parseOrderLine((String) entry) : (OrderLine) entry;
-    // String[] keyParts =
-    //     new String[] {
-    //       Common.pad(orderLine.ol_w_id),
-    //       Common.pad(orderLine.ol_d_id),
-    //       Common.pad(orderLine.ol_o_id),
-    //       Common.pad(orderLine.ol_number)
-    //     };
-    // LedgerUtils.createEntry(ctx, TABLES.ORDER_LINE, keyParts, entry);
-    // LOGGER.info("CREATED ORDERLINE ENTRY");
-  }
-
-  /**
-   * Retrieves an order line record from the ledger.
-   *
-   * @param ctx The TX context.
-   * @param ol_w_id The order's warehouse ID.
-   * @param ol_d_id The order's district ID.
-   * @param ol_o_id The order ID.
-   * @param ol_number The number of the order line.
-   * @return {<OrderLine>} The retrieved order line.
-   */
-  public static OrderLine getOrderLine(
-      Context ctx, int ol_w_id, int ol_d_id, int ol_o_id, int ol_number) throws Exception {
-    return null;
-    // String[] keyParts =
-    //     new String[] {
-    //       Common.pad(ol_w_id), Common.pad(ol_d_id), Common.pad(ol_o_id), Common.pad(ol_number)
-    //     };
-    // LOGGER.info("Begin getOrdeline entry for keyparts " + keyParts);
-    // String entry = LedgerUtils.getEntry(ctx, TABLES.ORDER_LINE, keyParts);
-
-    // if (entry == null) {
-    //   throw new Exception(
-    //       "Could not retrieve Order Line("
-    //           + ol_w_id
-    //           + ","
-    //           + ol_d_id
-    //           + ","
-    //           + ol_o_id
-    //           + ", "
-    //           + ol_number
-    //           + ")");
-    // }
-    // LOGGER.info("getOrdeline entry for keyparts " + keyParts + "Returned " + entry);
-    // // return entry ? ParseUtils.parseOrderLine(entry) : (OrderLine) null;
-    // return entry != null ? ParseUtils.parseOrderLine(entry) : null;
-  }
-
-  /**
-   * Updates an order line in the state database.
-   *
-   * @param ctx The TX context.
-   * @param entry The order line object. @
-   */
-  public static void updateOrderLine(Context ctx, OrderLine entry) throws Exception {
-    // LOGGER.info("UPDATE ORDERLINE");
-    // String[] keyParts =
-    //     new String[] {
-    //       Common.pad(entry.ol_w_id),
-    //       Common.pad(entry.ol_d_id),
-    //       Common.pad(entry.ol_o_id),
-    //       Common.pad(entry.ol_number)
-    //     };
-    // LedgerUtils.updateEntry(ctx, TABLES.ORDER_LINE, keyParts, entry);
-    // LOGGER.info("UPDATED ORDERLINE ENTRY" + entry.ol_o_id + "," + entry.ol_number);
-  }
-
-  /** ITEM API */
-
-  /**
-   * Adds a new item to the state database.
-   *
-   * @param ctx The TX context.
-   * @param entry The JSON string.
-   * @throws Exception
-   */
-  public static void createItem(Context ctx, Object entry) throws Exception {
-    // LOGGER.info("CREATE ITEM");
-    // Item item = entry instanceof String ? ParseUtils.parseItem((String) entry) : (Item) entry;
-    // LedgerUtils.createEntry(ctx, TABLES.ITEM, new String[] {Common.pad(item.i_id)}, entry);
-    // LOGGER.info("CREATED ITEM ENTRY");
-  }
-
-  /**
-   * Retrieves an item record from the ledger.
-   *
-   * @param ctx The TX context.
-   * @param i_id The item ID.
-   * @return {<Item>} The retrieved item.
-   */
-  public static Item getItem(Context ctx, int i_id) throws Exception {
-    return null;
-    // LOGGER.info("GET ITEM ENTRY FROM THE ITEM TABLE");
-    // String entry = LedgerUtils.getEntry(ctx, TABLES.ITEM, new String[] {Common.pad(i_id)});
-    // LOGGER.info("GET ITEM ENTRY RETURNED" + entry);
-    // LOGGER.info("parse ITEM ENTRY RETURNED" + ParseUtils.parseItem(entry));
-    // return entry != null ? ParseUtils.parseItem(entry) : null;
   }
 
   /**
@@ -747,29 +114,28 @@ public class LedgerUtils {
    * @return The unique IDs of items from the recent orders.
    */
   public static List<Integer> getItemIdsOfRecentOrders(
-      EnhancedContext ctx, int w_id, int d_id, int o_id_min, int o_id_max) throws Exception {
+      final EnhancedContext ctx,
+      final int w_id,
+      final int d_id,
+      final int o_id_min,
+      final int o_id_max)
+      throws Exception {
     LOGGER.info("Counts the number of items whose stock is below a given threshold.");
-    Set<Integer> itemIds = new HashSet<>();
+    final Set<Integer> itemIds = new HashSet<>();
     LOGGER.info("Retrieving item IDs for Orders with w_id " + w_id + " and d_id " + d_id);
     for (int current_o_id = o_id_min; current_o_id < o_id_max; current_o_id++) {
 
-      Order anOrder = new Order();
-      anOrder.o_w_id = w_id;
-      anOrder.o_d_id = d_id;
-      anOrder.o_id = current_o_id;
-      Order order = ctx.registry.read(ctx, anOrder);
+      final Order order = Order.builder().w_id(w_id).d_id(d_id).id(current_o_id).build();
+      ctx.registry.read(ctx, order);
 
-      LOGGER.info("RETRIEVED ORDER > " + gson.toJson(order));
+      LOGGER.info("RETRIEVED ORDER > " + JSON.serialize(order));
 
-      for (int ol_number = 1; ol_number <= order.o_ol_cnt; ol_number++) {
-        OrderLine ol = new OrderLine();
-        ol.ol_w_id = w_id;
-        ol.ol_d_id = d_id;
-        ol.ol_o_id = current_o_id;
-        ol.ol_number = ol_number;
-        OrderLine orderLine = ctx.registry.read(ctx, ol);
-        LOGGER.info("RETRIEVED ORDERLINE " + gson.toJson(orderLine));
-        itemIds.add(orderLine.ol_i_id);
+      for (int ol_number = 1; ol_number <= order.getO_ol_cnt(); ol_number++) {
+        final OrderLine orderLine =
+            OrderLine.builder().w_id(w_id).d_id(d_id).o_id(current_o_id).number(ol_number).build();
+        ctx.registry.read(ctx, orderLine);
+        LOGGER.info("RETRIEVED ORDERLINE " + JSON.serialize(orderLine));
+        itemIds.add(orderLine.getOl_i_id());
         LOGGER.info("RETRIEVED ITEM IDS: " + itemIds);
         for (Integer strCurrentNumber : itemIds) {
           System.out.println(strCurrentNumber);
@@ -777,7 +143,7 @@ public class LedgerUtils {
       }
     }
 
-    if (itemIds.size() == 0) {
+    if (itemIds.isEmpty()) {
       throw new Exception(
           String.format(
               "Could not find item IDs of recent Orders(%d, %d, [%d, %d))",
@@ -798,65 +164,5 @@ public class LedgerUtils {
             + ")");
 
     return new ArrayList<>(itemIds);
-  }
-
-  /** STOCK API */
-
-  /**
-   * Adds a new stock to the state database.
-   *
-   * @param ctx The TX context.
-   * @param entry The JSON string.
-   * @async
-   */
-  public static void createStock(Context ctx, Object entry) throws Exception {
-    // LOGGER.info("CREATE STOCK ENTRY" + entry);
-    // Stock stock = entry instanceof String ? ParseUtils.parseStock((String) entry) : (Stock)
-    // entry;
-    // LedgerUtils.createEntry(
-    //     ctx,
-    //     TABLES.STOCK,
-    //     new String[] {Common.pad(stock.s_w_id), Common.pad(stock.s_i_id)},
-    //     entry);
-    // LOGGER.info("CREATED STOCK ENTRY" + gson.toJson(stock));
-  }
-
-  /**
-   * Retrieves a stock record from the ledger.
-   *
-   * @param ctx The TX context.
-   * @param s_w_id The warehouse ID.
-   * @param s_i_id The item ID.
-   * @return {<Stock>} The retrieved stock.
-   */
-  public static Stock getStock(Context ctx, int s_w_id, int s_i_id) throws Exception {
-    return null;
-    // LOGGER.info("get stock entry");
-    // String entry =
-    //     LedgerUtils.getEntry(
-    //         ctx, TABLES.STOCK, new String[] {Common.pad(s_w_id), Common.pad(s_i_id)});
-    // if (entry == null) {
-    //   throw new Exception("Could not retrieve Stock(" + s_w_id + ", " + s_i_id + ")");
-    // }
-
-    // // return entry ? ParseUtils.parseStock(entry) : (Stock)null;
-    // LOGGER.info("RETRIEVED ENTRY " + entry);
-    // return entry != null ? ParseUtils.parseStock(entry) : null;
-  }
-
-  /**
-   * Updates a stock in the state database.
-   *
-   * @param ctx The TX context.
-   * @param entry The stock object.
-   * @async
-   */
-  public static void updateStock(Context ctx, Stock entry) throws Exception {
-    // LOGGER.info("UPDATE STOCK ENTRY");
-    // LedgerUtils.updateEntry(
-    //     ctx,
-    //     TABLES.STOCK,
-    //     new String[] {Common.pad(entry.s_w_id), Common.pad(entry.s_i_id)},
-    //     entry);
   }
 }

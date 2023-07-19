@@ -12,44 +12,47 @@ import org.hyperledger.fabric.shim.ledger.KeyValue;
 public class EntityRegistry implements RegistryInterface {
   public EntityRegistry() {}
 
-  private <Type extends SerializableEntityInterface<Type>> String getKey(Context ctx, Type obj) {
-    CompositeKey compositeKey = ctx.getStub().createCompositeKey(obj.getType(), obj.getKeyParts());
+  private <Type extends SerializableEntityInterface<Type>> String getKey(
+      final Context ctx, final Type obj) {
+    final CompositeKey compositeKey =
+        ctx.getStub().createCompositeKey(obj.getType(), obj.getKeyParts());
     return compositeKey.toString();
   }
 
   @Override
-  public <Type extends SerializableEntityInterface<Type>> void create(Context ctx, Type entity) {
+  public <Type extends SerializableEntityInterface<Type>> void create(
+      final Context ctx, final Type entity) {
     assertNotExists(ctx, entity);
 
-    String key = getKey(ctx, entity);
-    byte[] buffer = entity.toBuffer();
+    final String key = getKey(ctx, entity);
+    final byte[] buffer = entity.toBuffer();
     ctx.getStub().putState(key, buffer);
   }
 
   @Override
-  public <Type extends SerializableEntityInterface<Type>> void update(Context ctx, Type entity) {
-
+  public <Type extends SerializableEntityInterface<Type>> void update(
+      final Context ctx, final Type entity) {
     assertExists(ctx, entity);
 
-    String key = getKey(ctx, entity);
-    byte[] buffer = entity.toBuffer();
+    final String key = getKey(ctx, entity);
+    final byte[] buffer = entity.toBuffer();
     ctx.getStub().putState(key, buffer);
   }
 
   @Override
-  public <Type extends SerializableEntityInterface<Type>> void delete(Context ctx, Type entity) {
-
+  public <Type extends SerializableEntityInterface<Type>> void delete(
+      final Context ctx, final Type entity) {
     assertExists(ctx, entity);
 
-    String key = getKey(ctx, entity);
+    final String key = getKey(ctx, entity);
     ctx.getStub().delState(key);
   }
 
   @Override
-  public <Type extends SerializableEntityInterface<Type>> Type read(Context ctx, Type entity) {
-
-    String key = getKey(ctx, entity);
-    byte[] data = ctx.getStub().getState(key);
+  public <Type extends SerializableEntityInterface<Type>> Type read(
+      final Context ctx, final Type entity) {
+    final String key = getKey(ctx, entity);
+    final byte[] data = ctx.getStub().getState(key);
 
     if (data == null || data.length == 0) {
       throw new Error(
@@ -62,39 +65,39 @@ public class EntityRegistry implements RegistryInterface {
 
   @Override
   public <Type extends SerializableEntityInterface<Type>> List<Type> readAll(
-      Context ctx, Type entityTemplate) {
-    List<Type> entities = new ArrayList<>();
-    String compositeKey =
-        ctx.getStub().createCompositeKey(entityTemplate.getType(), new String[] {}).toString();
-    Iterator<KeyValue> iterator =
-        ctx.getStub().getStateByPartialCompositeKey(compositeKey).iterator();
-    while (iterator.hasNext()) {
-      byte[] value = iterator.next().getValue();
-      EntityFactory<Type> factory = entityTemplate.getFactory();
-      Type entity = factory.create();
+      final Context ctx, final Type entityTemplate) {
+    final List<Type> entities = new ArrayList<>();
+    final String compositeKey =
+        ctx.getStub().createCompositeKey(entityTemplate.getType()).toString();
+    for (KeyValue keyValue : ctx.getStub().getStateByPartialCompositeKey(compositeKey)) {
+      final byte[] value = keyValue.getValue();
+      final EntityFactory<Type> factory = entityTemplate.getFactory();
+      final Type entity = factory.create();
       entity.fromBuffer(value);
       entities.add(entity);
     }
     return entities;
   }
 
-  private boolean keyExists(Context ctx, String key) {
-    byte[] valueOnLedger = ctx.getStub().getState(key);
+  private boolean keyExists(final Context ctx, final String key) {
+    final byte[] valueOnLedger = ctx.getStub().getState(key);
     return valueOnLedger != null && valueOnLedger.length > 0;
   }
 
-  public <Type extends SerializableEntityInterface<Type>> boolean exists(Context ctx, Type obj) {
+  public <Type extends SerializableEntityInterface<Type>> boolean exists(
+      final Context ctx, final Type obj) {
     return keyExists(ctx, getKey(ctx, obj));
   }
 
   public <Type extends SerializableEntityInterface<Type>> void assertNotExists(
-      Context ctx, Type obj) {
+      final Context ctx, final Type obj) {
     if (exists(ctx, obj)) {
       throw new Error("Entity with key \"" + getKey(ctx, obj) + "\" already exists on the ledger");
     }
   }
 
-  public <Type extends SerializableEntityInterface<Type>> void assertExists(Context ctx, Type obj) {
+  public <Type extends SerializableEntityInterface<Type>> void assertExists(
+      final Context ctx, final Type obj) {
     if (!exists(ctx, obj)) {
       throw new Error("Entity with key \"" + getKey(ctx, obj) + "\" does not exist on the ledger");
     }

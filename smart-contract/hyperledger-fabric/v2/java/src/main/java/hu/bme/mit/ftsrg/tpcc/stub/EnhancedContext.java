@@ -5,11 +5,11 @@ import hu.bme.mit.ftsrg.tpcc.registry.RegistryInterface;
 import org.hyperledger.fabric.contract.Context;
 import org.hyperledger.fabric.shim.ChaincodeStub;
 
-public class EnhancedContext extends Context {
-  public RegistryInterface registry;
+public final class EnhancedContext extends Context {
 
-  public EnhancedContext(ChaincodeStub stub) {
+  public final RegistryInterface registry = new EntityRegistry();
+
+  public EnhancedContext(final ChaincodeStub stub) {
     super(stub);
-    this.registry = new EntityRegistry();
   }
 }

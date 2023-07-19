@@ -1,6 +1,9 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
 package hu.bme.mit.ftsrg.tpcc.entities;
 
-public interface SerializableEntityInterface<Type extends SerializableEntityInterface> {
+public interface SerializableEntityInterface<Type extends SerializableEntityInterface<Type>> {
+
   String getType();
 
   String[] getKeyParts();
