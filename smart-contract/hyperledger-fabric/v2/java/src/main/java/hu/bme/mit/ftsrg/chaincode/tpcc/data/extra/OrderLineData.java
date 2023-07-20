@@ -2,10 +2,14 @@
 
 package hu.bme.mit.ftsrg.chaincode.tpcc.data.extra;
 
+import hu.bme.mit.ftsrg.chaincode.tpcc.data.output.OrderStatusOutput;
 import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
+/**
+ * Class to encapsulate the <code>order_lines</code> field's data of a {@link OrderStatusOutput}.
+ */
 @EqualsAndHashCode
 @DataType
 public final class OrderLineData {

@@ -8,6 +8,7 @@ import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
+/** Essentially, the ITEM table. */
 @EqualsAndHashCode
 @DataType
 public final class Item extends SerializableEntityBase<Item> {

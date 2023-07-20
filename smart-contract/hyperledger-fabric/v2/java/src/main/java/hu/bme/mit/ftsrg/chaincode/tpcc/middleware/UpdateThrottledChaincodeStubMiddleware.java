@@ -5,6 +5,12 @@ package hu.bme.mit.ftsrg.chaincode.tpcc.middleware;
 import hu.bme.mit.ftsrg.chaincode.dataaccess.ChaincodeStubMiddlewareBase;
 import org.hyperledger.fabric.shim.ChaincodeStub;
 
+/**
+ * Stub middleware that only sends {@link ChaincodeStub#putState(String, byte[])} calls once the
+ * transaction is finished.
+ *
+ * @see ChaincodeStubMiddlewareBase
+ */
 public final class UpdateThrottledChaincodeStubMiddleware extends ChaincodeStubMiddlewareBase {
 
   public UpdateThrottledChaincodeStubMiddleware(ChaincodeStub nextLayer) {

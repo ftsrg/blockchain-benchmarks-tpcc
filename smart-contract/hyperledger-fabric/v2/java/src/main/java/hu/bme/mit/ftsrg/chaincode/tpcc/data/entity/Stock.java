@@ -8,6 +8,7 @@ import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
+/** Essentially, the STOCK table. */
 @EqualsAndHashCode
 @DataType
 public final class Stock extends SerializableEntityBase<Stock> {
@@ -249,6 +250,22 @@ public final class Stock extends SerializableEntityBase<Stock> {
 
   public void setS_data(final String s_data) {
     this.s_data = s_data;
+  }
+
+  public void decreaseQuantity(final int amount) {
+    this.s_quantity -= amount;
+  }
+
+  public void increaseYTD(final int amount) {
+    this.s_ytd += amount;
+  }
+
+  public void incrementOrderCount() {
+    ++this.s_order_cnt;
+  }
+
+  public void incrementRemoteCount() {
+    ++this.s_remote_cnt;
   }
 
   public static StockBuilder builder() {

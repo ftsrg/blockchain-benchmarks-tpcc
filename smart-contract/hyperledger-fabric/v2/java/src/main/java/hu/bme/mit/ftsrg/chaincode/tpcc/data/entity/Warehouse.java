@@ -8,6 +8,7 @@ import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
+/** Essentially, the WAREHOUSE table. */
 @EqualsAndHashCode
 @DataType
 public class Warehouse extends SerializableEntityBase<Warehouse> {
@@ -138,6 +139,10 @@ public class Warehouse extends SerializableEntityBase<Warehouse> {
 
   public void setW_ytd(final double w_ytd) {
     this.w_ytd = w_ytd;
+  }
+
+  public void increaseYTD(final double amount) {
+    this.w_ytd += amount;
   }
 
   public static WarehouseBuilder builder() {

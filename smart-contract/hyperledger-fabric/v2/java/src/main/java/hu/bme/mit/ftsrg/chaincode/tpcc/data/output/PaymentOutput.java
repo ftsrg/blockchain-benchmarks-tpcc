@@ -2,10 +2,13 @@
 
 package hu.bme.mit.ftsrg.chaincode.tpcc.data.output;
 
+import hu.bme.mit.ftsrg.chaincode.tpcc.TPCC;
+import hu.bme.mit.ftsrg.chaincode.tpcc.middleware.TPCCContext;
 import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
+/** Output of {@link TPCC#doPayment(TPCCContext, String)}. */
 @EqualsAndHashCode
 @DataType
 public final class PaymentOutput {

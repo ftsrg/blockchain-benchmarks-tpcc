@@ -8,6 +8,7 @@ import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
+/** Essentially, the CUSTOMER table. */
 @EqualsAndHashCode
 @DataType()
 public class Customer extends SerializableEntityBase<Customer> {
@@ -299,6 +300,26 @@ public class Customer extends SerializableEntityBase<Customer> {
 
   public void setC_data(final String c_data) {
     this.c_data = c_data;
+  }
+
+  public void increaseBalance(final double amount) {
+    this.c_balance += amount;
+  }
+
+  public void decreaseBalance(final double amount) {
+    this.c_balance -= amount;
+  }
+
+  public void increaseYTDPayment(final double amount) {
+    this.c_ytd_payment += amount;
+  }
+
+  public void incrementDeliveryCount() {
+    ++this.c_delivery_cnt;
+  }
+
+  public void incrementPaymentCount() {
+    ++this.c_payment_cnt;
   }
 
   public static CustomerBuilder builder() {

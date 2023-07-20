@@ -2,12 +2,15 @@
 
 package hu.bme.mit.ftsrg.chaincode.tpcc.data.output;
 
+import hu.bme.mit.ftsrg.chaincode.tpcc.TPCC;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.extra.DeliveredOrder;
+import hu.bme.mit.ftsrg.chaincode.tpcc.middleware.TPCCContext;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
+/** Output of {@link TPCC#doDelivery(TPCCContext, String)}. */
 @EqualsAndHashCode
 @DataType
 public final class DeliveryOutput {
@@ -64,34 +67,34 @@ public final class DeliveryOutput {
     this.skipped = skipped;
   }
 
-  public DoDeliveryOutputBuilder builder() {
-    return new DoDeliveryOutputBuilder();
+  public static DeliveryOutputBuilder builder() {
+    return new DeliveryOutputBuilder();
   }
 
-  public static final class DoDeliveryOutputBuilder {
+  public static final class DeliveryOutputBuilder {
     private int w_id;
     private int o_carrier_id;
     private List<DeliveredOrder> delivered;
     private int skipped;
 
-    DoDeliveryOutputBuilder() {}
+    DeliveryOutputBuilder() {}
 
-    public DoDeliveryOutputBuilder w_id(final int w_id) {
+    public DeliveryOutputBuilder w_id(final int w_id) {
       this.w_id = w_id;
       return this;
     }
 
-    public DoDeliveryOutputBuilder o_carrier_id(final int o_carrier_id) {
+    public DeliveryOutputBuilder o_carrier_id(final int o_carrier_id) {
       this.o_carrier_id = o_carrier_id;
       return this;
     }
 
-    public DoDeliveryOutputBuilder delivered(final List<DeliveredOrder> delivered) {
+    public DeliveryOutputBuilder delivered(final List<DeliveredOrder> delivered) {
       this.delivered = delivered;
       return this;
     }
 
-    public DoDeliveryOutputBuilder skipped(final int skipped) {
+    public DeliveryOutputBuilder skipped(final int skipped) {
       this.skipped = skipped;
       return this;
     }

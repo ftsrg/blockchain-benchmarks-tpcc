@@ -1,5 +1,6 @@
 package hu.bme.mit.ftsrg.chaincode.dataaccess;
 
+import java.util.Comparator;
 import java.util.List;
 import org.hyperledger.fabric.contract.Context;
 
@@ -11,7 +12,30 @@ public interface Registry {
 
   <Type extends SerializableEntity<Type>> void delete(Context ctx, Type entity);
 
-  <Type extends SerializableEntity<Type>> Type read(Context ctx, Type entity);
+  <Type extends SerializableEntity<Type>> Type read(Context ctx, Type target);
 
-  <Type extends SerializableEntity<Type>> List<Type> readAll(Context ctx, Type entity);
+  <Type extends SerializableEntity<Type>> List<Type> readAll(Context ctx, Type template);
+
+  <Type extends SerializableEntity<Type>> SelectionBuilder<Type> select(Context ctx, Type template);
+
+  interface SelectionBuilder<Type extends SerializableEntity<Type>> {
+    SelectionBuilder<Type> matching(Matcher<Type> matcher);
+
+    SelectionBuilder<Type> sortedBy(Comparator<Type> comparator);
+
+    SelectionBuilder<Type> descending();
+
+    List<Type> get();
+
+    Type getFirst();
+  }
+
+  interface Matcher<Type extends SerializableEntity<Type>> {
+    boolean match(Type entity);
+  }
+
+  enum Order {
+    ASCENDING,
+    DESCENDING
+  }
 }

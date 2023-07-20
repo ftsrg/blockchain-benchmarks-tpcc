@@ -15,6 +15,14 @@ import org.hyperledger.fabric.shim.ledger.KeyValue;
 import org.hyperledger.fabric.shim.ledger.QueryResultsIterator;
 import org.hyperledger.fabric.shim.ledger.QueryResultsIteratorWithMetadata;
 
+/**
+ * Base class for {@link ChaincodeStub} middlewares.
+ *
+ * <p>This class provides the same interface as {@link ChaincodeStub}, but under the hood it
+ * maintains a reference to another {@link ChaincodeStub} and delegates all calls to that. You can
+ * override any method in this class to inject your custom behaviour, such as logging, access
+ * control, caching, etc.
+ */
 public abstract class ChaincodeStubMiddlewareBase implements ChaincodeStub {
 
   public ChaincodeStubMiddlewareBase(final ChaincodeStub nextLayer) {

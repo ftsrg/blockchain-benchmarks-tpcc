@@ -8,6 +8,11 @@ import java.util.HashMap;
 import java.util.Map;
 import org.hyperledger.fabric.shim.ChaincodeStub;
 
+/**
+ * Stub middleware that caches reads in a local state.
+ *
+ * @see ChaincodeStubMiddlewareBase
+ */
 public final class WriteBackCachedChaincodeStubMiddleware extends ChaincodeStubMiddlewareBase {
 
   private final Map<String, CachedItem> cache = new HashMap<>();

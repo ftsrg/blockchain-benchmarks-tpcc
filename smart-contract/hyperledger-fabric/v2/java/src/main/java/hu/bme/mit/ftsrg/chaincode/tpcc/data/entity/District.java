@@ -8,6 +8,7 @@ import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
+/** Essentially, the DISTRICT table. */
 @EqualsAndHashCode
 @DataType()
 public final class District extends SerializableEntityBase<District> {
@@ -164,6 +165,14 @@ public final class District extends SerializableEntityBase<District> {
 
   public void setD_next_o_id(final int d_next_o_id) {
     this.d_next_o_id = d_next_o_id;
+  }
+
+  public void increaseYTD(final double amount) {
+    this.d_ytd += amount;
+  }
+
+  public void incrementNextOrderID() {
+    ++this.d_next_o_id;
   }
 
   public static DistrictBuilder builder() {

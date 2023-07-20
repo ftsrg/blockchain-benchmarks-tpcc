@@ -11,6 +11,8 @@ import java.lang.annotation.Target;
  * <p>Add this annotation to all fields you wish to have as primary keys. {@link
  * SerializableEntityBase#getKeyParts()} returns an array constructed of these, with additional
  * padding.
+ *
+ * @see SerializableEntity
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)

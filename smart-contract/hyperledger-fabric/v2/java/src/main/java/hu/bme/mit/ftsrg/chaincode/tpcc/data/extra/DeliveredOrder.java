@@ -2,10 +2,12 @@
 
 package hu.bme.mit.ftsrg.chaincode.tpcc.data.extra;
 
+import hu.bme.mit.ftsrg.chaincode.tpcc.data.output.DeliveryOutput;
 import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
+/** Class to encapsulate the <code>delivered</code> field's data of a {@link DeliveryOutput}. */
 @EqualsAndHashCode
 @DataType
 public final class DeliveredOrder {
@@ -37,7 +39,7 @@ public final class DeliveredOrder {
     this.o_id = o_id;
   }
 
-  public DeliveredOrderBuilder builder() {
+  public static DeliveredOrderBuilder builder() {
     return new DeliveredOrderBuilder();
   }
 
