@@ -3,6 +3,7 @@
 package hu.bme.mit.ftsrg.chaincode.tpcc;
 
 import com.jcabi.aspects.Loggable;
+import hu.bme.mit.ftsrg.chaincode.dataaccess.ContextWithRegistry;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.entity.*;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.extra.DeliveredOrder;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.extra.ItemsData;
@@ -11,10 +12,7 @@ import hu.bme.mit.ftsrg.chaincode.tpcc.data.input.*;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.output.*;
 import hu.bme.mit.ftsrg.chaincode.tpcc.middleware.TPCCContext;
 import hu.bme.mit.ftsrg.chaincode.tpcc.util.JSON;
-import hu.bme.mit.ftsrg.chaincode.tpcc.util.LedgerUtils;
-import hu.bme.mit.ftsrg.chaincode.tpcc.util.ParseUtils;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import org.hyperledger.fabric.contract.ContractInterface;
 import org.hyperledger.fabric.contract.annotation.Contact;
 import org.hyperledger.fabric.contract.annotation.Contract;
@@ -57,7 +55,7 @@ public final class TPCC implements ContractInterface {
   public String doDelivery(final TPCCContext ctx, final String parameters) {
     // TPC-C 2.7.4.2
     try {
-      final DeliveryInput params = ParseUtils.parseDeliveryParameters(parameters);
+      final DeliveryInput params = JSON.deserialize(parameters, DeliveryInput.class);
       // For a given warehouse number (W_ID), for each of the districts (D_W_ID, D_ID)
       // within that warehouse, and for a given carrier number (O_CARRIER_ID):
       final List<DeliveredOrder> deliveredOrders = new ArrayList<>();
@@ -69,15 +67,9 @@ public final class TPCC implements ContractInterface {
         // NO_D_ID (equals D_ID) and with the lowest NO_O_ID value is selected.
         // This is the oldest undelivered order of that district.
         // NO_O_ID, the order number, is retrieved.
-
-        final NewOrder newOrder = NewOrder.builder().w_id(params.getW_id()).d_id(d_id).build();
-        final List<NewOrder> orders = ctx.registry.readAll(ctx, newOrder);
-        // FIXME sort
-        final NewOrder oldestNewOrder = orders.get(0);
-        logger.debug("Oldest NEW-ORDER retrieved is: " + newOrder);
-
-        // FIXME never null like this
-        if (oldestNewOrder == null) {
+        final List<NewOrder> allNewOrders =
+            ctx.registry.readAll(ctx, NewOrder.builder().w_id(params.getW_id()).d_id(d_id).build());
+        if (allNewOrders.isEmpty()) {
           // If no matching row is found, then the delivery of an order for this district
           // is skipped. The condition in which no outstanding order is present at a given
           // district must be handled by skipping the delivery of an order for that
@@ -90,15 +82,20 @@ public final class TPCC implements ContractInterface {
           skipped++;
           continue;
         }
+        final NewOrder oldestNewOrder =
+            allNewOrders.stream().min(Comparator.comparingInt(NewOrder::getNo_o_id)).get();
+        logger.debug("Oldest NEW-ORDER retrieved is: " + oldestNewOrder);
         ctx.registry.delete(ctx, oldestNewOrder);
 
         // The row in the ORDER table with matching O_W_ID (equals W_ ID), O_D_ID
-        // (equals D_ID),
-        // and O_ID (equals NO_O_ID) is selected, O_C_ID, the customer number, is
-        // retrieved,
-        // and O_CARRIER_ID is updated.
+        // (equals D_ID), and O_ID (equals NO_O_ID) is selected, O_C_ID, the customer number, is
+        // retrieved, and O_CARRIER_ID is updated.
         final Order order =
-            Order.builder().w_id(params.getW_id()).d_id(d_id).id(newOrder.getNo_o_id()).build();
+            Order.builder()
+                .w_id(params.getW_id())
+                .d_id(d_id)
+                .id(oldestNewOrder.getNo_o_id())
+                .build();
         ctx.registry.read(ctx, order);
 
         order.setO_carrier_id(params.getO_carrier_id());
@@ -165,7 +162,7 @@ public final class TPCC implements ContractInterface {
   public String doNewOrder(final TPCCContext ctx, final String parameters) {
     // TPC-C 2.4.2.2
     try {
-      final NewOrderInput params = ParseUtils.parseNewOrderParameters(parameters);
+      final NewOrderInput params = JSON.deserialize(parameters, NewOrderInput.class);
 
       // The row in the WAREHOUSE table with matching W_ID is selected and W_TAX,
       // the warehouse tax rate, is retrieved.
@@ -382,15 +379,11 @@ public final class TPCC implements ContractInterface {
   public String doOrderStatus(final TPCCContext ctx, final String parameters) {
     // TPC-C 2.6.2.2
     try {
-      final OrderStatusInput params = ParseUtils.parseOrderStatusParameters(parameters);
+      final OrderStatusInput params = JSON.deserialize(parameters, OrderStatusInput.class);
 
       final Customer customer =
-          LedgerUtils.getCustomersByIdOrLastName(
+          getCustomersByIdOrLastName(
               ctx, params.getW_id(), params.getD_id(), params.getC_id(), params.getC_last());
-      if (customer == null) {
-        throw new RuntimeException("Could not get customer by ID or last name");
-      }
-
       // The row in the ORDER table with matching O_W_ID (equals C_W_ID), O_D_ID
       // (equals C_D_ID),
       // O_C_ID (equals C_ID), and with the largest existing O_ID, is selected. This
@@ -398,7 +391,7 @@ public final class TPCC implements ContractInterface {
       // recent order placed by that customer. O_ID, O_ENTRY_D, and O_CARRIER_ID are
       // retrieved.
       final Order order =
-          LedgerUtils.getLastOrderOfCustomer(
+          getLastOrderOfCustomer(
               ctx, customer.getC_w_id(), customer.getC_d_id(), customer.getC_id());
 
       // All rows in the ORDER-LINE table with matching OL_W_ID (equals O_W_ID),
@@ -475,7 +468,7 @@ public final class TPCC implements ContractInterface {
   public String doPayment(final TPCCContext ctx, final String parameters) {
     // TPC-C 2.5.2.2
     try {
-      final PaymentInput params = ParseUtils.parsePaymentParameters(parameters);
+      final PaymentInput params = JSON.deserialize(parameters, PaymentInput.class);
 
       // The row in the WAREHOUSE table with matching W_ID is selected. W_NAME,
       // W_STREET_1, W_STREET_2, W_CITY, W_STATE, and W_ZIP are retrieved and W_YTD,
@@ -497,12 +490,8 @@ public final class TPCC implements ContractInterface {
       ctx.registry.update(ctx, district);
 
       final Customer customer =
-          LedgerUtils.getCustomersByIdOrLastName(
+          getCustomersByIdOrLastName(
               ctx, warehouse.getW_id(), district.getD_id(), params.getC_id(), params.getC_last());
-      if (customer == null) {
-        throw new RuntimeException("Could not find customer by ID or last name");
-      }
-
       // C_BALANCE is decreased by H_AMOUNT. C_YTD_PAYMENT is increased by H_AMOUNT.
       // C_PAYMENT_CNT is incremented by 1.
       customer.setC_balance(customer.getC_balance() - params.getH_amount());
@@ -626,7 +615,7 @@ public final class TPCC implements ContractInterface {
     // addTxInfo(ctx);
     // TPC-C 2.8.2.2
     try {
-      final StockLevelInput params = ParseUtils.parseStockLevelParameters(parameters);
+      final StockLevelInput params = JSON.deserialize(parameters, StockLevelInput.class);
       // The row in the DISTRICT table with matching D_W_ID and D_ID is selected and
       // D_NEXT_O_ID is retrieved.
       final District district =
@@ -642,8 +631,7 @@ public final class TPCC implements ContractInterface {
       logger.debug("O_ID_MIN=%d, O_ID_MAX=%d".formatted(o_id_min, o_id_max));
       logger.debug("Getting the most recent 5 orders");
       final List<Integer> recentItemIds =
-          LedgerUtils.getItemIdsOfRecentOrders(
-              ctx, params.getW_id(), district.getD_id(), o_id_min, o_id_max);
+          getItemIdsOfRecentOrders(ctx, params.getW_id(), district.getD_id(), o_id_min, o_id_max);
 
       // All rows in the STOCK table with matching S_I_ID (equals OL_I_ID) and S_W_ID (equals W_ID)
       // from the list of distinct item numbers and with S_QUANTITY lower than threshold are counted
@@ -876,5 +864,112 @@ public final class TPCC implements ContractInterface {
       final TPCCContext ctx, final int c_w_id, final int c_d_id, final int c_id) {
     final Customer customer = Customer.builder().w_id(c_w_id).d_id(c_d_id).id(c_id).build();
     return JSON.serialize(ctx.registry.read(ctx, customer));
+  }
+
+  /**
+   * Retrieves the customers from the state database that match the given ID or last name
+   *
+   * @param ctx The TX context.
+   * @param c_w_id The warehouse ID of the customer.
+   * @param c_d_id The district ID of the customer.
+   * @param c_id The customer ID.
+   * @param c_last The last name of the customer.
+   * @return The retrieved customers.
+   * @throws Exception if neither the customer ID nor the customer last name parameter is supplied
+   */
+  private static Customer getCustomersByIdOrLastName(
+      final ContextWithRegistry ctx,
+      final int c_w_id,
+      final int c_d_id,
+      final Integer c_id,
+      final String c_last)
+      throws Exception {
+    if (c_id == null && c_last == null) {
+      throw new Exception("At least one of c_id and c_last must be specified");
+    }
+
+    if (c_id != null) {
+      /* Case 1, the CUSTOMER is selected based on CUSTOMER number: the row in the CUSTOMER table with matching C_W_ID, C_D_ID, and C_ID is selected and C_BALANCE, C_FIRST, C_MIDDLE, and C_LAST are retrieved. */
+      return ctx.registry.read(ctx, Customer.builder().w_id(c_w_id).d_id(c_d_id).id(c_id).build());
+    } else {
+      /* Case 2, the customer is selected based on customer last name: all rows in the CUSTOMER table with matching C_W_ID, C_D_ID and C_LAST are selected sorted by C_FIRST in ascending order. Let n be the number of rows selected. C_BALANCE, C_FIRST, C_MIDDLE, and C_LAST are retrieved from the row at position n/ 2 rounded up in the sorted set of selected rows from the CUSTOMER table. */
+      final List<Customer> allCustomers =
+          ctx.registry.readAll(ctx, Customer.builder().w_id(c_w_id).d_id(c_d_id).build());
+
+      final List<Customer> matchingCustomers =
+          allCustomers.stream().filter(customer -> customer.getC_last().equals(c_last)).toList();
+      if (matchingCustomers.isEmpty()) {
+        throw new Exception("Customer matching last name '%s' not found".formatted(c_last));
+      }
+
+      final double N = Math.ceil(matchingCustomers.size() / 2d);
+      if (N > Integer.MAX_VALUE) {
+        throw new Exception("Size of matching CUSTOMER list is out of range");
+      }
+      final int n = (int) N;
+
+      return matchingCustomers.get(n);
+    }
+  }
+
+  /**
+   * Retrieves the last of a customer from the state database.
+   *
+   * @param ctx The TX context.
+   * @param o_w_id The warehouse ID of the order.
+   * @param o_d_id The district ID of the order.
+   * @param o_c_id The customer ID for the order.
+   * @return The retrieved order.
+   * @throws Exception if the last order is not found.
+   */
+  private static Order getLastOrderOfCustomer(
+      final ContextWithRegistry ctx, final int o_w_id, final int o_d_id, final int o_c_id)
+      throws Exception {
+    final List<Order> allOrders =
+        ctx.registry.readAll(ctx, Order.builder().w_id(o_w_id).d_id(o_d_id).build());
+    if (allOrders.isEmpty()) {
+      throw new Exception("No orders found");
+    }
+
+    return allOrders.stream()
+        .filter(order -> order.getO_c_id() == o_c_id)
+        .max(Comparator.comparingInt(Order::getO_id))
+        .orElseThrow(() -> new Exception("Could not find last order of customer"));
+  }
+
+  /**
+   * Counts the number of items whose stock is below a given threshold.
+   *
+   * @param ctx The TX context.
+   * @param w_id The warehouse ID.
+   * @param d_id The district ID.
+   * @param o_id_min The oldest/minimum order ID to consider (inclusive).
+   * @param o_id_max The newest/maximum order ID to consider (exclusive).
+   * @return The unique IDs of items from the recent orders.
+   */
+  private static List<Integer> getItemIdsOfRecentOrders(
+      final ContextWithRegistry ctx,
+      final int w_id,
+      final int d_id,
+      final int o_id_min,
+      final int o_id_max)
+      throws Exception {
+    final Set<Integer> itemIds = new HashSet<>();
+    for (int current_o_id = o_id_min; current_o_id < o_id_max; current_o_id++) {
+      final Order order = Order.builder().w_id(w_id).d_id(d_id).id(current_o_id).build();
+      ctx.registry.read(ctx, order);
+
+      for (int ol_number = 1; ol_number <= order.getO_ol_cnt(); ol_number++) {
+        final OrderLine orderLine =
+            OrderLine.builder().w_id(w_id).d_id(d_id).o_id(current_o_id).number(ol_number).build();
+        ctx.registry.read(ctx, orderLine);
+        itemIds.add(orderLine.getOl_i_id());
+      }
+    }
+    if (itemIds.isEmpty()) {
+      throw new Exception("Could not find item IDs of recent ORDERs");
+    }
+
+    return new ArrayList<>(itemIds);
   }
 }
