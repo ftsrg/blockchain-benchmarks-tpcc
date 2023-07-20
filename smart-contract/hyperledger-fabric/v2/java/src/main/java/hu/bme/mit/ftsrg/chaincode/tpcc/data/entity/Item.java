@@ -2,9 +2,8 @@
 
 package hu.bme.mit.ftsrg.chaincode.tpcc.data.entity;
 
-import hu.bme.mit.ftsrg.chaincode.dataaccess.EntityFactory;
+import hu.bme.mit.ftsrg.chaincode.dataaccess.KeyPart;
 import hu.bme.mit.ftsrg.chaincode.dataaccess.SerializableEntityBase;
-import hu.bme.mit.ftsrg.chaincode.tpcc.util.Common;
 import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
@@ -14,6 +13,7 @@ import org.hyperledger.fabric.contract.annotation.Property;
 public final class Item extends SerializableEntityBase<Item> {
 
   /** The ID of the item. Primary key. */
+  @KeyPart
   @Property(schema = {"minimum", "0"})
   private final int i_id;
 
@@ -33,7 +33,7 @@ public final class Item extends SerializableEntityBase<Item> {
   @Property(schema = {"maxLength", "50"})
   private String i_data;
 
-  Item() {
+  public Item() {
     this.i_id = -1;
   }
 
@@ -44,16 +44,6 @@ public final class Item extends SerializableEntityBase<Item> {
     this.i_name = name;
     this.i_price = price;
     this.i_data = data;
-  }
-
-  @Override
-  public String[] getKeyParts() {
-    return new String[] {Common.pad(i_id)};
-  }
-
-  @Override
-  public EntityFactory<Item> getFactory() {
-    return Item::new;
   }
 
   public int getI_id() {

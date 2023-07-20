@@ -3,7 +3,6 @@
 package hu.bme.mit.ftsrg.chaincode.tpcc.util;
 
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.input.*;
-import hu.bme.mit.ftsrg.tpcc.inputs.*;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
@@ -36,8 +35,7 @@ public final class ParseUtils {
    * @return The parsed parameters.
    */
   public static DeliveryInput parseDeliveryParameters(String params) {
-    final DeliveryInput deliveryParams = JSON.deserialize(params, DeliveryInput.class);
-    return deliveryParams;
+    return JSON.deserialize(params, DeliveryInput.class);
   }
 
   /**
@@ -57,7 +55,6 @@ public final class ParseUtils {
    * @return The parsed parameters.
    */
   public static StockLevelInput parseStockLevelParameters(String params) {
-    final StockLevelInput stockLevelParams = JSON.deserialize(params, StockLevelInput.class);
-    return stockLevelParams;
+    return JSON.deserialize(params, StockLevelInput.class);
   }
 }

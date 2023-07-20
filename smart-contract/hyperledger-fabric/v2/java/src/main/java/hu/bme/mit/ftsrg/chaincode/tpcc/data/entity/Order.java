@@ -2,9 +2,8 @@
 
 package hu.bme.mit.ftsrg.chaincode.tpcc.data.entity;
 
-import hu.bme.mit.ftsrg.chaincode.dataaccess.EntityFactory;
+import hu.bme.mit.ftsrg.chaincode.dataaccess.KeyPart;
 import hu.bme.mit.ftsrg.chaincode.dataaccess.SerializableEntityBase;
-import hu.bme.mit.ftsrg.chaincode.tpcc.util.Common;
 import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
@@ -14,14 +13,17 @@ import org.hyperledger.fabric.contract.annotation.Property;
 public final class Order extends SerializableEntityBase<Order> {
 
   /** The order ID. Primary key. */
+  @KeyPart
   @Property(schema = {"minimum", "0"})
   private final int o_id;
 
   /** The district ID associated with the order. Primary key. */
+  @KeyPart
   @Property(schema = {"minimum", "0"})
   private final int o_d_id;
 
   /** The warehouse ID associated with the order. Primary key. */
+  @KeyPart
   @Property(schema = {"minimum", "0"})
   private final int o_w_id;
 
@@ -43,7 +45,7 @@ public final class Order extends SerializableEntityBase<Order> {
   @Property(schema = {"minimum", "0", "maximum", "1"})
   private int o_all_local;
 
-  Order() {
+  public Order() {
     this.o_id = -1;
     this.o_d_id = -1;
     this.o_w_id = -1;
@@ -66,18 +68,6 @@ public final class Order extends SerializableEntityBase<Order> {
     this.o_carrier_id = carrier_id;
     this.o_ol_cnt = ol_cnt;
     this.o_all_local = all_local;
-  }
-
-  @Override
-  public String[] getKeyParts() {
-    return new String[] {
-      Common.pad(o_w_id), Common.pad(o_d_id), Common.pad(Integer.MAX_VALUE - o_id)
-    };
-  }
-
-  @Override
-  public EntityFactory<Order> getFactory() {
-    return Order::new;
   }
 
   public int getO_id() {

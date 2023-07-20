@@ -2,9 +2,8 @@
 
 package hu.bme.mit.ftsrg.chaincode.tpcc.data.entity;
 
-import hu.bme.mit.ftsrg.chaincode.dataaccess.EntityFactory;
+import hu.bme.mit.ftsrg.chaincode.dataaccess.KeyPart;
 import hu.bme.mit.ftsrg.chaincode.dataaccess.SerializableEntityBase;
-import hu.bme.mit.ftsrg.chaincode.tpcc.util.Common;
 import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
@@ -14,18 +13,21 @@ import org.hyperledger.fabric.contract.annotation.Property;
 public final class NewOrder extends SerializableEntityBase<NewOrder> {
 
   /** The order ID. Primary key. */
+  @KeyPart
   @Property(schema = {"minimum", "0"})
   private final int no_o_id;
 
   /** The district ID associated with the order. Primary key. */
+  @KeyPart
   @Property(schema = {"minimum", "0"})
   private final int no_d_id;
 
   /** The warehouse ID associated with the order. Primary key. */
+  @KeyPart
   @Property(schema = {"minimum", "0"})
   private final int no_w_id;
 
-  NewOrder() {
+  public NewOrder() {
     this.no_o_id = -1;
     this.no_d_id = -1;
     this.no_w_id = -1;
@@ -35,16 +37,6 @@ public final class NewOrder extends SerializableEntityBase<NewOrder> {
     this.no_o_id = o_id;
     this.no_d_id = d_id;
     this.no_w_id = w_id;
-  }
-
-  @Override
-  public String[] getKeyParts() {
-    return new String[] {Common.pad(no_w_id), Common.pad(no_d_id), Common.pad(no_o_id)};
-  }
-
-  @Override
-  public EntityFactory<NewOrder> getFactory() {
-    return NewOrder::new;
   }
 
   public int getNo_o_id() {

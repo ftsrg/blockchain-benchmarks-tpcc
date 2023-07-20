@@ -2,9 +2,8 @@
 
 package hu.bme.mit.ftsrg.chaincode.tpcc.data.entity;
 
-import hu.bme.mit.ftsrg.chaincode.dataaccess.EntityFactory;
+import hu.bme.mit.ftsrg.chaincode.dataaccess.KeyPart;
 import hu.bme.mit.ftsrg.chaincode.dataaccess.SerializableEntityBase;
-import hu.bme.mit.ftsrg.chaincode.tpcc.util.Common;
 import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
@@ -14,10 +13,12 @@ import org.hyperledger.fabric.contract.annotation.Property;
 public final class Stock extends SerializableEntityBase<Stock> {
 
   /** The ID of the item associated with the stock. Primary key. */
+  @KeyPart
   @Property(schema = {"minimum", "0"})
   private final int s_i_id;
 
   /** The ID of the warehouse associated with the stock. Primary key. */
+  @KeyPart
   @Property(schema = {"minimum", "0"})
   private final int s_w_id;
 
@@ -80,7 +81,7 @@ public final class Stock extends SerializableEntityBase<Stock> {
   @Property(schema = {"maxLength", "50"})
   private String s_data;
 
-  Stock() {
+  public Stock() {
     this.s_i_id = -1;
     this.s_w_id = -1;
   }
@@ -120,16 +121,6 @@ public final class Stock extends SerializableEntityBase<Stock> {
     this.s_order_cnt = order_cnt;
     this.s_remote_cnt = remote_cnt;
     this.s_data = data;
-  }
-
-  @Override
-  public String[] getKeyParts() {
-    return new String[] {Common.pad(s_w_id), Common.pad(s_i_id)};
-  }
-
-  @Override
-  public EntityFactory<Stock> getFactory() {
-    return Stock::new;
   }
 
   public int getS_i_id() {

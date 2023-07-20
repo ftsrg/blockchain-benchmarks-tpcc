@@ -2,9 +2,8 @@
 
 package hu.bme.mit.ftsrg.chaincode.tpcc.data.entity;
 
-import hu.bme.mit.ftsrg.chaincode.dataaccess.EntityFactory;
+import hu.bme.mit.ftsrg.chaincode.dataaccess.KeyPart;
 import hu.bme.mit.ftsrg.chaincode.dataaccess.SerializableEntityBase;
-import hu.bme.mit.ftsrg.chaincode.tpcc.util.Common;
 import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
@@ -14,18 +13,22 @@ import org.hyperledger.fabric.contract.annotation.Property;
 public final class OrderLine extends SerializableEntityBase<OrderLine> {
 
   /** The order ID associated with the order line. Primary key. */
+  @KeyPart
   @Property(schema = {"minimum", "0"})
   private final int ol_o_id;
 
   /** The district ID associated with the order line. Primary key. */
+  @KeyPart
   @Property(schema = {"minimum", "0"})
   private final int ol_d_id;
 
   /** The warehouse ID associated with the order line. Primary key. */
+  @KeyPart
   @Property(schema = {"minimum", "0"})
   private final int ol_w_id;
 
   /** The number/position/index of the order line. Primary key. */
+  @KeyPart
   @Property(schema = {"minimum", "0"})
   private final int ol_number;
 
@@ -51,7 +54,7 @@ public final class OrderLine extends SerializableEntityBase<OrderLine> {
   @Property(schema = {"maxLength", "24"})
   private String ol_dist_info;
 
-  OrderLine() {
+  public OrderLine() {
     this.ol_o_id = -1;
     this.ol_d_id = -1;
     this.ol_w_id = -1;
@@ -79,18 +82,6 @@ public final class OrderLine extends SerializableEntityBase<OrderLine> {
     this.ol_quantity = quantity;
     this.ol_amount = amount;
     this.ol_dist_info = dist_info;
-  }
-
-  @Override
-  public String[] getKeyParts() {
-    return new String[] {
-      Common.pad(ol_w_id), Common.pad(ol_d_id), Common.pad(ol_o_id), Common.pad(ol_number)
-    };
-  }
-
-  @Override
-  public EntityFactory<OrderLine> getFactory() {
-    return OrderLine::new;
   }
 
   public int getOl_o_id() {

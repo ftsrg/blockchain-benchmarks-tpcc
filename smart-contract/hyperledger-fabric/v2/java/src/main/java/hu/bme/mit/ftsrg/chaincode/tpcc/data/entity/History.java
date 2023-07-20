@@ -2,9 +2,8 @@
 
 package hu.bme.mit.ftsrg.chaincode.tpcc.data.entity;
 
-import hu.bme.mit.ftsrg.chaincode.dataaccess.EntityFactory;
+import hu.bme.mit.ftsrg.chaincode.dataaccess.KeyPart;
 import hu.bme.mit.ftsrg.chaincode.dataaccess.SerializableEntityBase;
-import hu.bme.mit.ftsrg.chaincode.tpcc.util.Common;
 import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
@@ -14,14 +13,17 @@ import org.hyperledger.fabric.contract.annotation.Property;
 public final class History extends SerializableEntityBase<History> {
 
   /** The customer ID. Primary key. */
+  @KeyPart
   @Property(schema = {"minimum", "0"})
   private final int h_c_id;
 
   /** The district ID associated with the customer. Primary key. */
+  @KeyPart
   @Property(schema = {"minimum", "0"})
   private final int h_c_d_id;
 
   /** The warehouse ID associated with the customer. Primary key. */
+  @KeyPart
   @Property(schema = {"minimum", "0"})
   private final int h_c_w_id;
 
@@ -43,7 +45,7 @@ public final class History extends SerializableEntityBase<History> {
   @Property(schema = {"maxLength", "24"})
   private String h_data;
 
-  History() {
+  public History() {
     this.h_c_id = -1;
     this.h_c_d_id = -1;
     this.h_c_w_id = -1;
@@ -66,16 +68,6 @@ public final class History extends SerializableEntityBase<History> {
     this.h_date = date;
     this.h_amount = amount;
     this.h_data = data;
-  }
-
-  @Override
-  public String[] getKeyParts() {
-    return new String[] {Common.pad(h_c_w_id), Common.pad(h_c_d_id), Common.pad(h_c_id), h_date};
-  }
-
-  @Override
-  public EntityFactory<History> getFactory() {
-    return History::new;
   }
 
   public int getH_c_id() {

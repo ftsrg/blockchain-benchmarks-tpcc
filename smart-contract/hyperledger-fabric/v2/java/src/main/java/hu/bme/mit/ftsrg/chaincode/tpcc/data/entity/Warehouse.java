@@ -2,9 +2,8 @@
 
 package hu.bme.mit.ftsrg.chaincode.tpcc.data.entity;
 
-import hu.bme.mit.ftsrg.chaincode.dataaccess.EntityFactory;
+import hu.bme.mit.ftsrg.chaincode.dataaccess.KeyPart;
 import hu.bme.mit.ftsrg.chaincode.dataaccess.SerializableEntityBase;
-import hu.bme.mit.ftsrg.chaincode.tpcc.util.Common;
 import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
@@ -14,6 +13,7 @@ import org.hyperledger.fabric.contract.annotation.Property;
 public class Warehouse extends SerializableEntityBase<Warehouse> {
 
   /** The warehouse ID. Primary key. */
+  @KeyPart
   @Property(schema = {"minimum", "0"})
   private final int w_id;
 
@@ -47,7 +47,7 @@ public class Warehouse extends SerializableEntityBase<Warehouse> {
   /** The year to date balance of the warehouse. */
   @Property private double w_ytd;
 
-  Warehouse() {
+  public Warehouse() {
     this.w_id = -1;
   }
 
@@ -70,16 +70,6 @@ public class Warehouse extends SerializableEntityBase<Warehouse> {
     this.w_zip = zip;
     this.w_tax = tax;
     this.w_ytd = ytd;
-  }
-
-  @Override
-  public String[] getKeyParts() {
-    return new String[] {Common.pad(w_id)};
-  }
-
-  @Override
-  public EntityFactory<Warehouse> getFactory() {
-    return Warehouse::new;
   }
 
   public int getW_id() {

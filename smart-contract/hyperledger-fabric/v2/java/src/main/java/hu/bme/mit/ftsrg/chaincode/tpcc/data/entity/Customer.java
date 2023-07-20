@@ -2,9 +2,8 @@
 
 package hu.bme.mit.ftsrg.chaincode.tpcc.data.entity;
 
-import hu.bme.mit.ftsrg.chaincode.dataaccess.EntityFactory;
+import hu.bme.mit.ftsrg.chaincode.dataaccess.KeyPart;
 import hu.bme.mit.ftsrg.chaincode.dataaccess.SerializableEntityBase;
-import hu.bme.mit.ftsrg.chaincode.tpcc.util.Common;
 import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
@@ -14,14 +13,17 @@ import org.hyperledger.fabric.contract.annotation.Property;
 public class Customer extends SerializableEntityBase<Customer> {
 
   /** The customer ID. Primary key. */
+  @KeyPart
   @Property(schema = {"minimum", "0"})
   private final int c_id;
 
   /** The district ID associated with the customer. Primary key. */
+  @KeyPart
   @Property(schema = {"minimum", "0"})
   private final int c_d_id;
 
   /** The warehouse ID associated with the customer. Primary key. */
+  @KeyPart
   @Property(schema = {"minimum", "0"})
   private final int c_w_id;
 
@@ -92,7 +94,7 @@ public class Customer extends SerializableEntityBase<Customer> {
   @Property(schema = {"maxLength", "500"})
   private String c_data;
 
-  Customer() {
+  public Customer() {
     this.c_id = -1;
     this.c_d_id = -1;
     this.c_w_id = -1;
@@ -141,16 +143,6 @@ public class Customer extends SerializableEntityBase<Customer> {
     this.c_payment_cnt = payment_cnt;
     this.c_delivery_cnt = delivery_cnt;
     this.c_data = data;
-  }
-
-  @Override
-  public String[] getKeyParts() {
-    return new String[] {Common.pad(c_w_id), Common.pad(c_d_id), Common.pad(c_id)};
-  }
-
-  @Override
-  public EntityFactory<Customer> getFactory() {
-    return Customer::new;
   }
 
   public int getC_id() {

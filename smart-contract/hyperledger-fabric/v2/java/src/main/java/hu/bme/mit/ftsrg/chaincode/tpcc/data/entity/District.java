@@ -2,9 +2,8 @@
 
 package hu.bme.mit.ftsrg.chaincode.tpcc.data.entity;
 
-import hu.bme.mit.ftsrg.chaincode.dataaccess.EntityFactory;
+import hu.bme.mit.ftsrg.chaincode.dataaccess.KeyPart;
 import hu.bme.mit.ftsrg.chaincode.dataaccess.SerializableEntityBase;
-import hu.bme.mit.ftsrg.chaincode.tpcc.util.Common;
 import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
@@ -14,10 +13,12 @@ import org.hyperledger.fabric.contract.annotation.Property;
 public final class District extends SerializableEntityBase<District> {
 
   /** The district ID. Primary key. */
+  @KeyPart
   @Property(schema = {"minimum", "0"})
   private final int d_id;
 
   /** The warehouse ID associated with the district. Primary key. */
+  @KeyPart
   @Property(schema = {"minimum", "0"})
   private final int d_w_id;
 
@@ -55,7 +56,7 @@ public final class District extends SerializableEntityBase<District> {
   @Property(schema = {"minimum", "0"})
   private int d_next_o_id;
 
-  District() {
+  public District() {
     this.d_id = -1;
     this.d_w_id = -1;
   }
@@ -83,16 +84,6 @@ public final class District extends SerializableEntityBase<District> {
     this.d_zip = zip;
     this.d_next_o_id = next_o_id;
     this.d_ytd = ytd;
-  }
-
-  @Override
-  public String[] getKeyParts() {
-    return new String[] {Common.pad(d_w_id), Common.pad(d_id)};
-  }
-
-  @Override
-  public EntityFactory<District> getFactory() {
-    return District::new;
   }
 
   public int getD_id() {
