@@ -48,10 +48,9 @@ public class RegistryImpl implements Registry {
     final String key = getKey(ctx, entity);
     final byte[] data = ctx.getStub().getState(key);
 
-    if (data == null || data.length == 0) {
+    if (data == null || data.length == 0)
       throw new Error(
           "Entity with key \"" + key + "\" does not exist on the ledger, thus cannot parse it");
-    }
 
     entity.fromBuffer(data);
     return entity;
@@ -84,15 +83,13 @@ public class RegistryImpl implements Registry {
 
   public <Type extends SerializableEntity<Type>> void assertNotExists(
       final Context ctx, final Type obj) {
-    if (exists(ctx, obj)) {
+    if (exists(ctx, obj))
       throw new Error("Entity with key \"" + getKey(ctx, obj) + "\" already exists on the ledger");
-    }
   }
 
   public <Type extends SerializableEntity<Type>> void assertExists(
       final Context ctx, final Type obj) {
-    if (!exists(ctx, obj)) {
+    if (!exists(ctx, obj))
       throw new Error("Entity with key \"" + getKey(ctx, obj) + "\" does not exist on the ledger");
-    }
   }
 }

@@ -2,8 +2,6 @@
 
 package hu.bme.mit.ftsrg.chaincode.tpcc;
 
-import static java.util.Comparator.*;
-
 import com.jcabi.aspects.Loggable;
 import hu.bme.mit.ftsrg.chaincode.dataaccess.ContextWithRegistry;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.entity.*;
@@ -216,12 +214,11 @@ public final class TPCC implements ContractInterface {
       ctx.registry.create(ctx, newOrder);
 
       boolean allItemsLocal = true;
-      for (int id : params.getI_w_ids()) {
+      for (int id : params.getI_w_ids())
         if (id != warehouse.getW_id()) {
           allItemsLocal = false;
           break;
         }
-      }
 
       final Order order =
           Order.builder()
@@ -263,18 +260,13 @@ public final class TPCC implements ContractInterface {
         final Stock stock = Stock.builder().w_id(i_w_id).i_id(i_id).build();
         ctx.registry.read(ctx, stock);
 
-        if (stock.getS_quantity() >= i_qty + 10) {
-          stock.setS_quantity(stock.getS_quantity() - i_qty);
-        } else {
-          stock.setS_quantity(stock.getS_quantity() - i_qty + 91);
-        }
+        if (stock.getS_quantity() >= i_qty + 10) stock.setS_quantity(stock.getS_quantity() - i_qty);
+        else stock.setS_quantity(stock.getS_quantity() - i_qty + 91);
 
         stock.setS_ytd(stock.getS_ytd() + i_qty);
         stock.setS_order_cnt(stock.getS_order_cnt() + 1);
 
-        if (i_w_id != warehouse.getW_id()) {
-          stock.setS_remote_cnt(stock.getS_remote_cnt() + 1);
-        }
+        if (i_w_id != warehouse.getW_id()) stock.setS_remote_cnt(stock.getS_remote_cnt() + 1);
 
         ctx.registry.update(ctx, stock);
 
@@ -286,12 +278,10 @@ public final class TPCC implements ContractInterface {
         // The strings in I_DATA and S_DATA are examined. If they both include the
         // string "ORIGINAL", the brand-generic field for that item is set to "B",
         // otherwise, the brand-generic field is set to "G".
-        String brandGeneric;
-        if (item.getI_data().contains("ORIGINAL") && stock.getS_data().contains("ORIGINAL")) {
-          brandGeneric = "B";
-        } else {
-          brandGeneric = "G";
-        }
+        final String brandGeneric =
+            item.getI_data().contains("ORIGINAL") && stock.getS_data().contains("ORIGINAL")
+                ? "B"
+                : "G";
 
         // A new row is inserted into the ORDER-LINE table to reflect the item on
         // the order. OL_DELIVERY_D is set to a null value, OL_NUMBER is set to a
@@ -601,9 +591,8 @@ public final class TPCC implements ContractInterface {
               .c_balance(customer.getC_balance())
               .build();
 
-      if (customer.getC_credit().equals("BC")) {
+      if (customer.getC_credit().equals("BC"))
         output.setC_data(customer.getC_data().substring(0, 200));
-      }
 
       return JSON.serialize(output);
     } catch (Exception err) {
@@ -893,31 +882,27 @@ public final class TPCC implements ContractInterface {
       final Integer c_id,
       final String c_last)
       throws Exception {
-    if (c_id == null && c_last == null) {
+    if (c_id == null && c_last == null)
       throw new Exception("At least one of c_id and c_last must be specified");
-    }
 
-    if (c_id != null) {
+    if (c_id != null)
       /* Case 1, the CUSTOMER is selected based on CUSTOMER number: the row in the CUSTOMER table with matching C_W_ID, C_D_ID, and C_ID is selected and C_BALANCE, C_FIRST, C_MIDDLE, and C_LAST are retrieved. */
       return ctx.registry.read(ctx, Customer.builder().w_id(c_w_id).d_id(c_d_id).id(c_id).build());
-    } else {
+    else {
       /* Case 2, the customer is selected based on customer last name: all rows in the CUSTOMER table with matching C_W_ID, C_D_ID and C_LAST are selected sorted by C_FIRST in ascending order. Let n be the number of rows selected. C_BALANCE, C_FIRST, C_MIDDLE, and C_LAST are retrieved from the row at position n/ 2 rounded up in the sorted set of selected rows from the CUSTOMER table. */
       final List<Customer> allCustomers =
           ctx.registry.readAll(ctx, Customer.builder().w_id(c_w_id).d_id(c_d_id).build());
 
       // Stream-based one-liner replaced with below code to accommodate OJML...
       final List<Customer> matchingCustomers = new ArrayList<>();
-      for (final Customer c : allCustomers) {
+      for (final Customer c : allCustomers)
         if (c.getC_last().equals(c_last)) matchingCustomers.add(c);
-      }
-      if (matchingCustomers.isEmpty()) {
+      if (matchingCustomers.isEmpty())
         throw new Exception("Customer matching last name '%s' not found".formatted(c_last));
-      }
 
       final double N = Math.ceil(matchingCustomers.size() / 2d);
-      if (N > Integer.MAX_VALUE) {
+      if (N > Integer.MAX_VALUE)
         throw new Exception("Size of matching CUSTOMER list is out of range");
-      }
       final int n = (int) N;
 
       return matchingCustomers.get(n);
@@ -939,9 +924,7 @@ public final class TPCC implements ContractInterface {
       throws Exception {
     final List<Order> allOrders =
         ctx.registry.readAll(ctx, Order.builder().w_id(o_w_id).d_id(o_d_id).build());
-    if (allOrders.isEmpty()) {
-      throw new Exception("No orders found");
-    }
+    if (allOrders.isEmpty()) throw new Exception("No orders found");
 
     // Stream-based one-liner replaced with below code to accommodate OJML...
     final List<Order> matchingOrders = new ArrayList<>();
@@ -986,9 +969,7 @@ public final class TPCC implements ContractInterface {
         itemIds.add(orderLine.getOl_i_id());
       }
     }
-    if (itemIds.isEmpty()) {
-      throw new Exception("Could not find item IDs of recent ORDERs");
-    }
+    if (itemIds.isEmpty()) throw new Exception("Could not find item IDs of recent ORDERs");
 
     return new ArrayList<>(itemIds);
   }

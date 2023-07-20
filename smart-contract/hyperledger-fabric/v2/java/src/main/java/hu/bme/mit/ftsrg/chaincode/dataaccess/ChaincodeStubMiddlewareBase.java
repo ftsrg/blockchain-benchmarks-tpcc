@@ -25,7 +25,6 @@ public abstract class ChaincodeStubMiddlewareBase implements ChaincodeStub {
 
   @Override
   public List<byte[]> getArgs() {
-
     return this.nextLayer.getArgs();
   }
 

@@ -65,13 +65,12 @@ public abstract class SerializableEntityBase<Type extends SerializableEntity<Typ
     // Stream-based implementation replaced with code below to accommodate OpenJML...
     final List<String> keyParts = new ArrayList<>();
     for (final Field field : this.getClass().getDeclaredFields()) {
-      if (field.isAnnotationPresent(KeyPart.class)) {
+      if (field.isAnnotationPresent(KeyPart.class))
         try {
           keyParts.add(pad(field.getInt(this)));
         } catch (IllegalAccessException e) {
           throw new RuntimeException(e);
         }
-      }
     }
 
     return keyParts.toArray(String[]::new);
