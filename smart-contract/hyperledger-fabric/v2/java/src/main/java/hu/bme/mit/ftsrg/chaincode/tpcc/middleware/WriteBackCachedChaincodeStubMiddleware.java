@@ -1,4 +1,4 @@
-/* SPDX-License-Identifier: Apache-2.0 *hu.bme.mit.ftsrg.chaincode.tpcc.middleware */
+/* SPDX-License-Identifier: Apache-2.0 */
 
 package hu.bme.mit.ftsrg.chaincode.tpcc.middleware;
 
@@ -12,11 +12,12 @@ public final class WriteBackCachedChaincodeStubMiddleware extends ChaincodeStubM
 
   private final Map<String, CachedItem> cache = new HashMap<>();
 
-  WriteBackCachedChaincodeStubMiddleware(ChaincodeStub nextLayer) {
-    super(nextLayer);
+  WriteBackCachedChaincodeStubMiddleware(final ChaincodeStub next) {
+    super(next);
   }
 
-  public byte[] read(final String key) {
+  @Override
+  public byte[] getState(final String key) {
     CachedItem cached = cache.get(key);
 
     // New read, add to cache
@@ -34,7 +35,8 @@ public final class WriteBackCachedChaincodeStubMiddleware extends ChaincodeStubM
     return cached.getValue();
   }
 
-  public void write(final String key, final byte[] value) {
+  @Override
+  public void putState(final String key, final byte[] value) {
     CachedItem cached = cache.get(key);
 
     // Blind write!
@@ -50,7 +52,8 @@ public final class WriteBackCachedChaincodeStubMiddleware extends ChaincodeStubM
     cached.setValue(value); // Sets the dirty flag if needed
   }
 
-  public void delete(final String key) {
+  @Override
+  public void delState(final String key) {
     CachedItem cached = cache.get(key);
 
     // Blind delete!
@@ -63,7 +66,7 @@ public final class WriteBackCachedChaincodeStubMiddleware extends ChaincodeStubM
   }
 
   public void dispose() {
-    for (Map.Entry<String, CachedItem> entry : cache.entrySet()) {
+    for (final Map.Entry<String, CachedItem> entry : cache.entrySet()) {
       final CachedItem item = entry.getValue();
 
       if (item == null || !item.isDirty() || item.getValue() == null) {
@@ -78,7 +81,8 @@ public final class WriteBackCachedChaincodeStubMiddleware extends ChaincodeStubM
     }
   }
 
-  static class CachedItem {
+  private static final class CachedItem {
+
     private final String key;
     private byte[] value;
     private boolean toDelete = false;
@@ -98,11 +102,7 @@ public final class WriteBackCachedChaincodeStubMiddleware extends ChaincodeStubM
     }
 
     public void setValue(final byte[] value) {
-      if (this.value == null && value == null) {
-        return;
-      }
-
-      if (this.value != null && value != null && Arrays.equals(this.value, value)) {
+      if (Arrays.equals(this.value, value)) {
         return;
       }
 

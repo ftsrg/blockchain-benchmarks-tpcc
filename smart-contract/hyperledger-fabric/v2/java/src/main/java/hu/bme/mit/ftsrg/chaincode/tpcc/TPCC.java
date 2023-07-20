@@ -3,13 +3,13 @@
 package hu.bme.mit.ftsrg.chaincode.tpcc;
 
 import com.jcabi.aspects.Loggable;
-import hu.bme.mit.ftsrg.chaincode.dataaccess.ContextWithRegistry;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.entity.*;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.extra.DeliveredOrder;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.extra.ItemsData;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.extra.OrderLineData;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.input.*;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.output.*;
+import hu.bme.mit.ftsrg.chaincode.tpcc.middleware.TPCCContext;
 import hu.bme.mit.ftsrg.chaincode.tpcc.util.JSON;
 import hu.bme.mit.ftsrg.chaincode.tpcc.util.LedgerUtils;
 import hu.bme.mit.ftsrg.chaincode.tpcc.util.ParseUtils;
@@ -54,7 +54,7 @@ public final class TPCC implements ContractInterface {
    * @return The JSON encoded query results according to the specification.
    */
   @Transaction(intent = Transaction.TYPE.SUBMIT)
-  public String doDelivery(final ContextWithRegistry ctx, final String parameters) {
+  public String doDelivery(final TPCCContext ctx, final String parameters) {
     // TPC-C 2.7.4.2
     try {
       final DeliveryInput params = ParseUtils.parseDeliveryParameters(parameters);
@@ -162,7 +162,7 @@ public final class TPCC implements ContractInterface {
    * @return The JSON encoded query results according to the specification.
    */
   @Transaction(intent = Transaction.TYPE.SUBMIT)
-  public String doNewOrder(final ContextWithRegistry ctx, final String parameters) {
+  public String doNewOrder(final TPCCContext ctx, final String parameters) {
     // TPC-C 2.4.2.2
     try {
       final NewOrderInput params = ParseUtils.parseNewOrderParameters(parameters);
@@ -379,7 +379,7 @@ public final class TPCC implements ContractInterface {
    * @return The JSON encoded query results according to the specification.
    */
   @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String doOrderStatus(final ContextWithRegistry ctx, final String parameters) {
+  public String doOrderStatus(final TPCCContext ctx, final String parameters) {
     // TPC-C 2.6.2.2
     try {
       final OrderStatusInput params = ParseUtils.parseOrderStatusParameters(parameters);
@@ -472,7 +472,7 @@ public final class TPCC implements ContractInterface {
    * @return The JSON encoded query results according to the specification.
    */
   @Transaction(intent = Transaction.TYPE.SUBMIT)
-  public String doPayment(final ContextWithRegistry ctx, final String parameters) {
+  public String doPayment(final TPCCContext ctx, final String parameters) {
     // TPC-C 2.5.2.2
     try {
       final PaymentInput params = ParseUtils.parsePaymentParameters(parameters);
@@ -622,7 +622,7 @@ public final class TPCC implements ContractInterface {
    * @return The JSON encoded query results according to the specification.
    */
   @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String doStockLevel(final ContextWithRegistry ctx, final String parameters) {
+  public String doStockLevel(final TPCCContext ctx, final String parameters) {
     // addTxInfo(ctx);
     // TPC-C 2.8.2.2
     try {
@@ -686,12 +686,12 @@ public final class TPCC implements ContractInterface {
    * @param ctx The TX context.
    */
   @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public void instantiate(final ContextWithRegistry ctx) {
+  public void instantiate(final TPCCContext ctx) {
     logger.debug("Instantiating TPC-C chaincode");
   }
 
   @Transaction(intent = Transaction.TYPE.SUBMIT)
-  public void initEntries(final ContextWithRegistry ctx) {
+  public void initEntries(final TPCCContext ctx) {
     try {
       final Warehouse warehouse =
           Warehouse.builder()
@@ -829,7 +829,7 @@ public final class TPCC implements ContractInterface {
   }
 
   @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String readWarehouseEntry(final ContextWithRegistry ctx, final int w_id) {
+  public String readWarehouseEntry(final TPCCContext ctx, final int w_id) {
     final Warehouse warehouse = Warehouse.builder().id(w_id).build();
     ctx.registry.read(ctx, warehouse);
     return JSON.serialize(warehouse);
@@ -837,14 +837,14 @@ public final class TPCC implements ContractInterface {
 
   @Transaction(intent = Transaction.TYPE.EVALUATE)
   public String getOrderEntry(
-      final ContextWithRegistry ctx, final int w_id, final int d_id, final int o_id) {
+      final TPCCContext ctx, final int w_id, final int d_id, final int o_id) {
     final Order order = Order.builder().w_id(w_id).d_id(d_id).id(o_id).build();
     ctx.registry.read(ctx, order);
     return JSON.serialize(order);
   }
 
   @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String getItemEntry(final ContextWithRegistry ctx, final int i_id) {
+  public String getItemEntry(final TPCCContext ctx, final int i_id) {
     final Item item = Item.builder().id(i_id).build();
     ctx.registry.read(ctx, item);
     return JSON.serialize(item);
@@ -852,7 +852,7 @@ public final class TPCC implements ContractInterface {
 
   @Transaction(intent = Transaction.TYPE.EVALUATE)
   public String getNewOrderEntry(
-      final ContextWithRegistry ctx, final int w_id, final int d_id, final int o_id) {
+      final TPCCContext ctx, final int w_id, final int d_id, final int o_id) {
     final NewOrder newOrder = NewOrder.builder().w_id(w_id).d_id(d_id).o_id(o_id).build();
     ctx.registry.read(ctx, newOrder);
     return JSON.serialize(newOrder);
@@ -860,7 +860,7 @@ public final class TPCC implements ContractInterface {
 
   @SuppressWarnings("SameReturnValue")
   @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String ping(final ContextWithRegistry _ctx) {
+  public String ping(final TPCCContext _ctx) {
     return "pong";
   }
 
@@ -873,7 +873,7 @@ public final class TPCC implements ContractInterface {
   // spotless:on
   @Transaction(intent = Transaction.TYPE.EVALUATE)
   public String OJMTEST__getCustomer(
-      final ContextWithRegistry ctx, final int c_w_id, final int c_d_id, final int c_id) {
+      final TPCCContext ctx, final int c_w_id, final int c_d_id, final int c_id) {
     final Customer customer = Customer.builder().w_id(c_w_id).d_id(c_d_id).id(c_id).build();
     return JSON.serialize(ctx.registry.read(ctx, customer));
   }

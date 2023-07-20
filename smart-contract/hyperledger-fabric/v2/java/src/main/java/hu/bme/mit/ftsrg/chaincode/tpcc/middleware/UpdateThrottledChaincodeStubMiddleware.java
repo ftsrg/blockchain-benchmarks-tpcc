@@ -7,9 +7,9 @@ import org.hyperledger.fabric.shim.ChaincodeStub;
 
 public final class UpdateThrottledChaincodeStubMiddleware extends ChaincodeStubMiddlewareBase {
 
-  public UpdateThrottledChaincodeStubMiddleware(final ChaincodeStub nextLayer) {
+  public UpdateThrottledChaincodeStubMiddleware(ChaincodeStub nextLayer) {
     super(nextLayer);
   }
 
-  /* TODO implement ... */
+  /* TODO implement ? */
 }
