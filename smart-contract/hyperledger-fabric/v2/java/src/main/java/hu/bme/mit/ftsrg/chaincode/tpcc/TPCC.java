@@ -2,6 +2,8 @@
 
 package hu.bme.mit.ftsrg.chaincode.tpcc;
 
+import static java.util.Comparator.*;
+
 import com.jcabi.aspects.Loggable;
 import hu.bme.mit.ftsrg.chaincode.dataaccess.ContextWithRegistry;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.entity.*;
@@ -82,8 +84,15 @@ public final class TPCC implements ContractInterface {
           skipped++;
           continue;
         }
-        final NewOrder oldestNewOrder =
-            allNewOrders.stream().min(Comparator.comparingInt(NewOrder::getNo_o_id)).get();
+        // Stream-based one-liner replaced with below code to accommodate OJML...
+        allNewOrders.sort(
+            new Comparator<NewOrder>() {
+              @Override
+              public int compare(final NewOrder a, final NewOrder b) {
+                return a.getNo_o_id() - b.getNo_o_id();
+              }
+            });
+        final NewOrder oldestNewOrder = allNewOrders.get(0);
         logger.debug("Oldest NEW-ORDER retrieved is: " + oldestNewOrder);
         ctx.registry.delete(ctx, oldestNewOrder);
 
@@ -896,8 +905,11 @@ public final class TPCC implements ContractInterface {
       final List<Customer> allCustomers =
           ctx.registry.readAll(ctx, Customer.builder().w_id(c_w_id).d_id(c_d_id).build());
 
-      final List<Customer> matchingCustomers =
-          allCustomers.stream().filter(customer -> customer.getC_last().equals(c_last)).toList();
+      // Stream-based one-liner replaced with below code to accommodate OJML...
+      final List<Customer> matchingCustomers = new ArrayList<>();
+      for (final Customer c : allCustomers) {
+        if (c.getC_last().equals(c_last)) matchingCustomers.add(c);
+      }
       if (matchingCustomers.isEmpty()) {
         throw new Exception("Customer matching last name '%s' not found".formatted(c_last));
       }
@@ -931,10 +943,18 @@ public final class TPCC implements ContractInterface {
       throw new Exception("No orders found");
     }
 
-    return allOrders.stream()
-        .filter(order -> order.getO_c_id() == o_c_id)
-        .max(Comparator.comparingInt(Order::getO_id))
-        .orElseThrow(() -> new Exception("Could not find last order of customer"));
+    // Stream-based one-liner replaced with below code to accommodate OJML...
+    final List<Order> matchingOrders = new ArrayList<>();
+    for (final Order o : allOrders) if (o.getO_c_id() == o_c_id) matchingOrders.add(o);
+    if (matchingOrders.isEmpty()) throw new Exception("Could not find last order of customer");
+    matchingOrders.sort(
+        new Comparator<Order>() {
+          @Override
+          public int compare(final Order a, final Order b) {
+            return b.getO_id() - a.getO_id();
+          }
+        });
+    return matchingOrders.get(0);
   }
 
   /**

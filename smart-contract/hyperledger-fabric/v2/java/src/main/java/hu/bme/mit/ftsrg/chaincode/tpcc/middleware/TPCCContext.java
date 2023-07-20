@@ -3,7 +3,6 @@ package hu.bme.mit.ftsrg.chaincode.tpcc.middleware;
 import hu.bme.mit.ftsrg.chaincode.dataaccess.ContextWithRegistry;
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.function.Function;
 import org.hyperledger.fabric.shim.ChaincodeStub;
 
 public class TPCCContext extends ContextWithRegistry {
@@ -18,12 +17,9 @@ public class TPCCContext extends ContextWithRegistry {
      *   --> LOGGER --> WRITE BACK CACHE --> FABRIC STUB    ( --> ledger )
      */
     this.stubMiddlewares.push(fabricStub);
-    this.prependMiddleware(WriteBackCachedChaincodeStubMiddleware::new);
-    this.prependMiddleware(LoggingStubMiddleware::new);
-  }
-
-  private void prependMiddleware(final Function<ChaincodeStub, ChaincodeStub> constructor) {
-    this.stubMiddlewares.push(constructor.apply(this.stubMiddlewares.peek()));
+    this.stubMiddlewares.push(
+        new WriteBackCachedChaincodeStubMiddleware(this.stubMiddlewares.peek()));
+    this.stubMiddlewares.push(new LoggingStubMiddleware(this.stubMiddlewares.peek()));
   }
 
   @Override

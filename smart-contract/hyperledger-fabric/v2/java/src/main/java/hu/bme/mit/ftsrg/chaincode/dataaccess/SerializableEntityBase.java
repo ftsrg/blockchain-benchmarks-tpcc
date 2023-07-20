@@ -6,7 +6,7 @@ import hu.bme.mit.ftsrg.chaincode.tpcc.util.JSON;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
+import java.util.*;
 import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;
 
@@ -62,33 +62,37 @@ public abstract class SerializableEntityBase<Type extends SerializableEntity<Typ
 
   @Override
   public String[] getKeyParts() {
-    return Arrays.stream(this.getClass().getDeclaredFields())
-        .filter(field -> field.isAnnotationPresent(KeyPart.class))
-        .map(
-            field -> {
-              try {
-                return field.getInt(this);
-              } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
-              }
-            })
-        .map(SerializableEntityBase::pad)
-        .toArray(String[]::new);
+    // Stream-based implementation replaced with code below to accommodate OpenJML...
+    final List<String> keyParts = new ArrayList<>();
+    for (final Field field : this.getClass().getDeclaredFields()) {
+      if (field.isAnnotationPresent(KeyPart.class)) {
+        try {
+          keyParts.add(pad(field.getInt(this)));
+        } catch (IllegalAccessException e) {
+          throw new RuntimeException(e);
+        }
+      }
+    }
+
+    return keyParts.toArray(String[]::new);
   }
 
   @Override
   public EntityFactory<Type> getFactory() {
     final Class<? extends SerializableEntityBase> ourClass = this.getClass();
-    return () -> {
-      try {
-        ourClass.getDeclaredConstructor().newInstance();
-      } catch (InstantiationException
-          | IllegalAccessException
-          | InvocationTargetException
-          | NoSuchMethodException e) {
-        throw new RuntimeException(e);
+    // Lambda-based implementation replaced with code below to accommodate OpenJML...
+    return new EntityFactory<Type>() {
+      @Override
+      public Type create() {
+        try {
+          return (Type) ourClass.getDeclaredConstructor().newInstance();
+        } catch (InstantiationException
+            | IllegalAccessException
+            | InvocationTargetException
+            | NoSuchMethodException e) {
+          throw new RuntimeException(e);
+        }
       }
-      return null;
     };
   }
 
