@@ -82,7 +82,7 @@ public final class OrderLine extends SerializableEntityBase<OrderLine> {
   @Override
   public String[] getKeyParts() {
     return new String[] {
-            Common.pad(ol_w_id), Common.pad(ol_d_id), Common.pad(ol_o_id), Common.pad(ol_number)
+      Common.pad(ol_w_id), Common.pad(ol_d_id), Common.pad(ol_o_id), Common.pad(ol_number)
     };
   }
 
@@ -238,5 +238,4 @@ public final class OrderLine extends SerializableEntityBase<OrderLine> {
           this.dist_info);
     }
   }
-
 }

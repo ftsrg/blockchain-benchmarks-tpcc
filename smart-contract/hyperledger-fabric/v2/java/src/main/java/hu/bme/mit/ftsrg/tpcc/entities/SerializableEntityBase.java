@@ -10,7 +10,8 @@ import org.hyperledger.fabric.contract.annotation.DataType;
 
 @EqualsAndHashCode
 @DataType
-public abstract class SerializableEntityBase<Type extends SerializableEntityInterface<Type>> implements SerializableEntityInterface<Type> {
+public abstract class SerializableEntityBase<Type extends SerializableEntityInterface<Type>>
+    implements SerializableEntityInterface<Type> {
 
   @Override
   public String getType() {

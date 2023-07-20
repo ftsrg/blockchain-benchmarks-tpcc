@@ -223,5 +223,4 @@ public class Warehouse extends SerializableEntityBase<Warehouse> {
           this.ytd);
     }
   }
-
 }

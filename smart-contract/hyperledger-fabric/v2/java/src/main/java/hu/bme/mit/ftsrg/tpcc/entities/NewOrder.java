@@ -53,7 +53,6 @@ public final class NewOrder extends SerializableEntityBase<NewOrder> {
     return no_d_id;
   }
 
-
   public int getNo_w_id() {
     return no_w_id;
   }

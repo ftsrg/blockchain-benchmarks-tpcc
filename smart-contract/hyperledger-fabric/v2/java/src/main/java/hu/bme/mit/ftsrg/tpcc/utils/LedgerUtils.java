@@ -2,7 +2,7 @@
 
 package hu.bme.mit.ftsrg.tpcc.utils;
 
-import hu.bme.mit.ftsrg.tpcc.TPCC;
+import com.jcabi.aspects.Loggable;
 import hu.bme.mit.ftsrg.tpcc.entities.Customer;
 import hu.bme.mit.ftsrg.tpcc.entities.Order;
 import hu.bme.mit.ftsrg.tpcc.entities.OrderLine;
@@ -11,14 +11,16 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Logger;
 import lombok.experimental.UtilityClass;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** Utility functions for accessing the state database. */
+@Loggable(Loggable.DEBUG)
 @UtilityClass
 public final class LedgerUtils {
 
-  private static final Logger LOGGER = Logger.getLogger(TPCC.class.getName());
+  private static final Logger logger = LoggerFactory.getLogger(LedgerUtils.class);
 
   /**
    * Retrieves the customers from the state database that match the given ID or last name
@@ -98,9 +100,7 @@ public final class LedgerUtils {
       }
     }
     // TODO sort
-    final Order lastOrderOfCustomer = ordersOfCust.get(0);
-    LOGGER.info("Retrieved last Order of Customer " + o_c_id);
-    return lastOrderOfCustomer;
+    return ordersOfCust.get(0);
   }
 
   /**
@@ -120,23 +120,20 @@ public final class LedgerUtils {
       final int o_id_min,
       final int o_id_max)
       throws Exception {
-    LOGGER.info("Counts the number of items whose stock is below a given threshold.");
     final Set<Integer> itemIds = new HashSet<>();
-    LOGGER.info("Retrieving item IDs for Orders with w_id " + w_id + " and d_id " + d_id);
     for (int current_o_id = o_id_min; current_o_id < o_id_max; current_o_id++) {
 
       final Order order = Order.builder().w_id(w_id).d_id(d_id).id(current_o_id).build();
       ctx.registry.read(ctx, order);
-
-      LOGGER.info("RETRIEVED ORDER > " + JSON.serialize(order));
+      logger.debug("Retrieved ORDER: " + order);
 
       for (int ol_number = 1; ol_number <= order.getO_ol_cnt(); ol_number++) {
         final OrderLine orderLine =
             OrderLine.builder().w_id(w_id).d_id(d_id).o_id(current_o_id).number(ol_number).build();
         ctx.registry.read(ctx, orderLine);
-        LOGGER.info("RETRIEVED ORDERLINE " + JSON.serialize(orderLine));
+        logger.debug("Retrieved ORDER-LINE: " + orderLine);
         itemIds.add(orderLine.getOl_i_id());
-        LOGGER.info("RETRIEVED ITEM IDS: " + itemIds);
+        logger.info("Retrieved ITEM ids: " + itemIds);
         for (Integer strCurrentNumber : itemIds) {
           System.out.println(strCurrentNumber);
         }
@@ -149,19 +146,6 @@ public final class LedgerUtils {
               "Could not find item IDs of recent Orders(%d, %d, [%d, %d))",
               w_id, d_id, o_id_min, o_id_max));
     }
-
-    LOGGER.info(
-        "Retrieved"
-            + itemIds.size()
-            + "item IDs for Orders("
-            + w_id
-            + ","
-            + d_id
-            + ","
-            + o_id_min
-            + ", "
-            + o_id_max
-            + ")");
 
     return new ArrayList<>(itemIds);
   }

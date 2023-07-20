@@ -48,14 +48,14 @@ public final class History extends SerializableEntityBase<History> {
   }
 
   public History(
-          final int c_id,
-          final int c_d_id,
-          final int c_w_id,
-          final int d_id,
-          final int w_id,
-          final String date,
-          final double amount,
-          final String data) {
+      final int c_id,
+      final int c_d_id,
+      final int c_w_id,
+      final int d_id,
+      final int w_id,
+      final String date,
+      final double amount,
+      final String data) {
     this.h_c_id = c_id;
     this.h_c_d_id = c_d_id;
     this.h_c_w_id = c_w_id;
@@ -187,8 +187,14 @@ public final class History extends SerializableEntityBase<History> {
 
     public History build() {
       return new History(
-          this.c_id, this.c_d_id, this.c_w_id, this.d_id, this.w_id, this.date, this.amount, this.data);
+          this.c_id,
+          this.c_d_id,
+          this.c_w_id,
+          this.d_id,
+          this.w_id,
+          this.date,
+          this.amount,
+          this.data);
     }
   }
-
 }

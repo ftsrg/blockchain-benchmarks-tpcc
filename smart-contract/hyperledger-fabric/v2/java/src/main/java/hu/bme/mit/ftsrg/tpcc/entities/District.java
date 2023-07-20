@@ -263,5 +263,4 @@ public final class District extends SerializableEntityBase<District> {
           this.ytd);
     }
   }
-
 }

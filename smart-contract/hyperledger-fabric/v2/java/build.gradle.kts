@@ -28,16 +28,20 @@ repositories {
 }
 
 dependencies {
+  implementation("ch.qos.logback:logback-classic:1.4.8")
+  implementation("com.google.code.gson:gson:2.10.1")
+  implementation("com.jcabi:jcabi-aspects:0.25.1")
+  implementation("org.aspectj:aspectjrt:1.9.19")
+  implementation("org.aspectj:aspectjweaver:1.9.19")
   implementation("org.hyperledger.fabric-chaincode-java:fabric-chaincode-shim:2.5.0")
   implementation("org.hyperledger.fabric:fabric-protos:0.3.0")
   implementation("org.json:json:20230227")
-  implementation("com.google.code.gson:gson:2.10.1")
   implementation("org.projectlombok:lombok:1.18.28")
   // Included also as implementation dependency so shadow will package it
   implementation(files("$openJMLDir/jmlruntime.jar"))
 
-  testImplementation("org.junit.jupiter:junit-jupiter:5.4.2")
   testImplementation("org.assertj:assertj-core:3.11.1")
+  testImplementation("org.junit.jupiter:junit-jupiter:5.4.2")
   testImplementation("org.mockito:mockito-core:2.28.2")
   testImplementation(files("$openJMLDir/jmlruntime.jar"))
 }

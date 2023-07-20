@@ -69,7 +69,7 @@ public final class Order extends SerializableEntityBase<Order> {
   @Override
   public String[] getKeyParts() {
     return new String[] {
-            Common.pad(o_w_id), Common.pad(o_d_id), Common.pad(Integer.MAX_VALUE - o_id)
+      Common.pad(o_w_id), Common.pad(o_d_id), Common.pad(Integer.MAX_VALUE - o_id)
     };
   }
 
@@ -109,7 +109,6 @@ public final class Order extends SerializableEntityBase<Order> {
   public int getO_carrier_id() {
     return o_carrier_id;
   }
-
 
   public void setO_carrier_id(final int o_carrier_id) {
     this.o_carrier_id = o_carrier_id;

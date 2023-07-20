@@ -2,15 +2,11 @@
 
 package hu.bme.mit.ftsrg.tpcc.utils;
 
-import hu.bme.mit.ftsrg.tpcc.TPCC;
 import hu.bme.mit.ftsrg.tpcc.inputs.*;
-import java.util.logging.Logger;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public final class ParseUtils {
-
-  private static final Logger LOGGER = Logger.getLogger(TPCC.class.getName());
 
   /**
    * Parses the parameters of a New Order TX. (To enable IDE code completion)
@@ -39,10 +35,8 @@ public final class ParseUtils {
    * @return The parsed parameters.
    */
   public static DoDeliveryInputParameters parseDeliveryParameters(String params) {
-    LOGGER.info("Parse Delivery parameters " + params);
     final DoDeliveryInputParameters deliveryParams =
         JSON.deserialize(params, DoDeliveryInputParameters.class);
-    LOGGER.info("Delivery parameters are: " + deliveryParams);
     return deliveryParams;
   }
 
@@ -63,10 +57,8 @@ public final class ParseUtils {
    * @return The parsed parameters.
    */
   public static DoStockLevelInputParameters parseStockLevelParameters(String params) {
-    LOGGER.info("parses stock level parameters");
     final DoStockLevelInputParameters stockLevelParams =
         JSON.deserialize(params, DoStockLevelInputParameters.class);
-    LOGGER.info("stock level parameters: " + stockLevelParams);
     return stockLevelParams;
   }
 }

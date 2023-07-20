@@ -1,14 +1,15 @@
 package hu.bme.mit.ftsrg.tpcc.registry;
 
+import com.jcabi.aspects.Loggable;
 import hu.bme.mit.ftsrg.tpcc.entities.EntityFactory;
 import hu.bme.mit.ftsrg.tpcc.entities.SerializableEntityInterface;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import org.hyperledger.fabric.contract.Context;
 import org.hyperledger.fabric.shim.ledger.CompositeKey;
 import org.hyperledger.fabric.shim.ledger.KeyValue;
 
+@Loggable(Loggable.DEBUG)
 public class EntityRegistry implements RegistryInterface {
   public EntityRegistry() {}
 

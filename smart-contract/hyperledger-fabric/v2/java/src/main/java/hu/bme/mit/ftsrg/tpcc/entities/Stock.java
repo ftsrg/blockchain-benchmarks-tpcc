@@ -403,5 +403,4 @@ public final class Stock extends SerializableEntityBase<Stock> {
           this.data);
     }
   }
-
 }
