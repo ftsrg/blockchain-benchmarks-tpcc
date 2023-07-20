@@ -218,6 +218,13 @@ public final class OrderLine extends SerializableEntityBase<OrderLine> {
       return this;
     }
 
+    public OrderLineBuilder fromOrder(final Order order) {
+      this.w_id = order.getO_w_id();
+      this.d_id = order.getO_d_id();
+      this.o_id = order.getO_id();
+      return this;
+    }
+
     public OrderLine build() {
       return new OrderLine(
           this.o_id,

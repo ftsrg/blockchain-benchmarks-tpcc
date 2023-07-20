@@ -3,6 +3,8 @@
 package hu.bme.mit.ftsrg.chaincode.tpcc.data.output;
 
 import hu.bme.mit.ftsrg.chaincode.tpcc.TPCC;
+import hu.bme.mit.ftsrg.chaincode.tpcc.data.entity.Customer;
+import hu.bme.mit.ftsrg.chaincode.tpcc.data.entity.Order;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.extra.OrderLineData;
 import hu.bme.mit.ftsrg.chaincode.tpcc.middleware.TPCCContext;
 import java.util.List;
@@ -226,6 +228,22 @@ public final class OrderStatusOutput {
 
     public DoOrderStatusOutputBuilder order_lines(final List<OrderLineData> order_lines) {
       this.order_lines = order_lines;
+      return this;
+    }
+
+    public DoOrderStatusOutputBuilder fromCustomer(final Customer customer) {
+      this.c_id = customer.getC_id();
+      this.c_first = customer.getC_first();
+      this.c_middle = customer.getC_middle();
+      this.c_last = customer.getC_last();
+      this.c_balance = customer.getC_balance();
+      return this;
+    }
+
+    public DoOrderStatusOutputBuilder fromOrder(final Order order) {
+      this.o_id = order.getO_id();
+      this.o_entry_d = order.getO_entry_d();
+      this.o_carrier_id = order.getO_carrier_id();
       return this;
     }
 

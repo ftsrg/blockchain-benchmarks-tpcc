@@ -3,6 +3,9 @@
 package hu.bme.mit.ftsrg.chaincode.tpcc.data.output;
 
 import hu.bme.mit.ftsrg.chaincode.tpcc.TPCC;
+import hu.bme.mit.ftsrg.chaincode.tpcc.data.entity.Customer;
+import hu.bme.mit.ftsrg.chaincode.tpcc.data.entity.District;
+import hu.bme.mit.ftsrg.chaincode.tpcc.data.entity.Warehouse;
 import hu.bme.mit.ftsrg.chaincode.tpcc.middleware.TPCCContext;
 import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;
@@ -620,6 +623,47 @@ public final class PaymentOutput {
 
     public DoPaymentOutputBuilder c_data(final String c_data) {
       this.c_data = c_data;
+      return this;
+    }
+
+    public DoPaymentOutputBuilder fromWarehouse(final Warehouse warehouse) {
+      this.w_id(warehouse.getW_id());
+      this.w_street_1(warehouse.getW_street_1());
+      this.w_street_2(warehouse.getW_street_2());
+      this.w_city(warehouse.getW_city());
+      this.w_state(warehouse.getW_state());
+      this.w_zip(warehouse.getW_zip());
+      return this;
+    }
+
+    public DoPaymentOutputBuilder fromDistrict(final District district) {
+      this.d_id(district.getD_id());
+      this.d_street_1(district.getD_street_1());
+      this.d_street_2(district.getD_street_2());
+      this.d_city(district.getD_city());
+      this.d_state(district.getD_state());
+      this.d_zip(district.getD_zip());
+      return this;
+    }
+
+    public DoPaymentOutputBuilder fromCustomer(final Customer customer) {
+      this.c_id(customer.getC_id());
+      this.c_d_id(customer.getC_d_id());
+      this.c_w_id(customer.getC_w_id());
+      this.c_first(customer.getC_first());
+      this.c_middle(customer.getC_middle());
+      this.c_last(customer.getC_last());
+      this.c_street_1(customer.getC_street_1());
+      this.c_street_2(customer.getC_street_2());
+      this.c_city(customer.getC_city());
+      this.c_state(customer.getC_state());
+      this.c_zip(customer.getC_zip());
+      this.c_phone(customer.getC_phone());
+      this.c_since(customer.getC_since());
+      this.c_credit(customer.getC_credit());
+      this.c_credit_lim(customer.getC_credit_lim());
+      this.c_discount(customer.getC_discount());
+      this.c_balance(customer.getC_balance());
       return this;
     }
 

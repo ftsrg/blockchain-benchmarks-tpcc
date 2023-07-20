@@ -3,6 +3,10 @@
 package hu.bme.mit.ftsrg.chaincode.tpcc.data.output;
 
 import hu.bme.mit.ftsrg.chaincode.tpcc.TPCC;
+import hu.bme.mit.ftsrg.chaincode.tpcc.data.entity.Customer;
+import hu.bme.mit.ftsrg.chaincode.tpcc.data.entity.District;
+import hu.bme.mit.ftsrg.chaincode.tpcc.data.entity.Order;
+import hu.bme.mit.ftsrg.chaincode.tpcc.data.entity.Warehouse;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.extra.ItemsData;
 import hu.bme.mit.ftsrg.chaincode.tpcc.middleware.TPCCContext;
 import java.util.List;
@@ -260,6 +264,33 @@ public final class NewOrderOutput {
 
     public DoNewOrderOutputBuilder items(final List<ItemsData> items) {
       this.items = items;
+      return this;
+    }
+
+    public DoNewOrderOutputBuilder fromCustomer(final Customer customer) {
+      this.c_id = customer.getC_id();
+      this.c_last = customer.getC_last();
+      this.c_credit = customer.getC_credit();
+      this.c_discount = customer.getC_discount();
+      return this;
+    }
+
+    public DoNewOrderOutputBuilder fromWarehouse(final Warehouse warehouse) {
+      this.w_id = warehouse.getW_id();
+      this.w_tax = warehouse.getW_tax();
+      return this;
+    }
+
+    public DoNewOrderOutputBuilder fromDistrict(final District district) {
+      this.d_id = district.getD_id();
+      this.d_tax = district.getD_tax();
+      return this;
+    }
+
+    public DoNewOrderOutputBuilder fromOrder(final Order order) {
+      this.o_ol_cnt = order.getO_ol_cnt();
+      this.o_id = order.getO_id();
+      this.o_entry_d = order.getO_entry_d();
       return this;
     }
 

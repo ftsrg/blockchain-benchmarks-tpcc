@@ -2,6 +2,7 @@
 
 package hu.bme.mit.ftsrg.chaincode.tpcc.data.extra;
 
+import hu.bme.mit.ftsrg.chaincode.tpcc.data.entity.OrderLine;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.output.OrderStatusOutput;
 import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;
@@ -114,6 +115,15 @@ public final class OrderLineData {
 
     public OrderLineDataBuilder ol_delivery_d(final String ol_delivery_d) {
       this.ol_delivery_d = ol_delivery_d;
+      return this;
+    }
+
+    public OrderLineDataBuilder fromOrderLine(final OrderLine orderLine) {
+      this.ol_supply_w_id = orderLine.getOl_supply_w_id();
+      this.ol_i_id = orderLine.getOl_i_id();
+      this.ol_quantity = orderLine.getOl_quantity();
+      this.ol_amount = orderLine.getOl_amount();
+      this.ol_delivery_d = orderLine.getOl_delivery_d();
       return this;
     }
 

@@ -3,6 +3,7 @@
 package hu.bme.mit.ftsrg.chaincode.tpcc.data.output;
 
 import hu.bme.mit.ftsrg.chaincode.tpcc.TPCC;
+import hu.bme.mit.ftsrg.chaincode.tpcc.data.input.StockLevelInput;
 import hu.bme.mit.ftsrg.chaincode.tpcc.middleware.TPCCContext;
 import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;
@@ -91,6 +92,13 @@ public final class StockLevelOutput {
 
     public DoStockLevelOutputBuilder low_stock(final int low_stock) {
       this.low_stock = low_stock;
+      return this;
+    }
+
+    public DoStockLevelOutputBuilder fromInput(final StockLevelInput input) {
+      this.w_id = input.getW_id();
+      this.d_id = input.getD_id();
+      this.threshold = input.getThreshold();
       return this;
     }
 

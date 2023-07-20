@@ -180,6 +180,13 @@ public final class History extends SerializableEntityBase<History> {
       return this;
     }
 
+    public HistoryBuilder fromCustomer(final Customer customer) {
+      this.c_id = customer.getC_id();
+      this.c_d_id = customer.getC_d_id();
+      this.c_w_id = customer.getC_w_id();
+      return this;
+    }
+
     public History build() {
       return new History(
           this.c_id,
