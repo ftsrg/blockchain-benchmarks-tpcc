@@ -73,7 +73,7 @@ public abstract class SerializableEntityBase<Type extends SerializableEntity<Typ
         }
     }
 
-    return keyParts.toArray(String[]::new);
+    return keyParts.toArray(new String[0]);
   }
 
   @Override
