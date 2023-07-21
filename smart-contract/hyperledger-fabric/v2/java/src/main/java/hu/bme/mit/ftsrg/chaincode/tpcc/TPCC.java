@@ -14,6 +14,7 @@ import hu.bme.mit.ftsrg.chaincode.tpcc.data.output.*;
 import hu.bme.mit.ftsrg.chaincode.tpcc.middleware.TPCCContext;
 import hu.bme.mit.ftsrg.chaincode.tpcc.util.JSON;
 import java.util.*;
+import org.hyperledger.fabric.contract.Context;
 import org.hyperledger.fabric.contract.ContractInterface;
 import org.hyperledger.fabric.contract.annotation.Contact;
 import org.hyperledger.fabric.contract.annotation.Contract;
@@ -21,6 +22,7 @@ import org.hyperledger.fabric.contract.annotation.Default;
 import org.hyperledger.fabric.contract.annotation.Info;
 import org.hyperledger.fabric.contract.annotation.License;
 import org.hyperledger.fabric.contract.annotation.Transaction;
+import org.hyperledger.fabric.shim.ChaincodeStub;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +47,11 @@ public final class TPCC implements ContractInterface {
 
   private static final Logger logger = LoggerFactory.getLogger(TPCC.class);
   public static final int DISTRICT_COUNT = 10;
+
+  @Override
+  public Context createContext(final ChaincodeStub stub) {
+    return new TPCCContext(stub);
+  }
 
   /**
    * Performs the Delivery read-write TX profile [TPC-C 2.7].
