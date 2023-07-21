@@ -10,9 +10,13 @@ import org.hyperledger.fabric.shim.ChaincodeStub;
  */
 public class ContextWithRegistry extends Context {
 
-  public final Registry registry = new RegistryImpl();
+  private final Registry registry = new RegistryImpl();
 
   public ContextWithRegistry(final ChaincodeStub stub) {
     super(stub);
+  }
+
+  public Registry getRegistry() {
+    return registry;
   }
 }
