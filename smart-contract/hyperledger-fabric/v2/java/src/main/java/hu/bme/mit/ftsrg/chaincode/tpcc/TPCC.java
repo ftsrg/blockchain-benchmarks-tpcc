@@ -123,6 +123,8 @@ public final class TPCC implements ContractInterface {
    */
   @Transaction(intent = Transaction.TYPE.SUBMIT)
   public String doNewOrder(final TPCCContext ctx, final String parameters) {
+    final Registry registry = ctx.getRegistry();
+
     /*
      * [TPC-C 2.4.2.2]
      * For a given warehouse number (W_ID), district number (D_W_ID,
@@ -139,7 +141,7 @@ public final class TPCC implements ContractInterface {
      * and W_TAX, the warehouse tax rate, is retrieved.
      */
     final Warehouse warehouse = Warehouse.builder().id(params.getW_id()).build();
-    ctx.getRegistry().read(ctx, warehouse);
+    registry.read(ctx, warehouse);
 
     /*
      * [TPC-C 2.4.2.2 (4)]
@@ -148,7 +150,7 @@ public final class TPCC implements ContractInterface {
      */
     final District district =
         District.builder().w_id(warehouse.getW_id()).id(params.getD_id()).build();
-    ctx.getRegistry().read(ctx, district);
+    registry.read(ctx, district);
     /*
      * [TPC-C 2.4.2.2 (4) (continued)]
      * ... and D_NEXT_O_ID, the next available order number for the
@@ -156,7 +158,7 @@ public final class TPCC implements ContractInterface {
      */
     final int nextOrderId = district.getD_next_o_id();
     district.incrementNextOrderID();
-    ctx.getRegistry().update(ctx, district);
+    registry.update(ctx, district);
     logger.debug(
         "Next available order number for DISTRICT with D_ID=%d incremented; new DISTRICT: %s"
             .formatted(district.getD_id(), district));
@@ -174,7 +176,7 @@ public final class TPCC implements ContractInterface {
             .d_id(district.getD_id())
             .id(params.getC_id())
             .build();
-    ctx.getRegistry().read(ctx, customer);
+    registry.read(ctx, customer);
 
     /*
      * [TPC-C 2.4.2.2 (6)]
@@ -187,7 +189,7 @@ public final class TPCC implements ContractInterface {
             .d_id(district.getD_id())
             .w_id(warehouse.getW_id())
             .build();
-    ctx.getRegistry().create(ctx, newOrder);
+    registry.create(ctx, newOrder);
     /*
      * [TPC-C 2.4.2.2 (6) (continued)]
      * ... O_CARRIER_ID is set to a null value.  If the order includes
@@ -209,7 +211,7 @@ public final class TPCC implements ContractInterface {
             .ol_cnt(params.getI_ids().length)
             .all_local(this.allMatch(params.getI_w_ids(), warehouse.getW_id()) ? 1 : 0)
             .build();
-    ctx.getRegistry().create(ctx, order);
+    registry.create(ctx, order);
 
     /*
      * [TPC-C 2.4.2.2 (8)]
@@ -362,6 +364,8 @@ public final class TPCC implements ContractInterface {
    */
   @Transaction(intent = Transaction.TYPE.SUBMIT)
   public String doPayment(final TPCCContext ctx, final String parameters) {
+    final Registry registry = ctx.getRegistry();
+
     /*
      * [TPC-C 2.5.2.2]
      * For a given warehouse number (W_ID), district number (D_W_ID,
@@ -378,14 +382,14 @@ public final class TPCC implements ContractInterface {
      * retrieved [...]
      */
     final Warehouse warehouse = Warehouse.builder().id(params.getW_id()).build();
-    ctx.getRegistry().read(ctx, warehouse);
+    registry.read(ctx, warehouse);
     /*
      * [TPC-C 2.5.2.2 (3) (continued)]
      * ... and W_YTD, the warehouse's year-to-date balance, is
      * increased by H_AMOUNT.
      */
     warehouse.increaseYTD(params.getH_amount());
-    ctx.getRegistry().update(ctx, warehouse);
+    registry.update(ctx, warehouse);
 
     /*
      * [TPC-C 2.5.2.2 (4)]
@@ -395,14 +399,14 @@ public final class TPCC implements ContractInterface {
      */
     final District district =
         District.builder().w_id(warehouse.getW_id()).id(params.getD_id()).build();
-    ctx.getRegistry().read(ctx, district);
+    registry.read(ctx, district);
     /*
      * [TPC-C 2.5.2.2 (4) (continued)]
      * ... and D_YTD, the district's year-to-date balance, is
      * increased by H_AMOUNT.
      */
     district.increaseYTD(params.getH_amount());
-    ctx.getRegistry().update(ctx, district);
+    registry.update(ctx, district);
 
     /*
      * [TPC-C 2.5.2.2 (5.1)]
@@ -474,7 +478,7 @@ public final class TPCC implements ContractInterface {
      * [TPC-C 2.5.2.2 (6) (continued)]
      * ... The selected customer is updated with the new C_DATA field.
      */
-    ctx.getRegistry().update(ctx, customer);
+    registry.update(ctx, customer);
 
     /*
      * [TPC-C 2.5.2.2 (7)]
@@ -499,7 +503,7 @@ public final class TPCC implements ContractInterface {
             .amount(params.getH_amount())
             .data(h_data)
             .build();
-    ctx.getRegistry().create(ctx, history);
+    registry.create(ctx, history);
 
     /*
      * [TPC-C 2.5.3.3]
@@ -602,6 +606,8 @@ public final class TPCC implements ContractInterface {
    */
   @Transaction(intent = Transaction.TYPE.SUBMIT)
   public void init(final TPCCContext ctx) {
+    final Registry registry = ctx.getRegistry();
+
     final Warehouse warehouse =
         Warehouse.builder()
             .id(1)
@@ -614,7 +620,7 @@ public final class TPCC implements ContractInterface {
             .tax(0.1000)
             .ytd(10000)
             .build();
-    ctx.getRegistry().create(ctx, warehouse);
+    registry.create(ctx, warehouse);
 
     final District district =
         District.builder()
@@ -630,7 +636,7 @@ public final class TPCC implements ContractInterface {
             .ytd(10000)
             .next_o_id(3001)
             .build();
-    ctx.getRegistry().create(ctx, district);
+    registry.create(ctx, district);
 
     final Customer customer1 =
         Customer.builder()
@@ -680,8 +686,8 @@ public final class TPCC implements ContractInterface {
             .delivery_cnt(0)
             .data("Good credit")
             .build();
-    ctx.getRegistry().create(ctx, customer1);
-    ctx.getRegistry().create(ctx, customer2);
+    registry.create(ctx, customer1);
+    registry.create(ctx, customer2);
 
     final Item item1 =
         Item.builder().id(1).im_id(123).name("Cup").price(99.50).data("ORIGINAL").build();
@@ -689,9 +695,9 @@ public final class TPCC implements ContractInterface {
         Item.builder().id(2).im_id(234).name("Plate").price(89.50).data("ORIGINAL").build();
     final Item item3 =
         Item.builder().id(3).im_id(456).name("Glass").price(78.00).data("GENERIC").build();
-    ctx.getRegistry().create(ctx, item1);
-    ctx.getRegistry().create(ctx, item2);
-    ctx.getRegistry().create(ctx, item3);
+    registry.create(ctx, item1);
+    registry.create(ctx, item2);
+    registry.create(ctx, item3);
 
     final Stock stock1 =
         Stock.builder()
@@ -729,9 +735,9 @@ public final class TPCC implements ContractInterface {
             .remote_cnt(0)
             .data("GENERIC")
             .build();
-    ctx.getRegistry().create(ctx, stock1);
-    ctx.getRegistry().create(ctx, stock2);
-    ctx.getRegistry().create(ctx, stock3);
+    registry.create(ctx, stock1);
+    registry.create(ctx, stock2);
+    registry.create(ctx, stock3);
   }
 
   /**
@@ -909,6 +915,8 @@ public final class TPCC implements ContractInterface {
       final int d_id,
       final int o_carrier_id,
       final String ol_delivery_d) {
+    final Registry registry = ctx.getRegistry();
+
     /*
      * [TPC-C 2.7.4.2 (3)]
      * The row in the NEW-ORDER table with matching NO_W_ID (equals
@@ -917,7 +925,7 @@ public final class TPCC implements ContractInterface {
      * that district.  NO_O_ID, the order number, is retrieved. [...]
      */
     final List<NewOrder> matchingNewOrders =
-        ctx.getRegistry()
+        registry
             .select(ctx, new NewOrder())
             .matching(
                 new Registry.Matcher<NewOrder>() {
@@ -954,7 +962,7 @@ public final class TPCC implements ContractInterface {
      * [TPC-C 2.7.4.2 (4)]
      * The selected row in the NEW-ORDER table is deleted.
      */
-    ctx.getRegistry().delete(ctx, oldestNewOrder);
+    registry.delete(ctx, oldestNewOrder);
 
     /*
      * [TPC-C 2.7.4.2 (5)]
@@ -964,13 +972,13 @@ public final class TPCC implements ContractInterface {
      */
     final Order order =
         Order.builder().w_id(w_id).d_id(d_id).id(oldestNewOrder.getNo_o_id()).build();
-    ctx.getRegistry().read(ctx, order);
+    registry.read(ctx, order);
     /*
      * [TPC-C 2.7.4.2 (5) (continued)]
      * ... and O_CARRIER_ID is updated.
      */
     order.setO_carrier_id(o_carrier_id);
-    ctx.getRegistry().update(ctx, order);
+    registry.update(ctx, order);
 
     /*
      * [TPC-C 2.7.4.2 (6)]
@@ -991,7 +999,7 @@ public final class TPCC implements ContractInterface {
      */
     final Customer customer =
         Customer.builder().w_id(w_id).d_id(d_id).id(order.getO_c_id()).build();
-    ctx.getRegistry().read(ctx, customer);
+    registry.read(ctx, customer);
     /*
      * [TPC-C 2.7.4.2 (7) (continued)]
      * ... and C_BALANCE is increased by the sum of all order-line
@@ -1003,7 +1011,7 @@ public final class TPCC implements ContractInterface {
      * ... C_DELIVERY_CNT is incremented by 1.
      */
     customer.incrementDeliveryCount();
-    ctx.getRegistry().update(ctx, customer);
+    registry.update(ctx, customer);
 
     return DeliveredOrder.builder().d_id(d_id).o_id(order.getO_id()).build();
   }
@@ -1101,6 +1109,8 @@ public final class TPCC implements ContractInterface {
       final int nextOrderId,
       final int number,
       final Collection<ItemsData> itemsDataCollection) {
+    final Registry registry = ctx.getRegistry();
+
     /*
      * [TPC-C 2.4.2.2 (8.1)]
      * The row in the ITEM table with matching I_ID (equals OL_I_ID)
@@ -1111,7 +1121,7 @@ public final class TPCC implements ContractInterface {
      * (see Clause 2.4.2.3).
      */
     final Item item = Item.builder().id(i_id).build();
-    ctx.getRegistry().read(ctx, item);
+    registry.read(ctx, item);
 
     /*
      * [TPC-C 2.4.2.2 (8.2)]
@@ -1122,7 +1132,7 @@ public final class TPCC implements ContractInterface {
      * [...]
      */
     final Stock stock = Stock.builder().w_id(i_w_id).i_id(i_id).build();
-    ctx.getRegistry().read(ctx, stock);
+    registry.read(ctx, stock);
     /*
      * [TPC-C 2.4.2.2 (8.2) (continued)]
      * ... If the retrieved value for S_QUANTITY exceeds OL_QUANTITY
@@ -1148,7 +1158,7 @@ public final class TPCC implements ContractInterface {
      * incremented by 1.
      */
     if (i_w_id != w_id) stock.incrementRemoteCount();
-    ctx.getRegistry().update(ctx, stock);
+    registry.update(ctx, stock);
 
     /*
      * [TPC-C 2.4.2.2 (8.3)]
@@ -1190,7 +1200,7 @@ public final class TPCC implements ContractInterface {
             .amount(orderLineAmount)
             .dist_info("s_dist_" + stockDistrictId)
             .build();
-    ctx.getRegistry().create(ctx, orderLine);
+    registry.create(ctx, orderLine);
 
     /*
      * [TPC-C 2.4.3.3]
@@ -1281,8 +1291,9 @@ public final class TPCC implements ContractInterface {
    */
   private static Order getLastOrderOfCustomer(
       final ContextWithRegistry ctx, final int o_w_id, final int o_d_id, final int o_c_id) {
+    Registry registry = ctx.getRegistry();
     final List<Order> allOrders =
-        ctx.getRegistry().readAll(ctx, Order.builder().w_id(o_w_id).d_id(o_d_id).build());
+        registry.readAll(ctx, Order.builder().w_id(o_w_id).d_id(o_d_id).build());
     if (allOrders.isEmpty()) throw new RuntimeException("No orders found");
 
     // Stream-based one-liner replaced with below code to accommodate OpenJML...
