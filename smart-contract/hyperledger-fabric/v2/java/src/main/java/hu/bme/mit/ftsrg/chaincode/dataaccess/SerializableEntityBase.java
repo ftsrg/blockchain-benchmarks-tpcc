@@ -90,8 +90,10 @@ public abstract class SerializableEntityBase<Type extends SerializableEntity<Typ
      * silently ignore them.
      */
     for (final Field ourField : ourFields) {
+      ourField.setAccessible(true);
       try {
         final Field theirField = obj.getClass().getField(ourField.getName());
+        theirField.setAccessible(true);
         try {
           if (ourField.get(this) == null) ourField.set(this, theirField.get(obj));
         } catch (IllegalArgumentException | IllegalAccessException e) {
@@ -118,6 +120,7 @@ public abstract class SerializableEntityBase<Type extends SerializableEntity<Typ
     // Stream-based implementation replaced with code below to accommodate OpenJML...
     final List<String> keyParts = new ArrayList<>();
     for (final Field field : this.getClass().getDeclaredFields()) {
+      field.setAccessible(true);
       if (field.isAnnotationPresent(KeyPart.class))
         try {
           keyParts.add(pad(field.getInt(this)));
