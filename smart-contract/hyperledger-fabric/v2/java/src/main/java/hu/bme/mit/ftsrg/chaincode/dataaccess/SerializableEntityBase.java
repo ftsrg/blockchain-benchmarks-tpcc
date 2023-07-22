@@ -110,10 +110,7 @@ public abstract class SerializableEntityBase<Type extends SerializableEntity<Typ
         final Field theirField = obj.getClass().getDeclaredField(ourField.getName());
         theirField.setAccessible(true);
         try {
-          if (ourField.get(this) == null) {
-            logger.debug("We do not have this field set yet; setting it from deserialized value");
-            ourField.set(this, theirField.get(obj));
-          }
+          ourField.set(this, theirField.get(obj));
         } catch (IllegalArgumentException | IllegalAccessException e) {
           logger.error("Got exception while trying to access/set a field", e);
           e.printStackTrace();
