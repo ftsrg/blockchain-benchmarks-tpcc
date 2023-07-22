@@ -602,7 +602,7 @@ public final class TPCC implements ContractInterface {
      * are selected. They are the items for 5 recent orders of the
      * district.
      */
-    final int o_id_min = district.getD_next_o_id() - 5;
+    final int o_id_min = Math.max(district.getD_next_o_id() - 5, 0);
     final int o_id_max = district.getD_next_o_id();
     logger.debug("O_ID_MIN={}, O_ID_MAX={}", o_id_min, o_id_max);
     logger.debug("Getting the most recent 5 orders");
