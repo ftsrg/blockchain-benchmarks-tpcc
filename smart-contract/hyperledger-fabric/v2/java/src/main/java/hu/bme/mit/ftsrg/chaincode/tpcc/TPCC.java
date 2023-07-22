@@ -3,6 +3,7 @@
 package hu.bme.mit.ftsrg.chaincode.tpcc;
 
 import com.jcabi.aspects.Loggable;
+import hu.bme.mit.ftsrg.chaincode.MethodLogger;
 import hu.bme.mit.ftsrg.chaincode.dataaccess.ContextWithRegistry;
 import hu.bme.mit.ftsrg.chaincode.dataaccess.Registry;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.entity.*;
@@ -42,10 +43,13 @@ import org.slf4j.LoggerFactory;
  * v5.11.0.
  */
 @Default
-@Loggable(Loggable.DEBUG)
+@Loggable(Loggable.DEBUG) // FIXME how to configure AspectJ with OpenJML and Gradle?
 public final class TPCC implements ContractInterface {
 
   private static final Logger logger = LoggerFactory.getLogger(TPCC.class);
+
+  private static final MethodLogger methodLogger = new MethodLogger(logger, "TPCC");
+
   public static final int DISTRICT_COUNT = 10;
 
   @Override
@@ -62,6 +66,9 @@ public final class TPCC implements ContractInterface {
    */
   @Transaction(intent = Transaction.TYPE.SUBMIT)
   public String doDelivery(final TPCCContext ctx, final String parameters) {
+    final String paramString = methodLogger.generateParamsString(ctx, parameters);
+    methodLogger.logStart("doDelivery", paramString);
+
     /*
      * [TPC-C 2.7.4.2]
      * For a given warehouse number (W_ID), for each of the districts
@@ -105,13 +112,17 @@ public final class TPCC implements ContractInterface {
       }
     }
 
-    return JSON.serialize(
-        DeliveryOutput.builder()
-            .w_id(params.getW_id())
-            .o_carrier_id(params.getO_carrier_id())
-            .delivered(deliveredOrders)
-            .skipped(skipped)
-            .build());
+    final String json =
+        JSON.serialize(
+            DeliveryOutput.builder()
+                .w_id(params.getW_id())
+                .o_carrier_id(params.getO_carrier_id())
+                .delivered(deliveredOrders)
+                .skipped(skipped)
+                .build());
+
+    methodLogger.logEnd("doDelivery", paramString, json);
+    return json;
   }
 
   /**
@@ -123,6 +134,9 @@ public final class TPCC implements ContractInterface {
    */
   @Transaction(intent = Transaction.TYPE.SUBMIT)
   public String doNewOrder(final TPCCContext ctx, final String parameters) {
+    final String paramString = methodLogger.generateParamsString(ctx, parameters);
+    methodLogger.logStart("doNewOrder", paramString);
+
     final Registry registry = ctx.getRegistry();
 
     /*
@@ -253,17 +267,19 @@ public final class TPCC implements ContractInterface {
      * O_ENTRY_D, total_amount, and an optional execution status
      * message other than "Item number is not valid".
      */
-    final NewOrderOutput output =
-        NewOrderOutput.builder()
-            .fromWarehouse(warehouse)
-            .fromDistrict(district)
-            .fromCustomer(customer)
-            .fromOrder(order)
-            .total_amount(totalAmount)
-            .items(itemsDataList)
-            .build();
+    final String json =
+        JSON.serialize(
+            NewOrderOutput.builder()
+                .fromWarehouse(warehouse)
+                .fromDistrict(district)
+                .fromCustomer(customer)
+                .fromOrder(order)
+                .total_amount(totalAmount)
+                .items(itemsDataList)
+                .build());
 
-    return JSON.serialize(output);
+    methodLogger.logEnd("doNewOrder", paramString, json);
+    return json;
   }
 
   /**
@@ -275,6 +291,9 @@ public final class TPCC implements ContractInterface {
    */
   @Transaction(intent = Transaction.TYPE.EVALUATE)
   public String doOrderStatus(final TPCCContext ctx, final String parameters) {
+    final String paramString = methodLogger.generateParamsString(ctx, parameters);
+    methodLogger.logStart("doOrderStatus", paramString);
+
     /*
      * [TPC-C 2.6.2.2]
      * For a given customer number (C_W_ID, C_D_ID, C_ID): ...
@@ -343,16 +362,18 @@ public final class TPCC implements ContractInterface {
      * OL_QUANTITY, OL_AMOUNT, and OL_DELIVERY_D. The group is
      * repeated O_OL_CNT times (once per item in the order).
      */
-    final OrderStatusOutput output =
-        OrderStatusOutput.builder()
-            .w_id(params.getW_id())
-            .d_id(params.getD_id())
-            .fromCustomer(customer)
-            .fromOrder(order)
-            .order_lines(orderLineDatas)
-            .build();
+    final String json =
+        JSON.serialize(
+            OrderStatusOutput.builder()
+                .w_id(params.getW_id())
+                .d_id(params.getD_id())
+                .fromCustomer(customer)
+                .fromOrder(order)
+                .order_lines(orderLineDatas)
+                .build());
 
-    return JSON.serialize(output);
+    methodLogger.logEnd("doOrderStatus", paramString, json);
+    return json;
   }
 
   /**
@@ -364,6 +385,9 @@ public final class TPCC implements ContractInterface {
    */
   @Transaction(intent = Transaction.TYPE.SUBMIT)
   public String doPayment(final TPCCContext ctx, final String parameters) {
+    final String paramString = methodLogger.generateParamsString(ctx, parameters);
+    methodLogger.logStart("doPayment", paramString);
+
     final Registry registry = ctx.getRegistry();
 
     /*
@@ -526,8 +550,10 @@ public final class TPCC implements ContractInterface {
             .build();
     if (customer.getC_credit().equals("BC"))
       output.setC_data(customer.getC_data().substring(0, 200));
+    final String json = JSON.serialize(output);
 
-    return JSON.serialize(output);
+    methodLogger.logEnd("doPayment", paramString, json);
+    return json;
   }
 
   /**
@@ -539,6 +565,9 @@ public final class TPCC implements ContractInterface {
    */
   @Transaction(intent = Transaction.TYPE.EVALUATE)
   public String doStockLevel(final TPCCContext ctx, final String parameters) {
+    final String paramString = methodLogger.generateParamsString(ctx, parameters);
+    methodLogger.logStart("doStockLevel", paramString);
+
     /*
      * [TPC-C 2.8.2.2]
      * For a given warehouse number (W_ID), district number (D_W_ID,
@@ -596,7 +625,11 @@ public final class TPCC implements ContractInterface {
      * following fields are displayed: W_ID, D_ID, threshold, and
      * low_stock.
      */
-    return JSON.serialize(StockLevelOutput.builder().fromInput(params).low_stock(lowStock).build());
+    final String json =
+        JSON.serialize(StockLevelOutput.builder().fromInput(params).low_stock(lowStock).build());
+
+    methodLogger.logEnd("doStockLevel", paramString, json);
+    return json;
   }
 
   /**
@@ -606,6 +639,9 @@ public final class TPCC implements ContractInterface {
    */
   @Transaction(intent = Transaction.TYPE.SUBMIT)
   public void init(final TPCCContext ctx) {
+    final String paramString = methodLogger.generateParamsString(ctx.toString());
+    methodLogger.logStart("init", paramString);
+
     final Registry registry = ctx.getRegistry();
 
     final Warehouse warehouse =
@@ -738,6 +774,8 @@ public final class TPCC implements ContractInterface {
     registry.create(ctx, stock1);
     registry.create(ctx, stock2);
     registry.create(ctx, stock3);
+
+    methodLogger.logEnd("init", paramString, "<void>");
   }
 
   /**
@@ -749,9 +787,15 @@ public final class TPCC implements ContractInterface {
    */
   @Transaction(intent = Transaction.TYPE.EVALUATE)
   public String readWarehouse(final TPCCContext ctx, final int w_id) {
+    final String paramString = methodLogger.generateParamsString(ctx, w_id);
+    methodLogger.logStart("readWarehouse", paramString);
+
     final Warehouse warehouse = Warehouse.builder().id(w_id).build();
     ctx.getRegistry().read(ctx, warehouse);
-    return JSON.serialize(warehouse);
+
+    final String json = JSON.serialize(warehouse);
+    methodLogger.logEnd("readWarehouse", paramString, json);
+    return json;
   }
 
   /**
@@ -765,9 +809,15 @@ public final class TPCC implements ContractInterface {
    */
   @Transaction(intent = Transaction.TYPE.EVALUATE)
   public String readOrder(final TPCCContext ctx, final int w_id, final int d_id, final int o_id) {
+    final String paramString = methodLogger.generateParamsString(ctx, w_id, d_id, o_id);
+    methodLogger.logStart("readOrder", paramString);
+
     final Order order = Order.builder().w_id(w_id).d_id(d_id).id(o_id).build();
     ctx.getRegistry().read(ctx, order);
-    return JSON.serialize(order);
+
+    final String json = JSON.serialize(order);
+    methodLogger.logEnd("readOrder", paramString, json);
+    return json;
   }
 
   /**
@@ -779,9 +829,15 @@ public final class TPCC implements ContractInterface {
    */
   @Transaction(intent = Transaction.TYPE.EVALUATE)
   public String readItem(final TPCCContext ctx, final int i_id) {
+    final String paramString = methodLogger.generateParamsString(ctx, i_id);
+    methodLogger.logStart("readItem", paramString);
+
     final Item item = Item.builder().id(i_id).build();
     ctx.getRegistry().read(ctx, item);
-    return JSON.serialize(item);
+
+    final String json = JSON.serialize(item);
+    methodLogger.logEnd("readItem", paramString, json);
+    return json;
   }
 
   /**
@@ -796,9 +852,15 @@ public final class TPCC implements ContractInterface {
   @Transaction(intent = Transaction.TYPE.EVALUATE)
   public String readNewOrder(
       final TPCCContext ctx, final int w_id, final int d_id, final int o_id) {
+    final String paramString = methodLogger.generateParamsString(ctx, w_id, d_id, o_id);
+    methodLogger.logStart("readNewOrder", paramString);
+
     final NewOrder newOrder = NewOrder.builder().w_id(w_id).d_id(d_id).o_id(o_id).build();
     ctx.getRegistry().read(ctx, newOrder);
-    return JSON.serialize(newOrder);
+
+    final String json = JSON.serialize(newOrder);
+    methodLogger.logEnd("readNewOrder", paramString, json);
+    return json;
   }
 
   /**
@@ -810,7 +872,12 @@ public final class TPCC implements ContractInterface {
   @SuppressWarnings("SameReturnValue")
   @Transaction(intent = Transaction.TYPE.EVALUATE)
   public String ping(final TPCCContext _ctx) {
-    return "pong";
+    final String paramString = methodLogger.generateParamsString(_ctx.toString());
+    methodLogger.logStart("ping", paramString);
+
+    final String pong = "pong";
+    methodLogger.logEnd("ping", paramString, pong);
+    return pong;
   }
 
   /**
@@ -831,10 +898,16 @@ public final class TPCC implements ContractInterface {
   //@ requires c_id < 2;
   // spotless:on
   @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String OJMTEST__getCustomer(
+  public String OJMLTEST__getCustomer(
       final TPCCContext ctx, final int c_w_id, final int c_d_id, final int c_id) {
+    final String paramString = methodLogger.generateParamsString(ctx, c_w_id, c_d_id, c_id);
+    methodLogger.logStart("OJMLTEST__getCustomer", paramString);
+
     final Customer customer = Customer.builder().w_id(c_w_id).d_id(c_d_id).id(c_id).build();
-    return JSON.serialize(ctx.getRegistry().read(ctx, customer));
+
+    final String json = JSON.serialize(customer);
+    methodLogger.logEnd("OJMLTEST__getCustomer", paramString, json);
+    return json;
   }
 
   /**
@@ -890,10 +963,17 @@ public final class TPCC implements ContractInterface {
    */
   private OrderLineData getOrderLineDataForOrder(
       final ContextWithRegistry ctx, final Order order, final int number) {
+    final String paramString =
+        methodLogger.generateParamsString(ctx.toString(), order.toString(), String.valueOf(number));
+    methodLogger.logStart("getOrderLineDataForOrder", paramString);
+
     final OrderLine orderLine = OrderLine.builder().fromOrder(order).number(number).build();
     ctx.getRegistry().read(ctx, orderLine);
 
-    return OrderLineData.builder().fromOrderLine(orderLine).build();
+    final OrderLineData orderLineData = OrderLineData.builder().fromOrderLine(orderLine).build();
+
+    methodLogger.logEnd("getOrderLineDataForOrder", paramString, JSON.serialize(orderLineData));
+    return orderLineData;
   }
 
   /**
@@ -915,6 +995,11 @@ public final class TPCC implements ContractInterface {
       final int d_id,
       final int o_carrier_id,
       final String ol_delivery_d) {
+    final String paramString =
+        methodLogger.generateParamsString(
+            methodLogger.generateParamsString(ctx, w_id, d_id, o_carrier_id), ol_delivery_d);
+    methodLogger.logStart("getOldestNewOrderForDistrict", paramString);
+
     final Registry registry = ctx.getRegistry();
 
     /*
@@ -1013,7 +1098,12 @@ public final class TPCC implements ContractInterface {
     customer.incrementDeliveryCount();
     registry.update(ctx, customer);
 
-    return DeliveredOrder.builder().d_id(d_id).o_id(order.getO_id()).build();
+    final DeliveredOrder deliveredOrder =
+        DeliveredOrder.builder().d_id(d_id).o_id(order.getO_id()).build();
+
+    methodLogger.logEnd(
+        "getOldestNewOrderForDistrict", paramString, JSON.serialize(deliveredOrder));
+    return deliveredOrder;
   }
 
   /**
@@ -1041,6 +1131,11 @@ public final class TPCC implements ContractInterface {
       final int o_id,
       final int number,
       final String ol_delivery_d) {
+    final String paramString =
+        methodLogger.generateParamsString(
+            methodLogger.generateParamsString(ctx, w_id, d_id, o_id, number), ol_delivery_d);
+    methodLogger.logStart("getOrderLineAmount", paramString);
+
     /*
      * [TPC-C 2.7.4.2 (6)]
      * All rows in the ORDER-LINE table with matching OL_W_ID (equals
@@ -1062,6 +1157,8 @@ public final class TPCC implements ContractInterface {
      */
     ctx.getRegistry().update(ctx, orderLine);
 
+    methodLogger.logEnd(
+        "getOrderLineAmount", paramString, String.valueOf(orderLine.getOl_amount()));
     return orderLine.getOl_amount();
   }
 
@@ -1109,6 +1206,13 @@ public final class TPCC implements ContractInterface {
       final int nextOrderId,
       final int number,
       final Collection<ItemsData> itemsDataCollection) {
+    final String paramString =
+        methodLogger.generateParamsString(
+            methodLogger.generateParamsString(
+                ctx, i_id, i_w_id, i_qty, w_id, d_id, nextOrderId, number),
+            itemsDataCollection.toString());
+    methodLogger.logStart("createOrderLineAndGetAmount", paramString);
+
     final Registry registry = ctx.getRegistry();
 
     /*
@@ -1230,6 +1334,8 @@ public final class TPCC implements ContractInterface {
     itemsDataCollection.add(itemsData);
     logger.debug("Created ItemsData: " + itemsData);
 
+    methodLogger.logEnd(
+        "createOrderLineAndGetAmount", paramString, String.valueOf(orderLineAmount));
     return orderLineAmount;
   }
 
@@ -1247,19 +1353,27 @@ public final class TPCC implements ContractInterface {
    *     (according to the TPC-C spec)
    * @throws Exception if neither the customer ID nor the customer last name parameter is supplied
    */
-  private static Customer getCustomerByIDOrLastName(
+  private Customer getCustomerByIDOrLastName(
       final ContextWithRegistry ctx,
       final int c_w_id,
       final int c_d_id,
       final Integer c_id,
       final String c_last) {
+    final String paramString =
+        methodLogger.generateParamsString(
+            methodLogger.generateParamsString(ctx, c_w_id, c_d_id, c_id), c_last);
+    methodLogger.logStart("getCustomerByIDOrLastName", paramString);
+
     if (c_id == null && c_last == null)
       throw new RuntimeException("At least one of c_id and c_last must be specified");
 
-    if (c_id != null)
-      return ctx.getRegistry()
-          .read(ctx, Customer.builder().w_id(c_w_id).d_id(c_d_id).id(c_id).build());
-    else {
+    if (c_id != null) {
+      final Customer customer =
+          ctx.getRegistry()
+              .read(ctx, Customer.builder().w_id(c_w_id).d_id(c_d_id).id(c_id).build());
+      methodLogger.logEnd("getCustomerByIDOrLastName", paramString, JSON.serialize(customer));
+      return customer;
+    } else {
       final List<Customer> allCustomers =
           ctx.getRegistry().readAll(ctx, Customer.builder().w_id(c_w_id).d_id(c_d_id).build());
 
@@ -1275,7 +1389,9 @@ public final class TPCC implements ContractInterface {
         throw new RuntimeException("Size of matching CUSTOMER list is out of range");
       final int n = (int) N;
 
-      return matchingCustomers.get(n);
+      final Customer customer = matchingCustomers.get(n);
+      methodLogger.logEnd("getCustomerByIDOrLastName", paramString, JSON.serialize(customer));
+      return customer;
     }
   }
 
@@ -1289,8 +1405,11 @@ public final class TPCC implements ContractInterface {
    * @return The order with highest O_ID from the orders matching (O_W_ID, O_D_ID, O_C_ID)
    * @throws Exception if the order is not found
    */
-  private static Order getLastOrderOfCustomer(
+  private Order getLastOrderOfCustomer(
       final ContextWithRegistry ctx, final int o_w_id, final int o_d_id, final int o_c_id) {
+    final String paramString = methodLogger.generateParamsString(ctx, o_w_id, o_d_id, o_c_id);
+    methodLogger.logStart("getLastOrderOfCustomer", paramString);
+
     Registry registry = ctx.getRegistry();
     final List<Order> allOrders =
         registry.readAll(ctx, Order.builder().w_id(o_w_id).d_id(o_d_id).build());
@@ -1308,7 +1427,10 @@ public final class TPCC implements ContractInterface {
             return b.getO_id() - a.getO_id();
           }
         });
-    return matchingOrders.get(0);
+
+    final Order order = matchingOrders.get(0);
+    methodLogger.logEnd("getLastOrderOfCustomer", paramString, JSON.serialize(order));
+    return order;
   }
 
   /**
@@ -1321,12 +1443,16 @@ public final class TPCC implements ContractInterface {
    * @param o_id_max The newest/maximum order ID to consider (exclusive)
    * @return The unique IDs of items from the recent orders
    */
-  private static List<Integer> getItemIdsOfRecentOrders(
+  private List<Integer> getItemIdsOfRecentOrders(
       final ContextWithRegistry ctx,
       final int w_id,
       final int d_id,
       final int o_id_min,
       final int o_id_max) {
+    final String paramString =
+        methodLogger.generateParamsString(ctx, w_id, d_id, o_id_min, o_id_max);
+    methodLogger.logStart("getItemIdsOfRecentOrders", paramString);
+
     final Set<Integer> itemIds = new HashSet<>();
     for (int current_o_id = o_id_min; current_o_id < o_id_max; current_o_id++) {
       final Order order = Order.builder().w_id(w_id).d_id(d_id).id(current_o_id).build();
@@ -1341,6 +1467,8 @@ public final class TPCC implements ContractInterface {
     }
     if (itemIds.isEmpty()) throw new RuntimeException("Could not find item IDs of recent ORDERs");
 
-    return new ArrayList<>(itemIds);
+    final List<Integer> itemIdsList = new ArrayList<>(itemIds);
+    methodLogger.logEnd("getItemIdsOfRecentOrders", paramString, itemIdsList.toString());
+    return itemIdsList;
   }
 }

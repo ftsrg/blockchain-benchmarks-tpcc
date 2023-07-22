@@ -1,49 +1,80 @@
 package hu.bme.mit.ftsrg.chaincode.dataaccess;
 
 import com.jcabi.aspects.Loggable;
+import hu.bme.mit.ftsrg.chaincode.MethodLogger;
 import java.util.*;
 import org.hyperledger.fabric.contract.Context;
 import org.hyperledger.fabric.shim.ledger.CompositeKey;
 import org.hyperledger.fabric.shim.ledger.KeyValue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Loggable(Loggable.DEBUG)
+@Loggable(Loggable.DEBUG) // FIXME how to configure AspectJ with OpenJML and Gradle?
 public class RegistryImpl implements Registry {
+
+  private static final Logger logger = LoggerFactory.getLogger(RegistryImpl.class);
+
+  private static final MethodLogger methodLogger = new MethodLogger(logger, "RegistryImpl");
+
   public RegistryImpl() {}
 
   private <Type extends SerializableEntity<Type>> String getKey(final Context ctx, final Type obj) {
+    final String paramsString = methodLogger.generateParamsString(ctx, obj);
+    methodLogger.logStart("getKey", paramsString);
+
     final CompositeKey compositeKey =
         ctx.getStub().createCompositeKey(obj.getType(), obj.getKeyParts());
+
+    methodLogger.logEnd("getKey", paramsString, compositeKey.toString());
     return compositeKey.toString();
   }
 
   @Override
   public <Type extends SerializableEntity<Type>> void create(final Context ctx, final Type entity) {
+    final String paramsString = methodLogger.generateParamsString(ctx, entity);
+    methodLogger.logStart("create", paramsString);
+
     assertNotExists(ctx, entity);
 
     final String key = getKey(ctx, entity);
     final byte[] buffer = entity.toBuffer();
     ctx.getStub().putState(key, buffer);
+
+    methodLogger.logEnd("create", paramsString, "<void>");
   }
 
   @Override
   public <Type extends SerializableEntity<Type>> void update(final Context ctx, final Type entity) {
+    final String paramsString = methodLogger.generateParamsString(ctx, entity);
+    methodLogger.logStart("update", paramsString);
+
     assertExists(ctx, entity);
 
     final String key = getKey(ctx, entity);
     final byte[] buffer = entity.toBuffer();
     ctx.getStub().putState(key, buffer);
+
+    methodLogger.logEnd("update", paramsString, "<void>");
   }
 
   @Override
   public <Type extends SerializableEntity<Type>> void delete(final Context ctx, final Type entity) {
+    final String paramsString = methodLogger.generateParamsString(ctx, entity);
+    methodLogger.logStart("delete", paramsString);
+
     assertExists(ctx, entity);
 
     final String key = getKey(ctx, entity);
     ctx.getStub().delState(key);
+
+    methodLogger.logEnd("delete", paramsString, "<void>");
   }
 
   @Override
   public <Type extends SerializableEntity<Type>> Type read(final Context ctx, final Type target) {
+    final String paramsString = methodLogger.generateParamsString(ctx, target);
+    methodLogger.logStart("read", paramsString);
+
     final String key = getKey(ctx, target);
     final byte[] data = ctx.getStub().getState(key);
 
@@ -52,12 +83,17 @@ public class RegistryImpl implements Registry {
           "Entity with key \"" + key + "\" does not exist on the ledger, thus cannot parse it");
 
     target.fromBuffer(data);
+
+    methodLogger.logEnd("read", paramsString, target.toJson());
     return target;
   }
 
   @Override
   public <Type extends SerializableEntity<Type>> List<Type> readAll(
       final Context ctx, final Type template) {
+    final String paramsString = methodLogger.generateParamsString(ctx, template);
+    methodLogger.logStart("readAll", paramsString);
+
     final List<Type> entities = new ArrayList<>();
     final String compositeKey = ctx.getStub().createCompositeKey(template.getType()).toString();
     for (KeyValue keyValue : ctx.getStub().getStateByPartialCompositeKey(compositeKey)) {
@@ -67,13 +103,20 @@ public class RegistryImpl implements Registry {
       entity.fromBuffer(value);
       entities.add(entity);
     }
+
+    methodLogger.logEnd("readAll", paramsString, entities.toString());
     return entities;
   }
 
   @Override
   public <Type extends SerializableEntity<Type>> SelectionBuilder<Type> select(
       final Context ctx, final Type template) {
-    return new SelectionBuilderImpl<>(this.readAll(ctx, template));
+    final String paramsString = methodLogger.generateParamsString(ctx, template);
+    methodLogger.logStart("select", paramsString);
+
+    final SelectionBuilder<Type> builder = new SelectionBuilderImpl<>(this.readAll(ctx, template));
+    methodLogger.logEnd("select", paramsString, builder.toString());
+    return builder;
   }
 
   private boolean keyExists(final Context ctx, final String key) {
