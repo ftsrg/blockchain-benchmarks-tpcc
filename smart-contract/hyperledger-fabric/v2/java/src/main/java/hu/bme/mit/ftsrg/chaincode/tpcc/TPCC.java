@@ -1024,14 +1024,14 @@ public final class TPCC implements ContractInterface {
         registry
             .select(ctx, new NewOrder())
             .matching(
-                new Registry.Matcher<>() {
+                new Registry.Matcher<NewOrder>() {
                   @Override
                   public boolean match(NewOrder entity) {
                     return entity.getNo_w_id() == w_id && entity.getNo_d_id() == d_id;
                   }
                 })
             .sortedBy(
-                new Comparator<>() {
+                new Comparator<NewOrder>() {
                   @Override
                   public int compare(final NewOrder a, final NewOrder b) {
                     return a.getNo_o_id() - b.getNo_o_id();
@@ -1436,7 +1436,7 @@ public final class TPCC implements ContractInterface {
     if (matchingOrders.isEmpty())
       throw new NotFoundException("Could not find last order of customer");
     matchingOrders.sort(
-        new Comparator<>() {
+        new Comparator<Order>() {
           @Override
           public int compare(final Order a, final Order b) {
             return b.getO_id() - a.getO_id();
