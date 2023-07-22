@@ -6,6 +6,8 @@ import com.jcabi.aspects.Loggable;
 import hu.bme.mit.ftsrg.chaincode.MethodLogger;
 import hu.bme.mit.ftsrg.chaincode.dataaccess.ContextWithRegistry;
 import hu.bme.mit.ftsrg.chaincode.dataaccess.Registry;
+import hu.bme.mit.ftsrg.chaincode.dataaccess.exception.EntityExistsException;
+import hu.bme.mit.ftsrg.chaincode.dataaccess.exception.EntityNotFoundException;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.entity.*;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.extra.DeliveredOrder;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.extra.ItemsData;
@@ -65,7 +67,8 @@ public final class TPCC implements ContractInterface {
    * @return The JSON encoded query results according to the specification.
    */
   @Transaction(intent = Transaction.TYPE.SUBMIT)
-  public String doDelivery(final TPCCContext ctx, final String parameters) {
+  public String doDelivery(final TPCCContext ctx, final String parameters)
+      throws EntityNotFoundException {
     final String paramString = methodLogger.generateParamsString(ctx, parameters);
     methodLogger.logStart("doDelivery", paramString);
 
@@ -133,7 +136,8 @@ public final class TPCC implements ContractInterface {
    * @return The JSON encoded query results according to the specification.
    */
   @Transaction(intent = Transaction.TYPE.SUBMIT)
-  public String doNewOrder(final TPCCContext ctx, final String parameters) {
+  public String doNewOrder(final TPCCContext ctx, final String parameters)
+      throws EntityNotFoundException, EntityExistsException {
     final String paramString = methodLogger.generateParamsString(ctx, parameters);
     methodLogger.logStart("doNewOrder", paramString);
 
@@ -290,7 +294,8 @@ public final class TPCC implements ContractInterface {
    * @return The JSON encoded query results according to the specification.
    */
   @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String doOrderStatus(final TPCCContext ctx, final String parameters) {
+  public String doOrderStatus(final TPCCContext ctx, final String parameters)
+      throws NotFoundException, EntityNotFoundException {
     final String paramString = methodLogger.generateParamsString(ctx, parameters);
     methodLogger.logStart("doOrderStatus", paramString);
 
@@ -336,11 +341,11 @@ public final class TPCC implements ContractInterface {
      * selected and the corresponding sets of OL_I_ID, OL_SUPPLY_W_ID,
      * OL_QUANTITY, OL_AMOUNT, and OL_DELIVERY_D are retrieved.
      */
-    final List<OrderLineData> orderLineDatas = new ArrayList<>();
+    final List<OrderLineData> orderLineDataList = new ArrayList<>();
     for (int i = 1; i <= order.getO_ol_cnt(); ++i) {
       final OrderLineData orderLineData = this.getOrderLineDataForOrder(ctx, order, i);
       logger.debug("Created ORDER-LINE data: " + orderLineData);
-      orderLineDatas.add(orderLineData);
+      orderLineDataList.add(orderLineData);
     }
 
     /*
@@ -369,7 +374,7 @@ public final class TPCC implements ContractInterface {
                 .d_id(params.getD_id())
                 .fromCustomer(customer)
                 .fromOrder(order)
-                .order_lines(orderLineDatas)
+                .order_lines(orderLineDataList)
                 .build());
 
     methodLogger.logEnd("doOrderStatus", paramString, json);
@@ -384,7 +389,8 @@ public final class TPCC implements ContractInterface {
    * @return The JSON encoded query results according to the specification.
    */
   @Transaction(intent = Transaction.TYPE.SUBMIT)
-  public String doPayment(final TPCCContext ctx, final String parameters) {
+  public String doPayment(final TPCCContext ctx, final String parameters)
+      throws EntityNotFoundException, EntityExistsException, NotFoundException {
     final String paramString = methodLogger.generateParamsString(ctx, parameters);
     methodLogger.logStart("doPayment", paramString);
 
@@ -564,7 +570,8 @@ public final class TPCC implements ContractInterface {
    * @return The JSON encoded query results according to the specification.
    */
   @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String doStockLevel(final TPCCContext ctx, final String parameters) {
+  public String doStockLevel(final TPCCContext ctx, final String parameters)
+      throws EntityNotFoundException, NotFoundException {
     final String paramString = methodLogger.generateParamsString(ctx, parameters);
     methodLogger.logStart("doStockLevel", paramString);
 
@@ -638,7 +645,7 @@ public final class TPCC implements ContractInterface {
    * @param ctx The transaction context
    */
   @Transaction(intent = Transaction.TYPE.SUBMIT)
-  public void init(final TPCCContext ctx) {
+  public void init(final TPCCContext ctx) throws EntityExistsException {
     final String paramString = methodLogger.generateParamsString(ctx.toString());
     methodLogger.logStart("init", paramString);
 
@@ -786,7 +793,8 @@ public final class TPCC implements ContractInterface {
    * @return The warehouse with matching W_ID
    */
   @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String readWarehouse(final TPCCContext ctx, final int w_id) {
+  public String readWarehouse(final TPCCContext ctx, final int w_id)
+      throws EntityNotFoundException {
     final String paramString = methodLogger.generateParamsString(ctx, w_id);
     methodLogger.logStart("readWarehouse", paramString);
 
@@ -808,7 +816,8 @@ public final class TPCC implements ContractInterface {
    * @return The order with matching (W_ID, D_ID, O_ID)
    */
   @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String readOrder(final TPCCContext ctx, final int w_id, final int d_id, final int o_id) {
+  public String readOrder(final TPCCContext ctx, final int w_id, final int d_id, final int o_id)
+      throws EntityNotFoundException {
     final String paramString = methodLogger.generateParamsString(ctx, w_id, d_id, o_id);
     methodLogger.logStart("readOrder", paramString);
 
@@ -828,7 +837,7 @@ public final class TPCC implements ContractInterface {
    * @return The item with matchign I_ID
    */
   @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String readItem(final TPCCContext ctx, final int i_id) {
+  public String readItem(final TPCCContext ctx, final int i_id) throws EntityNotFoundException {
     final String paramString = methodLogger.generateParamsString(ctx, i_id);
     methodLogger.logStart("readItem", paramString);
 
@@ -850,8 +859,8 @@ public final class TPCC implements ContractInterface {
    * @return The new-order with matching (W_ID, D_ID, O_ID)
    */
   @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String readNewOrder(
-      final TPCCContext ctx, final int w_id, final int d_id, final int o_id) {
+  public String readNewOrder(final TPCCContext ctx, final int w_id, final int d_id, final int o_id)
+      throws EntityNotFoundException {
     final String paramString = methodLogger.generateParamsString(ctx, w_id, d_id, o_id);
     methodLogger.logStart("readNewOrder", paramString);
 
@@ -962,7 +971,8 @@ public final class TPCC implements ContractInterface {
    * @return The {@link OrderLineData} built
    */
   private OrderLineData getOrderLineDataForOrder(
-      final ContextWithRegistry ctx, final Order order, final int number) {
+      final ContextWithRegistry ctx, final Order order, final int number)
+      throws EntityNotFoundException {
     final String paramString =
         methodLogger.generateParamsString(ctx.toString(), order.toString(), String.valueOf(number));
     methodLogger.logStart("getOrderLineDataForOrder", paramString);
@@ -994,7 +1004,8 @@ public final class TPCC implements ContractInterface {
       final int w_id,
       final int d_id,
       final int o_carrier_id,
-      final String ol_delivery_d) {
+      final String ol_delivery_d)
+      throws EntityNotFoundException {
     final String paramString =
         methodLogger.generateParamsString(
             methodLogger.generateParamsString(ctx, w_id, d_id, o_carrier_id), ol_delivery_d);
@@ -1013,14 +1024,14 @@ public final class TPCC implements ContractInterface {
         registry
             .select(ctx, new NewOrder())
             .matching(
-                new Registry.Matcher<NewOrder>() {
+                new Registry.Matcher<>() {
                   @Override
                   public boolean match(NewOrder entity) {
                     return entity.getNo_w_id() == w_id && entity.getNo_d_id() == d_id;
                   }
                 })
             .sortedBy(
-                new Comparator<NewOrder>() {
+                new Comparator<>() {
                   @Override
                   public int compare(final NewOrder a, final NewOrder b) {
                     return a.getNo_o_id() - b.getNo_o_id();
@@ -1113,8 +1124,8 @@ public final class TPCC implements ContractInterface {
    * records are updated.
    *
    * <p><b>NOTE:</b> this code has been factored out of {@link TPCC#doDelivery(TPCCContext, String)}
-   * (and then then consequently from {@link TPCC#getOldestNewOrderForDistrict(ContextWithRegistry,
-   * int, int, int, String)} only so that OpenJML won't choke on the exceedingly long method.
+   * (and then consequently from {@link TPCC#getOldestNewOrderForDistrict(ContextWithRegistry, int,
+   * int, int, String)}) only so that OpenJML won't choke on the exceedingly long method.
    *
    * @param ctx The transaction context
    * @param w_id The warehouse's ID
@@ -1130,7 +1141,8 @@ public final class TPCC implements ContractInterface {
       final int d_id,
       final int o_id,
       final int number,
-      final String ol_delivery_d) {
+      final String ol_delivery_d)
+      throws EntityNotFoundException {
     final String paramString =
         methodLogger.generateParamsString(
             methodLogger.generateParamsString(ctx, w_id, d_id, o_id, number), ol_delivery_d);
@@ -1189,7 +1201,7 @@ public final class TPCC implements ContractInterface {
    * @param i_id The item's ID
    * @param i_w_id The item's warehouse's ID
    * @param i_qty The item quantity
-   * @param w_id The warehouse'S ID
+   * @param w_id The warehouse's ID
    * @param d_id The district's ID
    * @param nextOrderId The next order ID
    * @param number The order number
@@ -1205,7 +1217,8 @@ public final class TPCC implements ContractInterface {
       final int d_id,
       final int nextOrderId,
       final int number,
-      final Collection<ItemsData> itemsDataCollection) {
+      final Collection<ItemsData> itemsDataCollection)
+      throws EntityNotFoundException, EntityExistsException {
     final String paramString =
         methodLogger.generateParamsString(
             methodLogger.generateParamsString(
@@ -1351,21 +1364,23 @@ public final class TPCC implements ContractInterface {
    * @param c_last The C_LAST of the customer
    * @return The customer with matching (C_W_ID, C_D_ID, C_ID) or (C_W_ID, C_D_ID, C_LAST)
    *     (according to the TPC-C spec)
-   * @throws Exception if neither the customer ID nor the customer last name parameter is supplied
+   * @throws IllegalArgumentException if neither the customer ID nor the customer last name
+   *     parameter is supplied
    */
   private Customer getCustomerByIDOrLastName(
       final ContextWithRegistry ctx,
       final int c_w_id,
       final int c_d_id,
       final Integer c_id,
-      final String c_last) {
+      final String c_last)
+      throws EntityNotFoundException, NotFoundException {
     final String paramString =
         methodLogger.generateParamsString(
             methodLogger.generateParamsString(ctx, c_w_id, c_d_id, c_id), c_last);
     methodLogger.logStart("getCustomerByIDOrLastName", paramString);
 
     if (c_id == null && c_last == null)
-      throw new RuntimeException("At least one of c_id and c_last must be specified");
+      throw new IllegalArgumentException("At least one of c_id and c_last must be specified");
 
     if (c_id != null) {
       final Customer customer =
@@ -1382,11 +1397,10 @@ public final class TPCC implements ContractInterface {
       for (final Customer c : allCustomers)
         if (c.getC_last().equals(c_last)) matchingCustomers.add(c);
       if (matchingCustomers.isEmpty())
-        throw new RuntimeException("Customer matching last name '%s' not found".formatted(c_last));
+        throw new NotFoundException("Customer matching last name '%s' not found".formatted(c_last));
 
       final double N = Math.ceil(matchingCustomers.size() / 2d);
-      if (N > Integer.MAX_VALUE)
-        throw new RuntimeException("Size of matching CUSTOMER list is out of range");
+      if (N > Integer.MAX_VALUE) logger.warn("Size of matching CUSTOMER list is out of range");
       final int n = (int) N;
 
       final Customer customer = matchingCustomers.get(n);
@@ -1403,25 +1417,26 @@ public final class TPCC implements ContractInterface {
    * @param o_d_id The O_D_ID of the order
    * @param o_c_id The O_C_ID of the order
    * @return The order with highest O_ID from the orders matching (O_W_ID, O_D_ID, O_C_ID)
-   * @throws Exception if the order is not found
+   * @throws NotFoundException if the order is not found
    */
   private Order getLastOrderOfCustomer(
-      final ContextWithRegistry ctx, final int o_w_id, final int o_d_id, final int o_c_id) {
+      final ContextWithRegistry ctx, final int o_w_id, final int o_d_id, final int o_c_id)
+      throws NotFoundException {
     final String paramString = methodLogger.generateParamsString(ctx, o_w_id, o_d_id, o_c_id);
     methodLogger.logStart("getLastOrderOfCustomer", paramString);
 
     Registry registry = ctx.getRegistry();
     final List<Order> allOrders =
         registry.readAll(ctx, Order.builder().w_id(o_w_id).d_id(o_d_id).build());
-    if (allOrders.isEmpty()) throw new RuntimeException("No orders found");
+    if (allOrders.isEmpty()) throw new NotFoundException("No orders found");
 
     // Stream-based one-liner replaced with below code to accommodate OpenJML...
     final List<Order> matchingOrders = new ArrayList<>();
     for (final Order o : allOrders) if (o.getO_c_id() == o_c_id) matchingOrders.add(o);
     if (matchingOrders.isEmpty())
-      throw new RuntimeException("Could not find last order of customer");
+      throw new NotFoundException("Could not find last order of customer");
     matchingOrders.sort(
-        new Comparator<Order>() {
+        new Comparator<>() {
           @Override
           public int compare(final Order a, final Order b) {
             return b.getO_id() - a.getO_id();
@@ -1448,7 +1463,8 @@ public final class TPCC implements ContractInterface {
       final int w_id,
       final int d_id,
       final int o_id_min,
-      final int o_id_max) {
+      final int o_id_max)
+      throws EntityNotFoundException, NotFoundException {
     final String paramString =
         methodLogger.generateParamsString(ctx, w_id, d_id, o_id_min, o_id_max);
     methodLogger.logStart("getItemIdsOfRecentOrders", paramString);
@@ -1465,10 +1481,16 @@ public final class TPCC implements ContractInterface {
         itemIds.add(orderLine.getOl_i_id());
       }
     }
-    if (itemIds.isEmpty()) throw new RuntimeException("Could not find item IDs of recent ORDERs");
+    if (itemIds.isEmpty()) throw new NotFoundException("Could not find item IDs of recent ORDERs");
 
     final List<Integer> itemIdsList = new ArrayList<>(itemIds);
     methodLogger.logEnd("getItemIdsOfRecentOrders", paramString, itemIdsList.toString());
     return itemIdsList;
+  }
+
+  private class NotFoundException extends Exception {
+    public NotFoundException(String message) {
+      super(message);
+    }
   }
 }

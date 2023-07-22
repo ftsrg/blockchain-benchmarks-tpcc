@@ -2,6 +2,8 @@ package hu.bme.mit.ftsrg.chaincode.dataaccess;
 
 import com.jcabi.aspects.Loggable;
 import hu.bme.mit.ftsrg.chaincode.MethodLogger;
+import hu.bme.mit.ftsrg.chaincode.dataaccess.exception.EntityExistsException;
+import hu.bme.mit.ftsrg.chaincode.dataaccess.exception.EntityNotFoundException;
 import java.util.*;
 import org.hyperledger.fabric.contract.Context;
 import org.hyperledger.fabric.shim.ledger.CompositeKey;
@@ -30,7 +32,8 @@ public class RegistryImpl implements Registry {
   }
 
   @Override
-  public <Type extends SerializableEntity<Type>> void create(final Context ctx, final Type entity) {
+  public <Type extends SerializableEntity<Type>> void create(final Context ctx, final Type entity)
+      throws EntityExistsException {
     final String paramsString = methodLogger.generateParamsString(ctx, entity);
     methodLogger.logStart("create", paramsString);
 
@@ -44,7 +47,8 @@ public class RegistryImpl implements Registry {
   }
 
   @Override
-  public <Type extends SerializableEntity<Type>> void update(final Context ctx, final Type entity) {
+  public <Type extends SerializableEntity<Type>> void update(final Context ctx, final Type entity)
+      throws EntityNotFoundException {
     final String paramsString = methodLogger.generateParamsString(ctx, entity);
     methodLogger.logStart("update", paramsString);
 
@@ -58,7 +62,8 @@ public class RegistryImpl implements Registry {
   }
 
   @Override
-  public <Type extends SerializableEntity<Type>> void delete(final Context ctx, final Type entity) {
+  public <Type extends SerializableEntity<Type>> void delete(final Context ctx, final Type entity)
+      throws EntityNotFoundException {
     final String paramsString = methodLogger.generateParamsString(ctx, entity);
     methodLogger.logStart("delete", paramsString);
 
@@ -71,16 +76,15 @@ public class RegistryImpl implements Registry {
   }
 
   @Override
-  public <Type extends SerializableEntity<Type>> Type read(final Context ctx, final Type target) {
+  public <Type extends SerializableEntity<Type>> Type read(final Context ctx, final Type target)
+      throws EntityNotFoundException {
     final String paramsString = methodLogger.generateParamsString(ctx, target);
     methodLogger.logStart("read", paramsString);
 
     final String key = getKey(ctx, target);
     final byte[] data = ctx.getStub().getState(key);
 
-    if (data == null || data.length == 0)
-      throw new Error(
-          "Entity with key \"" + key + "\" does not exist on the ledger, thus cannot parse it");
+    if (data == null || data.length == 0) throw new EntityNotFoundException(key);
 
     target.fromBuffer(data);
 
@@ -129,18 +133,16 @@ public class RegistryImpl implements Registry {
   }
 
   public <Type extends SerializableEntity<Type>> void assertNotExists(
-      final Context ctx, final Type obj) {
-    if (exists(ctx, obj))
-      throw new Error("Entity with key \"" + getKey(ctx, obj) + "\" already exists on the ledger");
+      final Context ctx, final Type obj) throws EntityExistsException {
+    if (exists(ctx, obj)) throw new EntityExistsException(getKey(ctx, obj));
   }
 
   public <Type extends SerializableEntity<Type>> void assertExists(
-      final Context ctx, final Type obj) {
-    if (!exists(ctx, obj))
-      throw new Error("Entity with key \"" + getKey(ctx, obj) + "\" does not exist on the ledger");
+      final Context ctx, final Type obj) throws EntityNotFoundException {
+    if (!exists(ctx, obj)) throw new EntityNotFoundException(getKey(ctx, obj));
   }
 
-  private final class SelectionBuilderImpl<Type extends SerializableEntity<Type>>
+  private static final class SelectionBuilderImpl<Type extends SerializableEntity<Type>>
       implements SelectionBuilder<Type> {
 
     private List<Type> selection;

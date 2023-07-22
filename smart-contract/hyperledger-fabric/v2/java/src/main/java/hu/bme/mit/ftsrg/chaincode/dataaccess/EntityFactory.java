@@ -9,7 +9,7 @@ public interface EntityFactory<Type extends SerializableEntity<Type>> {
   /**
    * Simply gives a new, empty instance of the entity of type <code>Type</code>.
    *
-   * @return a new, emty entity instance
+   * @return a new, empty entity instance
    */
   Type create();
 }

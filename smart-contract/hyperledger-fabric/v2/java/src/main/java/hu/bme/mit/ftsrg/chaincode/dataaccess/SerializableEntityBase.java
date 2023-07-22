@@ -14,7 +14,7 @@ import org.hyperledger.fabric.contract.annotation.DataType;
  * Base class for {@link SerializableEntity} entities.
  *
  * <p>This class provides some reflection-based implementations of the {@link SerializableEntity}
- * methods, so that you do not have to implement all of the boilerplate yourself in the final entity
+ * methods, so that you do not have to implement all the boilerplate yourself in the final entity
  * classes.
  *
  * @param <Type> the type of the entity
@@ -38,7 +38,7 @@ public abstract class SerializableEntityBase<Type extends SerializableEntity<Typ
   /**
    * Serializes this entity to a JSON and then to a byte array.
    *
-   * @return This entity, serialized into a JSON string and then converted to an UTF-8 byte array.
+   * @return This entity, serialized into a JSON string and then converted to a UTF-8 byte array.
    * @see SerializableEntity#toBuffer()
    */
   @Override
@@ -144,7 +144,7 @@ public abstract class SerializableEntityBase<Type extends SerializableEntity<Typ
   public EntityFactory<Type> getFactory() {
     final Class<? extends SerializableEntityBase> ourClass = this.getClass();
     // Lambda-based implementation replaced with code below to accommodate OpenJML...
-    return new EntityFactory<Type>() {
+    return new EntityFactory<>() {
       @Override
       public Type create() {
         try {

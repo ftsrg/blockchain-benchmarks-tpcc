@@ -25,7 +25,7 @@ public interface SerializableEntity<Type extends SerializableEntity<Type>> {
    * Get the composite key for this entity.
    *
    * <p>The composite key is an array of strings comprising the primary key fields of the entity (ie
-   * those annotated with {@link KeyPart}.
+   * those annotated with {@link KeyPart}).
    *
    * @return the composite key of this entity
    * @see SerializableEntityBase#getKeyParts()

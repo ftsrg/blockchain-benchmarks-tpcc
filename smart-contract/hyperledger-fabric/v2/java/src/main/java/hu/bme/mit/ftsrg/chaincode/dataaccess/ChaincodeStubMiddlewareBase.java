@@ -29,7 +29,7 @@ public abstract class ChaincodeStubMiddlewareBase implements ChaincodeStub {
     this.nextLayer = nextLayer;
   }
 
-  protected ChaincodeStub nextLayer;
+  protected final ChaincodeStub nextLayer;
 
   @Override
   public List<byte[]> getArgs() {
@@ -151,7 +151,7 @@ public abstract class ChaincodeStubMiddlewareBase implements ChaincodeStub {
 
   @Override
   public QueryResultsIterator<KeyModification> getHistoryForKey(final String key) {
-    return this.getHistoryForKey(key);
+    return this.nextLayer.getHistoryForKey(key);
   }
 
   @Override
