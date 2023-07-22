@@ -7,6 +7,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import org.hyperledger.fabric.shim.ChaincodeStub;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Stub middleware that caches reads in a local state.
@@ -14,6 +16,9 @@ import org.hyperledger.fabric.shim.ChaincodeStub;
  * @see ChaincodeStubMiddlewareBase
  */
 public final class WriteBackCachedChaincodeStubMiddleware extends ChaincodeStubMiddlewareBase {
+
+  private static final Logger logger =
+      LoggerFactory.getLogger(WriteBackCachedChaincodeStubMiddleware.class);
 
   private final Map<String, CachedItem> cache = new HashMap<>();
 
@@ -27,14 +32,19 @@ public final class WriteBackCachedChaincodeStubMiddleware extends ChaincodeStubM
 
     // New read, add to cache
     if (cached == null) {
+      logger.debug("Cache miss for key={} while reading; getting from next layer & caching", key);
       final byte[] value = this.nextLayer.getState(key);
       cached = new CachedItem(key, value);
       cache.put(key, cached);
     }
 
     // Already marked for deletion
-    if (cached.isToDelete()) return null;
+    if (cached.isToDelete()) {
+      logger.debug("Value at key={} marked for deletion; returning null", key);
+      return null;
+    }
 
+    logger.debug("Returning value of cached item at key={}", key);
     return cached.getValue();
   }
 
@@ -44,13 +54,18 @@ public final class WriteBackCachedChaincodeStubMiddleware extends ChaincodeStubM
 
     // Blind write!
     if (cached == null) {
+      logger.debug(
+          "Cache miss for key={} while writing; creating new cache entry with null value", key);
       cached = new CachedItem(key, null); // Initial value set later
       cache.put(key, cached);
     }
 
-    if (cached.isToDelete())
+    if (cached.isToDelete()) {
+      logger.error("Entry at key={} already deleted; cannot update", key);
       throw new RuntimeException("Ledger entry " + key + " is already marked for deletion");
+    }
 
+    logger.debug("Setting value for cache item with key={} to {}", key, Arrays.toString(value));
     cached.setValue(value); // Sets the dirty flag if needed
   }
 
@@ -60,10 +75,13 @@ public final class WriteBackCachedChaincodeStubMiddleware extends ChaincodeStubM
 
     // Blind delete!
     if (cached == null) {
+      logger.debug(
+          "Cache miss for key={} while deleting; creating new cache entry with null value", key);
       cached = new CachedItem(key, null);
       cache.put(key, cached);
     }
 
+    logger.debug("Deleting value from cache with key={}", key);
     cached.delete();
   }
 

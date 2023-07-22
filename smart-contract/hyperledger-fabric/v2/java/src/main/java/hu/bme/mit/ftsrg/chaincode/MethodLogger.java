@@ -46,12 +46,11 @@ public final class MethodLogger {
   }
 
   public void logStart(final String methodName, final String paramsString) {
-    logger.debug("START:%s#%s(%s)".formatted(this.className, methodName, paramsString));
+    logger.debug("START:{}#{}({})", this.className, methodName, paramsString);
   }
 
   public void logEnd(
       final String methodName, final String paramsString, final String returnString) {
-    logger.debug(
-        "END:%s#%s(%s)->%s".formatted(this.className, methodName, paramsString, returnString));
+    logger.debug("END:{}#{}({})->{}", this.className, methodName, paramsString, returnString);
   }
 }

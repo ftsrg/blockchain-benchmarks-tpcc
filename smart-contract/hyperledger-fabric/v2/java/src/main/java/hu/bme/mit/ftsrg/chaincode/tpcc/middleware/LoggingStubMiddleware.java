@@ -1,6 +1,7 @@
 package hu.bme.mit.ftsrg.chaincode.tpcc.middleware;
 
 import hu.bme.mit.ftsrg.chaincode.dataaccess.ChaincodeStubMiddlewareBase;
+import java.util.Arrays;
 import org.hyperledger.fabric.shim.ChaincodeStub;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,9 +29,11 @@ public class LoggingStubMiddleware extends ChaincodeStubMiddlewareBase {
 
   @Override
   public byte[] getState(final String key) {
-    logger.atLevel(this.logLevel).log("Getting state for key '%s'".formatted(key));
+    logger.atLevel(this.logLevel).log("Getting state for key '{}'", key);
     final byte[] value = this.nextLayer.getState(key);
-    logger.atLevel(this.logLevel).log("Got state for key '%s'; value = '%s'".formatted(key, value));
+    logger
+        .atLevel(this.logLevel)
+        .log("Got state for key '{}'; value = '{}'", key, Arrays.toString(value));
     return value;
   }
 
@@ -38,15 +41,15 @@ public class LoggingStubMiddleware extends ChaincodeStubMiddlewareBase {
   public void putState(final String key, final byte[] value) {
     logger
         .atLevel(this.logLevel)
-        .log("Setting state for key '%s' to have value '%s'".formatted(key, value));
+        .log("Setting state for key '{}' to have value '{}'", key, Arrays.toString(value));
     this.nextLayer.putState(key, value);
-    logger.atLevel(this.logLevel).log("Done setting state for key '%s'".formatted(key));
+    logger.atLevel(this.logLevel).log("Done setting state for key '{}'", key);
   }
 
   @Override
   public void delState(final String key) {
-    logger.atLevel(this.logLevel).log("Deleting state for key '%s'".formatted(key));
+    logger.atLevel(this.logLevel).log("Deleting state for key '{}'", key);
     this.nextLayer.delState(key);
-    logger.atLevel(this.logLevel).log("Done deleting state for key '%s'".formatted(key));
+    logger.atLevel(this.logLevel).log("Done deleting state for key '{}'", key);
   }
 }

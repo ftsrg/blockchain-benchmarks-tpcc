@@ -107,8 +107,7 @@ public final class TPCC implements ContractInterface {
          * the business transactions, it must be reported. [...]
          */
         logger.debug(
-            "Could not find new order for District(%d, %d); skipping it"
-                .formatted(params.getW_id(), d_id));
+            "Could not find new order for District({}, {}); skipping it", params.getW_id(), d_id);
         ++skipped;
       } else {
         deliveredOrders.add(deliveredOrder);
@@ -178,8 +177,9 @@ public final class TPCC implements ContractInterface {
     district.incrementNextOrderID();
     registry.update(ctx, district);
     logger.debug(
-        "Next available order number for DISTRICT with D_ID=%d incremented; new DISTRICT: %s"
-            .formatted(district.getD_id(), district));
+        "Next available order number for DISTRICT with D_ID={} incremented; new DISTRICT: {}",
+        district.getD_id(),
+        district);
 
     /*
      * [TPC-C 2.4.2.2 (5)]
@@ -262,7 +262,7 @@ public final class TPCC implements ContractInterface {
         totalOrderLineAmount
             * (1 - customer.getC_discount())
             * (1 + warehouse.getW_tax() + district.getD_tax());
-    logger.debug("Total amount is " + totalAmount);
+    logger.debug("Total amount is {}", totalAmount);
 
     /*
      * [TPC-C 2.4.3.3 (1)]
@@ -344,7 +344,7 @@ public final class TPCC implements ContractInterface {
     final List<OrderLineData> orderLineDataList = new ArrayList<>();
     for (int i = 1; i <= order.getO_ol_cnt(); ++i) {
       final OrderLineData orderLineData = this.getOrderLineDataForOrder(ctx, order, i);
-      logger.debug("Created ORDER-LINE data: " + orderLineData);
+      logger.debug("Created ORDER-LINE data: {}", orderLineData);
       orderLineDataList.add(orderLineData);
     }
 
@@ -493,8 +493,7 @@ public final class TPCC implements ContractInterface {
       final String historyInfo =
           generateHistoryInformation(customer, warehouse, district, params.getH_amount());
       customer.setC_data("%s|%s".formatted(historyInfo, customer.getC_data()));
-      logger.debug(
-          "HISTORY information: '%s' inserted at the left of the C_DATA".formatted(historyInfo));
+      logger.debug("HISTORY information: '{}' inserted at the left of the C_DATA", historyInfo);
       /*
        * [TPC-C 2.5.2.2 (6) (continued)]
        * ... and by discarding the bytes that are shifted out of the
@@ -601,7 +600,7 @@ public final class TPCC implements ContractInterface {
      */
     final int o_id_min = district.getD_next_o_id() - 5;
     final int o_id_max = district.getD_next_o_id();
-    logger.debug("O_ID_MIN=%d, O_ID_MAX=%d".formatted(o_id_min, o_id_max));
+    logger.debug("O_ID_MIN={}, O_ID_MAX={}", o_id_min, o_id_max);
     logger.debug("Getting the most recent 5 orders");
     final List<Integer> recentItemIds =
         getItemIdsOfRecentOrders(ctx, params.getW_id(), district.getD_id(), o_id_min, o_id_max);
@@ -622,7 +621,7 @@ public final class TPCC implements ContractInterface {
         ++lowStock;
       }
     }
-    logger.debug("lowStock is " + lowStock);
+    logger.debug("lowStock is {}", lowStock);
 
     /*
      * [TPC-C 2.8.3.3]
@@ -1052,7 +1051,7 @@ public final class TPCC implements ContractInterface {
     if (matchingNewOrders.isEmpty()) return null;
     final NewOrder oldestNewOrder =
         matchingNewOrders.get(0); // after the sorting, the first one is the oldest
-    logger.debug("Oldest NEW-ORDER retrieved is: " + oldestNewOrder);
+    logger.debug("Oldest NEW-ORDER retrieved is: {}", oldestNewOrder);
 
     /*
      * [TPC-C 2.7.4.2 (4)]
@@ -1345,7 +1344,7 @@ public final class TPCC implements ContractInterface {
             .ol_amount(orderLine.getOl_amount())
             .build();
     itemsDataCollection.add(itemsData);
-    logger.debug("Created ItemsData: " + itemsData);
+    logger.debug("Created ItemsData: {}", itemsData);
 
     methodLogger.logEnd(
         "createOrderLineAndGetAmount", paramString, String.valueOf(orderLineAmount));

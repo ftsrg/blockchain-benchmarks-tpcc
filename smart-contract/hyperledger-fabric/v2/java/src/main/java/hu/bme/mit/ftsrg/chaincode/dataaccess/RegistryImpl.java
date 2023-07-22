@@ -41,6 +41,7 @@ public class RegistryImpl implements Registry {
 
     final String key = getKey(ctx, entity);
     final byte[] buffer = entity.toBuffer();
+    logger.debug("Calling stub#putState with key={} and value={}", key, Arrays.toString(buffer));
     ctx.getStub().putState(key, buffer);
 
     methodLogger.logEnd("create", paramsString, "<void>");
@@ -56,6 +57,7 @@ public class RegistryImpl implements Registry {
 
     final String key = getKey(ctx, entity);
     final byte[] buffer = entity.toBuffer();
+    logger.debug("Calling stub#putState with key={} and value={}", key, Arrays.toString(buffer));
     ctx.getStub().putState(key, buffer);
 
     methodLogger.logEnd("update", paramsString, "<void>");
@@ -70,6 +72,7 @@ public class RegistryImpl implements Registry {
     assertExists(ctx, entity);
 
     final String key = getKey(ctx, entity);
+    logger.debug("Calling stub#delState with key={}", key);
     ctx.getStub().delState(key);
 
     methodLogger.logEnd("delete", paramsString, "<void>");
@@ -82,11 +85,14 @@ public class RegistryImpl implements Registry {
     methodLogger.logStart("read", paramsString);
 
     final String key = getKey(ctx, target);
+    logger.debug("Calling stub#getState with key={}", key);
     final byte[] data = ctx.getStub().getState(key);
+    logger.debug("Got data from stub#getState for key={}: {}", key, Arrays.toString(data));
 
     if (data == null || data.length == 0) throw new EntityNotFoundException(key);
 
     target.fromBuffer(data);
+    logger.debug("Deserialized entity from data; JSON representation={}", target.toJson());
 
     methodLogger.logEnd("read", paramsString, target.toJson());
     return target;
@@ -100,13 +106,17 @@ public class RegistryImpl implements Registry {
 
     final List<Type> entities = new ArrayList<>();
     final String compositeKey = ctx.getStub().createCompositeKey(template.getType()).toString();
+    logger.debug("Calling stub#getStateByPartialCompositeKey with partial key={}", compositeKey);
     for (KeyValue keyValue : ctx.getStub().getStateByPartialCompositeKey(compositeKey)) {
       final byte[] value = keyValue.getValue();
+      logger.debug("Found value at partial key={}: {}", compositeKey, Arrays.toString(value));
       final EntityFactory<Type> factory = template.getFactory();
       final Type entity = factory.create();
       entity.fromBuffer(value);
+      logger.debug("Deserialized entity from data; JSON representation={}", entity.toJson());
       entities.add(entity);
     }
+    logger.debug("Found {} entities in total for partial key={}", entities.size(), compositeKey);
 
     methodLogger.logEnd("readAll", paramsString, entities.toString());
     return entities;
@@ -154,7 +164,14 @@ public class RegistryImpl implements Registry {
     @Override
     public SelectionBuilder<Type> matching(final Matcher<Type> matcher) {
       final List<Type> newSelection = new ArrayList<>();
-      for (Type entity : this.selection) if (matcher.match(entity)) newSelection.add(entity);
+      for (Type entity : this.selection) {
+        logger.debug("Testing matcher on entity (JSON): {}", entity.toJson());
+        if (matcher.match(entity)) {
+          logger.debug("Entity matches");
+          newSelection.add(entity);
+        } else logger.debug("Entity does not match");
+      }
+      logger.debug("Matched {} entities in total with matcher", newSelection.size());
       this.selection = newSelection;
       return this;
     }
@@ -162,12 +179,14 @@ public class RegistryImpl implements Registry {
     @Override
     public SelectionBuilder<Type> sortedBy(final Comparator<Type> comparator) {
       this.selection.sort(comparator);
+      logger.debug("Sorted entities");
       return this;
     }
 
     @Override
     public SelectionBuilder<Type> descending() {
       Collections.reverse(this.selection);
+      logger.debug("Reversed entity order");
       return this;
     }
 
@@ -178,8 +197,14 @@ public class RegistryImpl implements Registry {
 
     @Override
     public Type getFirst() {
-      if (this.selection.isEmpty()) return null;
-      return this.selection.get(0);
+      if (this.selection.isEmpty()) {
+        logger.debug("No entites in this selection; returning null");
+        return null;
+      }
+
+      final Type first = this.selection.get(0);
+      logger.debug("Returning the first entity in selection (JSON): {}", first.toJson());
+      return first;
     }
   }
 }
