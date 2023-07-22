@@ -123,7 +123,7 @@ public final class TPCC implements ContractInterface {
                 .skipped(skipped)
                 .build());
 
-    ctx.finish();
+    ctx.commit();
     methodLogger.logEnd("doDelivery", paramString, json);
     return json;
   }
@@ -283,7 +283,7 @@ public final class TPCC implements ContractInterface {
                 .items(itemsDataList)
                 .build());
 
-    ctx.finish();
+    ctx.commit();
     methodLogger.logEnd("doNewOrder", paramString, json);
     return json;
   }
@@ -379,7 +379,7 @@ public final class TPCC implements ContractInterface {
                 .order_lines(orderLineDataList)
                 .build());
 
-    ctx.finish();
+    ctx.commit();
     methodLogger.logEnd("doOrderStatus", paramString, json);
     return json;
   }
@@ -560,7 +560,7 @@ public final class TPCC implements ContractInterface {
       output.setC_data(customer.getC_data().substring(0, 200));
     final String json = JSON.serialize(output);
 
-    ctx.finish();
+    ctx.commit();
     methodLogger.logEnd("doPayment", paramString, json);
     return json;
   }
@@ -638,7 +638,7 @@ public final class TPCC implements ContractInterface {
     final String json =
         JSON.serialize(StockLevelOutput.builder().fromInput(params).low_stock(lowStock).build());
 
-    ctx.finish();
+    ctx.commit();
     methodLogger.logEnd("doStockLevel", paramString, json);
     return json;
   }
@@ -653,7 +653,181 @@ public final class TPCC implements ContractInterface {
     final String paramString = methodLogger.generateParamsString(ctx.toString());
     methodLogger.logStart("init", paramString);
 
-    final Registry registry = ctx.getRegistry();
+    this.initWarehouses(ctx);
+    this.initDistricts(ctx);
+    this.initCustomers(ctx);
+    this.initItems(ctx);
+    this.initStocks(ctx);
+
+    ctx.commit();
+    methodLogger.logEnd("init", paramString, "<void>");
+  }
+
+  /**
+   * Returns a warehouse entity (for debugging).
+   *
+   * @param ctx The transaction context
+   * @param w_id The W_ID of the warehouse
+   * @return The warehouse with matching W_ID
+   */
+  @Transaction(intent = Transaction.TYPE.EVALUATE)
+  public String readWarehouse(final TPCCContext ctx, final int w_id)
+      throws EntityNotFoundException {
+    final String paramString = methodLogger.generateParamsString(ctx, w_id);
+    methodLogger.logStart("readWarehouse", paramString);
+
+    final Warehouse warehouse = Warehouse.builder().id(w_id).build();
+    ctx.getRegistry().read(ctx, warehouse);
+
+    ctx.commit();
+    final String json = JSON.serialize(warehouse);
+    methodLogger.logEnd("readWarehouse", paramString, json);
+    return json;
+  }
+
+  /**
+   * Returns an order entity (for debugging).
+   *
+   * @param ctx The transaction context
+   * @param w_id The W_ID of the order
+   * @param d_id The D_ID of the order
+   * @param o_id The O_ID of the order
+   * @return The order with matching (W_ID, D_ID, O_ID)
+   */
+  @Transaction(intent = Transaction.TYPE.EVALUATE)
+  public String readOrder(final TPCCContext ctx, final int w_id, final int d_id, final int o_id)
+      throws EntityNotFoundException {
+    final String paramString = methodLogger.generateParamsString(ctx, w_id, d_id, o_id);
+    methodLogger.logStart("readOrder", paramString);
+
+    final Order order = Order.builder().w_id(w_id).d_id(d_id).id(o_id).build();
+    ctx.getRegistry().read(ctx, order);
+
+    ctx.commit();
+    final String json = JSON.serialize(order);
+    methodLogger.logEnd("readOrder", paramString, json);
+    return json;
+  }
+
+  /**
+   * Returns an item entity (for debugging).
+   *
+   * @param ctx The transaction context
+   * @param i_id The I_ID of the item
+   * @return The item with matchign I_ID
+   */
+  @Transaction(intent = Transaction.TYPE.EVALUATE)
+  public String readItem(final TPCCContext ctx, final int i_id) throws EntityNotFoundException {
+    final String paramString = methodLogger.generateParamsString(ctx, i_id);
+    methodLogger.logStart("readItem", paramString);
+
+    final Item item = Item.builder().id(i_id).build();
+    ctx.getRegistry().read(ctx, item);
+
+    ctx.commit();
+    final String json = JSON.serialize(item);
+    methodLogger.logEnd("readItem", paramString, json);
+    return json;
+  }
+
+  /**
+   * Returns a new-order entity (for debugging).
+   *
+   * @param ctx The transaction context
+   * @param w_id The W_ID of the new-order
+   * @param d_id The D_ID of the new-order
+   * @param o_id The O_ID of the new-order
+   * @return The new-order with matching (W_ID, D_ID, O_ID)
+   */
+  @Transaction(intent = Transaction.TYPE.EVALUATE)
+  public String readNewOrder(final TPCCContext ctx, final int w_id, final int d_id, final int o_id)
+      throws EntityNotFoundException {
+    final String paramString = methodLogger.generateParamsString(ctx, w_id, d_id, o_id);
+    methodLogger.logStart("readNewOrder", paramString);
+
+    final NewOrder newOrder = NewOrder.builder().w_id(w_id).d_id(d_id).o_id(o_id).build();
+    ctx.getRegistry().read(ctx, newOrder);
+
+    ctx.commit();
+    final String json = JSON.serialize(newOrder);
+    methodLogger.logEnd("readNewOrder", paramString, json);
+    return json;
+  }
+
+  /**
+   * Should always return 'pong' (for diagnostics).
+   *
+   * @param ctx The transaction context (unused)
+   * @return 'pong'
+   */
+  @SuppressWarnings("SameReturnValue")
+  @Transaction(intent = Transaction.TYPE.EVALUATE)
+  public String ping(final TPCCContext ctx) {
+    final String paramString = methodLogger.generateParamsString(ctx.toString());
+    methodLogger.logStart("ping", paramString);
+
+    ctx.commit();
+    final String pong = "pong";
+    methodLogger.logEnd("ping", paramString, pong);
+    return pong;
+  }
+
+  /**
+   * Dummy OpenJML test.
+   *
+   * <p>Should only allow getting the details of customer #1, but not customer #2
+   *
+   * <p><b>WARNING:</b> may only be called only after {@link TPCC#init}
+   *
+   * @param ctx The transaction context
+   * @param c_w_id The C_W_ID of the customer
+   * @param c_d_id The C_D_ID of the customer
+   * @param c_id The C_ID of the customer
+   * @return The customer with matching (C_W_ID, C_D_ID, C_ID), unless C_ID >= 2, in which case an
+   *     exception should be thrown by OpenJML
+   */
+  // spotless:off
+  //@ requires c_id < 2;
+  // spotless:on
+  @Transaction(intent = Transaction.TYPE.EVALUATE)
+  public String OJMLTEST__getCustomer(
+      final TPCCContext ctx, final int c_w_id, final int c_d_id, final int c_id) {
+    final String paramString = methodLogger.generateParamsString(ctx, c_w_id, c_d_id, c_id);
+    methodLogger.logStart("OJMLTEST__getCustomer", paramString);
+
+    final Customer customer = Customer.builder().w_id(c_w_id).d_id(c_d_id).id(c_id).build();
+
+    ctx.commit();
+    final String json = JSON.serialize(customer);
+    methodLogger.logEnd("OJMLTEST__getCustomer", paramString, json);
+    return json;
+  }
+
+  /**
+   * Check whether all elements in <code>arr</code> are equal to the passed <code>value</code>.
+   *
+   * @param arr The array to check
+   * @param value The value to check against
+   * @return <code>true</code> if every element of <code>arr</code> is equal to <code>value</code>,
+   *     <code>false</code> otherwise
+   */
+  private boolean allMatch(final int[] arr, final int value) {
+    for (final int x : arr) if (x != value) return false;
+    return true;
+  }
+
+  /**
+   * Initialize WAREHOUSE entities.
+   *
+   * <p><b>NOTE:</b> this code has been factored out of {@link TPCC#init(TPCCContext)} only so that
+   * OpenJML won't choke on the exceedingly long method.
+   *
+   * @param ctx The transaction context
+   * @throws EntityExistsException if a warehouse entry already exists on the ledger
+   */
+  private void initWarehouses(final ContextWithRegistry ctx) throws EntityExistsException {
+    final String paramString = methodLogger.generateParamsString(ctx.toString());
+    methodLogger.logStart("initWarehouses", paramString);
 
     final Warehouse warehouse =
         Warehouse.builder()
@@ -667,7 +841,24 @@ public final class TPCC implements ContractInterface {
             .tax(0.1000)
             .ytd(10000)
             .build();
-    registry.create(ctx, warehouse);
+
+    ctx.getRegistry().create(ctx, warehouse);
+
+    methodLogger.logEnd("initWarehouses", paramString, "<void>");
+  }
+
+  /**
+   * Initialize DISTRICTS entities.
+   *
+   * <p><b>NOTE:</b> this code has been factored out of {@link TPCC#init(TPCCContext)} only so that
+   * OpenJML won't choke on the exceedingly long method.
+   *
+   * @param ctx The transaction context
+   * @throws EntityExistsException if a district entry already exists on the ledger
+   */
+  private void initDistricts(final ContextWithRegistry ctx) throws EntityExistsException {
+    final String paramString = methodLogger.generateParamsString(ctx.toString());
+    methodLogger.logStart("initDistricts", paramString);
 
     final District district =
         District.builder()
@@ -683,9 +874,26 @@ public final class TPCC implements ContractInterface {
             .ytd(10000)
             .next_o_id(3001)
             .build();
-    registry.create(ctx, district);
 
-    final Customer customer1 =
+    ctx.getRegistry().create(ctx, district);
+
+    methodLogger.logEnd("initDistricts", paramString, "<void>");
+  }
+
+  /**
+   * Initialize CUSTOMER entities.
+   *
+   * <p><b>NOTE:</b> this code has been factored out of {@link TPCC#init(TPCCContext)} only so that
+   * OpenJML won't choke on the exceedingly long method.
+   *
+   * @param ctx The transaction context
+   * @throws EntityExistsException if a customer entry already exists on the ledger
+   */
+  private void initCustomers(final ContextWithRegistry ctx) throws EntityExistsException {
+    final String paramString = methodLogger.generateParamsString(ctx.toString());
+    methodLogger.logStart("initCustomers", paramString);
+
+    final Customer alice =
         Customer.builder()
             .id(1)
             .d_id(1)
@@ -709,7 +917,7 @@ public final class TPCC implements ContractInterface {
             .delivery_cnt(0)
             .data("Good credit")
             .build();
-    final Customer customer2 =
+    final Customer peter =
         Customer.builder()
             .id(2)
             .d_id(1)
@@ -733,18 +941,54 @@ public final class TPCC implements ContractInterface {
             .delivery_cnt(0)
             .data("Good credit")
             .build();
-    registry.create(ctx, customer1);
-    registry.create(ctx, customer2);
 
-    final Item item1 =
+    final Registry registry = ctx.getRegistry();
+    registry.create(ctx, alice);
+    registry.create(ctx, peter);
+
+    methodLogger.logEnd("initDistricts", paramString, "<void>");
+  }
+
+  /**
+   * Initialize ITEM entities.
+   *
+   * <p><b>NOTE:</b> this code has been factored out of {@link TPCC#init(TPCCContext)} only so that
+   * OpenJML won't choke on the exceedingly long method.
+   *
+   * @param ctx The transaction context
+   * @throws EntityExistsException if an item entry already exists on the ledger
+   */
+  private void initItems(final ContextWithRegistry ctx) throws EntityExistsException {
+    final String paramString = methodLogger.generateParamsString(ctx.toString());
+    methodLogger.logStart("initItems", paramString);
+
+    final Item cup =
         Item.builder().id(1).im_id(123).name("Cup").price(99.50).data("ORIGINAL").build();
-    final Item item2 =
+    final Item plate =
         Item.builder().id(2).im_id(234).name("Plate").price(89.50).data("ORIGINAL").build();
-    final Item item3 =
+    final Item glass =
         Item.builder().id(3).im_id(456).name("Glass").price(78.00).data("GENERIC").build();
-    registry.create(ctx, item1);
-    registry.create(ctx, item2);
-    registry.create(ctx, item3);
+
+    final Registry registry = ctx.getRegistry();
+    registry.create(ctx, cup);
+    registry.create(ctx, plate);
+    registry.create(ctx, glass);
+
+    methodLogger.logEnd("initItems", paramString, "<void>");
+  }
+
+  /**
+   * Initialize STOCK entities.
+   *
+   * <p><b>NOTE:</b> this code has been factored out of {@link TPCC#init(TPCCContext)} only so that
+   * OpenJML won't choke on the exceedingly long method.
+   *
+   * @param ctx The transaction context
+   * @throws EntityExistsException if a stock entry already exists on the ledger
+   */
+  private void initStocks(final ContextWithRegistry ctx) throws EntityExistsException {
+    final String paramString = methodLogger.generateParamsString(ctx.toString());
+    methodLogger.logStart("initStocks", paramString);
 
     final Stock stock1 =
         Stock.builder()
@@ -782,165 +1026,13 @@ public final class TPCC implements ContractInterface {
             .remote_cnt(0)
             .data("GENERIC")
             .build();
+
+    final Registry registry = ctx.getRegistry();
     registry.create(ctx, stock1);
     registry.create(ctx, stock2);
     registry.create(ctx, stock3);
 
-    ctx.finish();
-    methodLogger.logEnd("init", paramString, "<void>");
-  }
-
-  /**
-   * Returns a warehouse entity (for debugging).
-   *
-   * @param ctx The transaction context
-   * @param w_id The W_ID of the warehouse
-   * @return The warehouse with matching W_ID
-   */
-  @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String readWarehouse(final TPCCContext ctx, final int w_id)
-      throws EntityNotFoundException {
-    final String paramString = methodLogger.generateParamsString(ctx, w_id);
-    methodLogger.logStart("readWarehouse", paramString);
-
-    final Warehouse warehouse = Warehouse.builder().id(w_id).build();
-    ctx.getRegistry().read(ctx, warehouse);
-
-    ctx.finish();
-    final String json = JSON.serialize(warehouse);
-    methodLogger.logEnd("readWarehouse", paramString, json);
-    return json;
-  }
-
-  /**
-   * Returns an order entity (for debugging).
-   *
-   * @param ctx The transaction context
-   * @param w_id The W_ID of the order
-   * @param d_id The D_ID of the order
-   * @param o_id The O_ID of the order
-   * @return The order with matching (W_ID, D_ID, O_ID)
-   */
-  @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String readOrder(final TPCCContext ctx, final int w_id, final int d_id, final int o_id)
-      throws EntityNotFoundException {
-    final String paramString = methodLogger.generateParamsString(ctx, w_id, d_id, o_id);
-    methodLogger.logStart("readOrder", paramString);
-
-    final Order order = Order.builder().w_id(w_id).d_id(d_id).id(o_id).build();
-    ctx.getRegistry().read(ctx, order);
-
-    ctx.finish();
-    final String json = JSON.serialize(order);
-    methodLogger.logEnd("readOrder", paramString, json);
-    return json;
-  }
-
-  /**
-   * Returns an item entity (for debugging).
-   *
-   * @param ctx The transaction context
-   * @param i_id The I_ID of the item
-   * @return The item with matchign I_ID
-   */
-  @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String readItem(final TPCCContext ctx, final int i_id) throws EntityNotFoundException {
-    final String paramString = methodLogger.generateParamsString(ctx, i_id);
-    methodLogger.logStart("readItem", paramString);
-
-    final Item item = Item.builder().id(i_id).build();
-    ctx.getRegistry().read(ctx, item);
-
-    ctx.finish();
-    final String json = JSON.serialize(item);
-    methodLogger.logEnd("readItem", paramString, json);
-    return json;
-  }
-
-  /**
-   * Returns a new-order entity (for debugging).
-   *
-   * @param ctx The transaction context
-   * @param w_id The W_ID of the new-order
-   * @param d_id The D_ID of the new-order
-   * @param o_id The O_ID of the new-order
-   * @return The new-order with matching (W_ID, D_ID, O_ID)
-   */
-  @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String readNewOrder(final TPCCContext ctx, final int w_id, final int d_id, final int o_id)
-      throws EntityNotFoundException {
-    final String paramString = methodLogger.generateParamsString(ctx, w_id, d_id, o_id);
-    methodLogger.logStart("readNewOrder", paramString);
-
-    final NewOrder newOrder = NewOrder.builder().w_id(w_id).d_id(d_id).o_id(o_id).build();
-    ctx.getRegistry().read(ctx, newOrder);
-
-    ctx.finish();
-    final String json = JSON.serialize(newOrder);
-    methodLogger.logEnd("readNewOrder", paramString, json);
-    return json;
-  }
-
-  /**
-   * Should always return 'pong' (for diagnostics).
-   *
-   * @param ctx The transaction context (unused)
-   * @return 'pong'
-   */
-  @SuppressWarnings("SameReturnValue")
-  @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String ping(final TPCCContext ctx) {
-    final String paramString = methodLogger.generateParamsString(ctx.toString());
-    methodLogger.logStart("ping", paramString);
-
-    ctx.finish();
-    final String pong = "pong";
-    methodLogger.logEnd("ping", paramString, pong);
-    return pong;
-  }
-
-  /**
-   * Dummy OpenJML test.
-   *
-   * <p>Should only allow getting the details of customer #1, but not customer #2
-   *
-   * <p><b>WARNING:</b> may only be called only after {@link TPCC#init}
-   *
-   * @param ctx The transaction context
-   * @param c_w_id The C_W_ID of the customer
-   * @param c_d_id The C_D_ID of the customer
-   * @param c_id The C_ID of the customer
-   * @return The customer with matching (C_W_ID, C_D_ID, C_ID), unless C_ID >= 2, in which case an
-   *     exception should be thrown by OpenJML
-   */
-  // spotless:off
-  //@ requires c_id < 2;
-  // spotless:on
-  @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String OJMLTEST__getCustomer(
-      final TPCCContext ctx, final int c_w_id, final int c_d_id, final int c_id) {
-    final String paramString = methodLogger.generateParamsString(ctx, c_w_id, c_d_id, c_id);
-    methodLogger.logStart("OJMLTEST__getCustomer", paramString);
-
-    final Customer customer = Customer.builder().w_id(c_w_id).d_id(c_d_id).id(c_id).build();
-
-    ctx.finish();
-    final String json = JSON.serialize(customer);
-    methodLogger.logEnd("OJMLTEST__getCustomer", paramString, json);
-    return json;
-  }
-
-  /**
-   * Check whether all elements in <code>arr</code> are equal to the passed <code>value</code>.
-   *
-   * @param arr The array to check
-   * @param value The value to check against
-   * @return <code>true</code> if every element of <code>arr</code> is equal to <code>value</code>,
-   *     <code>false</code> otherwise
-   */
-  private boolean allMatch(final int[] arr, final int value) {
-    for (final int x : arr) if (x != value) return false;
-    return true;
+    methodLogger.logEnd("initStocks", paramString, "<void>");
   }
 
   /**

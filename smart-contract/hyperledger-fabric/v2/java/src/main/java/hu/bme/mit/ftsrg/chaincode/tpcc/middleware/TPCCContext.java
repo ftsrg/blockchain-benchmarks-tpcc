@@ -7,6 +7,7 @@ import java.util.Deque;
 import java.util.List;
 import org.hyperledger.fabric.shim.ChaincodeStub;
 
+/** Context specialized for the TPC-C chaincode implementation. */
 public class TPCCContext extends ContextWithRegistry {
 
   private final Deque<ChaincodeStub> stubMiddlewares = new ArrayDeque<>();
@@ -40,7 +41,12 @@ public class TPCCContext extends ContextWithRegistry {
     return this.stubMiddlewares.peek();
   }
 
-  public void finish() {
+  /**
+   * Finalize the execution of a transaction.
+   *
+   * <p>This method MUST be called at the end of every transaction to ensure correct operation.
+   */
+  public void commit() {
     for (final Runnable hook : this.finishHooks) hook.run();
   }
 }
