@@ -65,7 +65,8 @@ public final class WriteBackCachedChaincodeStubMiddleware extends ChaincodeStubM
       throw new RuntimeException("Ledger entry " + key + " is already marked for deletion");
     }
 
-    logger.debug("Setting value for cache item with key={} to {}", key, Arrays.toString(value));
+    logger.debug(
+        "Setting value for cache item with key={} to a {}-long byte array", key, value.length);
     cached.setValue(value); // Sets the dirty flag if needed
   }
 

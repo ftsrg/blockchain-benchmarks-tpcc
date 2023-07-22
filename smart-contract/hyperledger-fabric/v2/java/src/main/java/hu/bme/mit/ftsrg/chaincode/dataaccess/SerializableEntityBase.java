@@ -9,6 +9,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Base class for {@link SerializableEntity} entities.
@@ -24,6 +26,8 @@ import org.hyperledger.fabric.contract.annotation.DataType;
 public abstract class SerializableEntityBase<Type extends SerializableEntity<Type>>
     implements SerializableEntity<Type> {
 
+  private static final Logger logger = LoggerFactory.getLogger(SerializableEntityBase.class);
+
   /**
    * Returns the entity type name, which is its class's name in all-uppercase.
    *
@@ -32,7 +36,9 @@ public abstract class SerializableEntityBase<Type extends SerializableEntity<Typ
    */
   @Override
   public String getType() {
-    return this.getClass().getName().toUpperCase();
+    final String type = this.getClass().getName().toUpperCase();
+    logger.debug("Returning type name: {}", type);
+    return type;
   }
 
   /**
@@ -43,7 +49,10 @@ public abstract class SerializableEntityBase<Type extends SerializableEntity<Typ
    */
   @Override
   public byte[] toBuffer() {
-    return this.toJson().getBytes(StandardCharsets.UTF_8);
+    final String json = this.toJson();
+    final byte[] buffer = json.getBytes(StandardCharsets.UTF_8);
+    logger.debug("Returning buffer (size={}) from JSON: {}", buffer.length, json);
+    return buffer;
   }
 
   /**
@@ -54,7 +63,9 @@ public abstract class SerializableEntityBase<Type extends SerializableEntity<Typ
    */
   @Override
   public void fromBuffer(final byte[] buffer) {
-    this.fromJson(new String(buffer, StandardCharsets.UTF_8));
+    final String json = new String(buffer, StandardCharsets.UTF_8);
+    logger.debug("Parsing entity from JSON: {}", json);
+    this.fromJson(json);
   }
 
   /**
@@ -65,7 +76,9 @@ public abstract class SerializableEntityBase<Type extends SerializableEntity<Typ
    */
   @Override
   public String toJson() {
-    return JSON.serialize(this);
+    final String json = JSON.serialize(this);
+    logger.debug("Returning JSON string from entity: {}", json);
+    return json;
   }
 
   /**
@@ -80,6 +93,7 @@ public abstract class SerializableEntityBase<Type extends SerializableEntity<Typ
    */
   @Override
   public void fromJson(final String json) {
+    logger.debug("Deserializing from JSON string: {}...", json);
     final Object obj = JSON.deserialize(json, this.getClass());
     final Field[] ourFields = this.getClass().getDeclaredFields();
     /*
@@ -90,16 +104,22 @@ public abstract class SerializableEntityBase<Type extends SerializableEntity<Typ
      * silently ignore them.
      */
     for (final Field ourField : ourFields) {
+      logger.debug("Attempting to set field {}", ourField.getName());
       ourField.setAccessible(true);
       try {
         final Field theirField = obj.getClass().getField(ourField.getName());
         theirField.setAccessible(true);
         try {
-          if (ourField.get(this) == null) ourField.set(this, theirField.get(obj));
+          if (ourField.get(this) == null) {
+            logger.debug("We do not have this field set yet; setting it from deserialized value");
+            ourField.set(this, theirField.get(obj));
+          }
         } catch (IllegalArgumentException | IllegalAccessException e) {
+          logger.error("Got exception while trying to access/set a field", e);
           e.printStackTrace();
         }
       } catch (NoSuchFieldException e) {
+        logger.error("Got exception while trying to access/set a field", e);
         e.printStackTrace();
       }
     }
@@ -120,15 +140,20 @@ public abstract class SerializableEntityBase<Type extends SerializableEntity<Typ
     // Stream-based implementation replaced with code below to accommodate OpenJML...
     final List<String> keyParts = new ArrayList<>();
     for (final Field field : this.getClass().getDeclaredFields()) {
+      logger.debug("Checking if field {} is a key part...", field.getName());
       field.setAccessible(true);
-      if (field.isAnnotationPresent(KeyPart.class))
+      if (field.isAnnotationPresent(KeyPart.class)) {
+        logger.debug("Field {} seems to be a key part; getting its value", field.getName());
         try {
           keyParts.add(pad(field.getInt(this)));
         } catch (IllegalAccessException e) {
+          logger.error("Failed to get the value of a key part", e);
           throw new RuntimeException(e);
         }
+      }
     }
 
+    logger.debug("Returning key parts for entity: {}", keyParts);
     return keyParts.toArray(new String[0]);
   }
 
@@ -147,12 +172,14 @@ public abstract class SerializableEntityBase<Type extends SerializableEntity<Typ
     return new EntityFactory<>() {
       @Override
       public Type create() {
+        logger.debug("Was asked to create a new entity instance of {}...", ourClass.getName());
         try {
           return (Type) ourClass.getDeclaredConstructor().newInstance();
         } catch (InstantiationException
             | IllegalAccessException
             | InvocationTargetException
             | NoSuchMethodException e) {
+          logger.error("Failed to create new entity instance using factory", e);
           throw new RuntimeException(e);
         }
       }
