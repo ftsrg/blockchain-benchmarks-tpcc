@@ -107,7 +107,7 @@ public abstract class SerializableEntityBase<Type extends SerializableEntity<Typ
       logger.debug("Attempting to set field {}", ourField.getName());
       ourField.setAccessible(true);
       try {
-        final Field theirField = obj.getClass().getField(ourField.getName());
+        final Field theirField = obj.getClass().getDeclaredField(ourField.getName());
         theirField.setAccessible(true);
         try {
           if (ourField.get(this) == null) {
