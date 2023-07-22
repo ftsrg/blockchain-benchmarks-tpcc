@@ -123,6 +123,7 @@ public final class TPCC implements ContractInterface {
                 .skipped(skipped)
                 .build());
 
+    ctx.finish();
     methodLogger.logEnd("doDelivery", paramString, json);
     return json;
   }
@@ -282,6 +283,7 @@ public final class TPCC implements ContractInterface {
                 .items(itemsDataList)
                 .build());
 
+    ctx.finish();
     methodLogger.logEnd("doNewOrder", paramString, json);
     return json;
   }
@@ -377,6 +379,7 @@ public final class TPCC implements ContractInterface {
                 .order_lines(orderLineDataList)
                 .build());
 
+    ctx.finish();
     methodLogger.logEnd("doOrderStatus", paramString, json);
     return json;
   }
@@ -557,6 +560,7 @@ public final class TPCC implements ContractInterface {
       output.setC_data(customer.getC_data().substring(0, 200));
     final String json = JSON.serialize(output);
 
+    ctx.finish();
     methodLogger.logEnd("doPayment", paramString, json);
     return json;
   }
@@ -634,6 +638,7 @@ public final class TPCC implements ContractInterface {
     final String json =
         JSON.serialize(StockLevelOutput.builder().fromInput(params).low_stock(lowStock).build());
 
+    ctx.finish();
     methodLogger.logEnd("doStockLevel", paramString, json);
     return json;
   }
@@ -781,6 +786,7 @@ public final class TPCC implements ContractInterface {
     registry.create(ctx, stock2);
     registry.create(ctx, stock3);
 
+    ctx.finish();
     methodLogger.logEnd("init", paramString, "<void>");
   }
 
@@ -800,6 +806,7 @@ public final class TPCC implements ContractInterface {
     final Warehouse warehouse = Warehouse.builder().id(w_id).build();
     ctx.getRegistry().read(ctx, warehouse);
 
+    ctx.finish();
     final String json = JSON.serialize(warehouse);
     methodLogger.logEnd("readWarehouse", paramString, json);
     return json;
@@ -823,6 +830,7 @@ public final class TPCC implements ContractInterface {
     final Order order = Order.builder().w_id(w_id).d_id(d_id).id(o_id).build();
     ctx.getRegistry().read(ctx, order);
 
+    ctx.finish();
     final String json = JSON.serialize(order);
     methodLogger.logEnd("readOrder", paramString, json);
     return json;
@@ -843,6 +851,7 @@ public final class TPCC implements ContractInterface {
     final Item item = Item.builder().id(i_id).build();
     ctx.getRegistry().read(ctx, item);
 
+    ctx.finish();
     final String json = JSON.serialize(item);
     methodLogger.logEnd("readItem", paramString, json);
     return json;
@@ -866,6 +875,7 @@ public final class TPCC implements ContractInterface {
     final NewOrder newOrder = NewOrder.builder().w_id(w_id).d_id(d_id).o_id(o_id).build();
     ctx.getRegistry().read(ctx, newOrder);
 
+    ctx.finish();
     final String json = JSON.serialize(newOrder);
     methodLogger.logEnd("readNewOrder", paramString, json);
     return json;
@@ -874,15 +884,16 @@ public final class TPCC implements ContractInterface {
   /**
    * Should always return 'pong' (for diagnostics).
    *
-   * @param _ctx The transaction context (unused)
+   * @param ctx The transaction context (unused)
    * @return 'pong'
    */
   @SuppressWarnings("SameReturnValue")
   @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String ping(final TPCCContext _ctx) {
-    final String paramString = methodLogger.generateParamsString(_ctx.toString());
+  public String ping(final TPCCContext ctx) {
+    final String paramString = methodLogger.generateParamsString(ctx.toString());
     methodLogger.logStart("ping", paramString);
 
+    ctx.finish();
     final String pong = "pong";
     methodLogger.logEnd("ping", paramString, pong);
     return pong;
@@ -913,6 +924,7 @@ public final class TPCC implements ContractInterface {
 
     final Customer customer = Customer.builder().w_id(c_w_id).d_id(c_d_id).id(c_id).build();
 
+    ctx.finish();
     final String json = JSON.serialize(customer);
     methodLogger.logEnd("OJMLTEST__getCustomer", paramString, json);
     return json;

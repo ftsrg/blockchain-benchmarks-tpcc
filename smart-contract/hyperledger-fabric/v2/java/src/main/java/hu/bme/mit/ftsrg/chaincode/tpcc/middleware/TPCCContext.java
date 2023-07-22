@@ -2,12 +2,16 @@ package hu.bme.mit.ftsrg.chaincode.tpcc.middleware;
 
 import hu.bme.mit.ftsrg.chaincode.dataaccess.ContextWithRegistry;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
+import java.util.List;
 import org.hyperledger.fabric.shim.ChaincodeStub;
 
 public class TPCCContext extends ContextWithRegistry {
 
   private final Deque<ChaincodeStub> stubMiddlewares = new ArrayDeque<>();
+
+  private final List<Runnable> finishHooks = new ArrayList<>();
 
   public TPCCContext(final ChaincodeStub fabricStub) {
     super(fabricStub);
@@ -17,13 +21,26 @@ public class TPCCContext extends ContextWithRegistry {
      *   --> LOGGER --> WRITE BACK CACHE --> FABRIC STUB    ( --> ledger )
      */
     this.stubMiddlewares.push(fabricStub);
-    this.stubMiddlewares.push(
-        new WriteBackCachedChaincodeStubMiddleware(this.stubMiddlewares.peek()));
+    final WriteBackCachedChaincodeStubMiddleware cachedMiddleware =
+        new WriteBackCachedChaincodeStubMiddleware(this.stubMiddlewares.peek());
+    this.stubMiddlewares.push(cachedMiddleware);
     this.stubMiddlewares.push(new LoggingStubMiddleware(this.stubMiddlewares.peek()));
+
+    this.finishHooks.add(
+        new Runnable() {
+          @Override
+          public void run() {
+            cachedMiddleware.dispose();
+          }
+        });
   }
 
   @Override
   public ChaincodeStub getStub() {
     return this.stubMiddlewares.peek();
+  }
+
+  public void finish() {
+    for (final Runnable hook : this.finishHooks) hook.run();
   }
 }
