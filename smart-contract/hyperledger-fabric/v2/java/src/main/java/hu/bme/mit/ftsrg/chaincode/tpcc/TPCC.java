@@ -1575,7 +1575,14 @@ public final class TPCC implements ContractInterface {
     final Set<Integer> itemIds = new HashSet<>();
     for (int current_o_id = o_id_min; current_o_id < o_id_max; current_o_id++) {
       final Order order = Order.builder().w_id(w_id).d_id(d_id).id(current_o_id).build();
-      ctx.getRegistry().read(ctx, order);
+
+      try {
+        ctx.getRegistry().read(ctx, order);
+      } catch (EntityNotFoundException _e) {
+        logger.warn(
+            "Order with o_id={} not found while looking up recent orders; ignoring", current_o_id);
+        continue;
+      }
 
       for (int ol_number = 1; ol_number <= order.getO_ol_cnt(); ol_number++) {
         final OrderLine orderLine =
@@ -1591,8 +1598,8 @@ public final class TPCC implements ContractInterface {
     return itemIdsList;
   }
 
-  private class NotFoundException extends Exception {
-    public NotFoundException(String message) {
+  private static final class NotFoundException extends Exception {
+    NotFoundException(String message) {
       super(message);
     }
   }
