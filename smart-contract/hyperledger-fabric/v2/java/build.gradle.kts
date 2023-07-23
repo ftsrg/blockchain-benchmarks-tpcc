@@ -7,7 +7,7 @@ import java.io.File
 
 val openJMLDir = layout.projectDirectory.dir(".openjml")
 val openJMLJavaHomeDir = openJMLDir.dir("jdk")
-val downloadDir = layout.buildDirectory.dir(".tmp/download")
+val downloadDir = layout.buildDirectory.dir("tmp/download")
 
 val jmlavac = openJMLJavaHomeDir.file("bin/jmlavac")
 val jmlava = openJMLJavaHomeDir.file("bin/jmlava")
