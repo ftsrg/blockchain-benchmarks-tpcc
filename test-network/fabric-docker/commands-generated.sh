@@ -52,13 +52,17 @@ installChaincode() {
 
 }
 
+buildChaincodeTPCC() {
+  (cd "$FABLO_NETWORK_ROOT"/fabric-docker && docker-compose build tpcc)
+}
+
 # Custom function that installs the tpcc chaincode
 installChaincodeTPCC() {
   chaincodeInstall \
     cli.org1.example.com \
     peer0.org1.example.com:7041 \
     tpcc \
-    ea0c73d3e7f49c6958dc29a8b4d186e0e665ef047d3b82ed86f827c7087a1d80 \
+    a03d5726c28a155d993f6789701908d88746d0e5f0c9078860a7b4ae18411886 \
     ''
 
   chaincodeApprove \
@@ -66,7 +70,7 @@ installChaincodeTPCC() {
     peer0.org1.example.com:7041 \
     my-channel1 \
     tpcc \
-    ea0c73d3e7f49c6958dc29a8b4d186e0e665ef047d3b82ed86f827c7087a1d80 \
+    a03d5726c28a155d993f6789701908d88746d0e5f0c9078860a7b4ae18411886 \
     orderer0.group1.orderer.example.com:7030 \
     '' \
     false \
@@ -78,7 +82,7 @@ installChaincodeTPCC() {
     peer0.org1.example.com:7041 \
     my-channel1 \
     tpcc \
-    ea0c73d3e7f49c6958dc29a8b4d186e0e665ef047d3b82ed86f827c7087a1d80 \
+    a03d5726c28a155d993f6789701908d88746d0e5f0c9078860a7b4ae18411886 \
     orderer0.group1.orderer.example.com:7030 \
     '' \
     false \
@@ -142,7 +146,8 @@ networkDown() {
   printf "\nRemoving generated configs... \U1F5D1 \n"
   rm -rf "$FABLO_NETWORK_ROOT/fabric-config/config"
   rm -rf "$FABLO_NETWORK_ROOT/fabric-config/crypto-config"
-  rm -rf "$FABLO_NETWORK_ROOT/fabric-config/chaincode-packages"
+  # Do not remove this so we can keep our prepackages TPC-C CC there
+  # rm -rf "$FABLO_NETWORK_ROOT/fabric-config/chaincode-packages"
 
   printHeadline "Done! Network was purged" "U1F5D1"
 }

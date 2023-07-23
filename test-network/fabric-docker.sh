@@ -18,22 +18,28 @@ networkUp() {
   generateChannelsArtifacts
   installChannels
   installChaincodes
+  installChaincodeTPCC
   notifyOrgsAboutChannels
   printStartSuccessInfo
 }
 
 if [ "$1" = "up" ]; then
+  case "${2-}" in
+  --build|-b) buildChaincodeTPCC;;
+  esac
   networkUp
 elif [ "$1" = "down" ]; then
   networkDown
 elif [ "$1" = "reset" ]; then
   networkDown
+  case "${2-}" in
+  --build|-b) buildChaincodeTPCC;;
+  esac
   networkUp
 elif [ "$1" = "start" ]; then
   startNetwork
 elif [ "$1" = "stop" ]; then
   stopNetwork
-# calls the custom function that installs the tpcc chaincode
 elif [ "$1" = "chaincode" ] && [ "$2" = "install" ] && [ "$3" = "tpcc" ]; then
   installChaincodeTPCC
 elif [ "$1" = "chaincodes" ] && [ "$2" = "install" ]; then
