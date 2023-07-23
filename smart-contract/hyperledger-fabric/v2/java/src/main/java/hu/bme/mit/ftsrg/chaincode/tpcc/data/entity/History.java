@@ -119,6 +119,9 @@ public final class History extends SerializableEntityBase<History> {
     return h_data;
   }
 
+  // spotless:off
+  //@ requires h_data.length() <= 24; // C.ENT:HISTORY:DATA
+  // spotless:on
   public void setH_data(final String h_data) {
     this.h_data = h_data;
   }
@@ -175,6 +178,9 @@ public final class History extends SerializableEntityBase<History> {
       return this;
     }
 
+    // spotless:off
+    //@ requires data.length() <= 24; // C.ENT:HISTORY:DATA
+    // spotless:on
     public HistoryBuilder data(final String data) {
       this.data = data;
       return this;

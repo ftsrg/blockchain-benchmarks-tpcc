@@ -144,6 +144,9 @@ public final class Stock extends SerializableEntityBase<Stock> {
     return s_dist_01;
   }
 
+  // spotless:off
+  //@ requires s_dist_01.length() == 24; // C.ENT:STOCK:DIST_01
+  // spotless:on
   public void setS_dist_01(final String s_dist_01) {
     this.s_dist_01 = s_dist_01;
   }
@@ -152,6 +155,9 @@ public final class Stock extends SerializableEntityBase<Stock> {
     return s_dist_02;
   }
 
+  // spotless:off
+  //@ requires s_dist_02.length() == 24; // C.ENT:STOCK:DIST_02
+  // spotless:on
   public void setS_dist_02(final String s_dist_02) {
     this.s_dist_02 = s_dist_02;
   }
@@ -160,6 +166,9 @@ public final class Stock extends SerializableEntityBase<Stock> {
     return s_dist_03;
   }
 
+  // spotless:off
+  //@ requires s_dist_03.length() == 24; // C.ENT:STOCK:DIST_03
+  // spotless:on
   public void setS_dist_03(final String s_dist_03) {
     this.s_dist_03 = s_dist_03;
   }
@@ -168,6 +177,9 @@ public final class Stock extends SerializableEntityBase<Stock> {
     return s_dist_04;
   }
 
+  // spotless:off
+  //@ requires s_dist_04.length() == 24; // C.ENT:STOCK:DIST_04
+  // spotless:on
   public void setS_dist_04(final String s_dist_04) {
     this.s_dist_04 = s_dist_04;
   }
@@ -176,6 +188,9 @@ public final class Stock extends SerializableEntityBase<Stock> {
     return s_dist_05;
   }
 
+  // spotless:off
+  //@ requires s_dist_05.length() == 24; // C.ENT:STOCK:DIST_05
+  // spotless:on
   public void setS_dist_05(final String s_dist_05) {
     this.s_dist_05 = s_dist_05;
   }
@@ -184,6 +199,9 @@ public final class Stock extends SerializableEntityBase<Stock> {
     return s_dist_06;
   }
 
+  // spotless:off
+  //@ requires s_dist_06.length() == 24; // C.ENT:STOCK:DIST_06
+  // spotless:on
   public void setS_dist_06(final String s_dist_06) {
     this.s_dist_06 = s_dist_06;
   }
@@ -192,6 +210,9 @@ public final class Stock extends SerializableEntityBase<Stock> {
     return s_dist_07;
   }
 
+  // spotless:off
+  //@ requires s_dist_07.length() == 24; // C.ENT:STOCK:DIST_07
+  // spotless:on
   public void setS_dist_07(final String s_dist_07) {
     this.s_dist_07 = s_dist_07;
   }
@@ -200,6 +221,9 @@ public final class Stock extends SerializableEntityBase<Stock> {
     return s_dist_08;
   }
 
+  // spotless:off
+  //@ requires s_dist_08.length() == 24; // C.ENT:STOCK:DIST_08
+  // spotless:on
   public void setS_dist_08(final String s_dist_08) {
     this.s_dist_08 = s_dist_08;
   }
@@ -208,6 +232,9 @@ public final class Stock extends SerializableEntityBase<Stock> {
     return s_dist_09;
   }
 
+  // spotless:off
+  //@ requires s_dist_09.length() == 24; // C.ENT:STOCK:DIST_09
+  // spotless:on
   public void setS_dist_09(final String s_dist_09) {
     this.s_dist_09 = s_dist_09;
   }
@@ -216,6 +243,9 @@ public final class Stock extends SerializableEntityBase<Stock> {
     return s_dist_10;
   }
 
+  // spotless:off
+  //@ requires s_dist_10.length() == 24; // C.ENT:STOCK:DIST_10
+  // spotless:on
   public void setS_dist_10(final String s_dist_10) {
     this.s_dist_10 = s_dist_10;
   }
@@ -224,6 +254,9 @@ public final class Stock extends SerializableEntityBase<Stock> {
     return s_ytd;
   }
 
+  // spotless:off
+  //@ requires s_ytd >= 0; // C.ENT:STOCK:YTD
+  // spotless:on
   public void setS_ytd(final int s_ytd) {
     this.s_ytd = s_ytd;
   }
@@ -232,6 +265,9 @@ public final class Stock extends SerializableEntityBase<Stock> {
     return s_order_cnt;
   }
 
+  // spotless:off
+  //@ requires s_order_cnt >= 0; // C.ENT:STOCK:ORDER_CNT
+  // spotless:on
   public void setS_order_cnt(final int s_order_cnt) {
     this.s_order_cnt = s_order_cnt;
   }
@@ -240,6 +276,9 @@ public final class Stock extends SerializableEntityBase<Stock> {
     return s_remote_cnt;
   }
 
+  // spotless:off
+  //@ requires s_remote_cnt >= 0; // C.ENT:STOCK:REMOTE_CNT
+  // spotless:on
   public void setS_remote_cnt(final int s_remote_cnt) {
     this.s_remote_cnt = s_remote_cnt;
   }
@@ -248,6 +287,9 @@ public final class Stock extends SerializableEntityBase<Stock> {
     return s_data;
   }
 
+  // spotless:off
+  //@ requires s_data.length() <= 50; // C.ENT:STOCK:DATA
+  // spotless:on
   public void setS_data(final String s_data) {
     this.s_data = s_data;
   }
@@ -308,51 +350,81 @@ public final class Stock extends SerializableEntityBase<Stock> {
       return this;
     }
 
+    // spotless:off
+    //@ requires dist_01.length() == 24; // C.ENT:STOCK:DIST_01
+    // spotless:on
     public StockBuilder dist_01(final String dist_01) {
       this.dist_01 = dist_01;
       return this;
     }
 
+    // spotless:off
+    //@ requires dist_02.length() == 24; // C.ENT:STOCK:DIST_02
+    // spotless:on
     public StockBuilder dist_02(final String dist_02) {
       this.dist_02 = dist_02;
       return this;
     }
 
+    // spotless:off
+    //@ requires dist_03.length() == 24; // C.ENT:STOCK:DIST_03
+    // spotless:on
     public StockBuilder dist_03(final String dist_03) {
       this.dist_03 = dist_03;
       return this;
     }
 
+    // spotless:off
+    //@ requires dist_04.length() == 24; // C.ENT:STOCK:DIST_04
+    // spotless:on
     public StockBuilder dist_04(final String dist_04) {
       this.dist_04 = dist_04;
       return this;
     }
 
+    // spotless:off
+    //@ requires dist_05.length() == 24; // C.ENT:STOCK:DIST_05
+    // spotless:on
     public StockBuilder dist_05(final String dist_05) {
       this.dist_05 = dist_05;
       return this;
     }
 
+    // spotless:off
+    //@ requires dist_06.length() == 24; // C.ENT:STOCK:DIST_06
+    // spotless:on
     public StockBuilder dist_06(final String dist_06) {
       this.dist_06 = dist_06;
       return this;
     }
 
+    // spotless:off
+    //@ requires dist_07.length() == 24; // C.ENT:STOCK:DIST_07
+    // spotless:on
     public StockBuilder dist_07(final String dist_07) {
       this.dist_07 = dist_07;
       return this;
     }
 
+    // spotless:off
+    //@ requires dist_08.length() == 24; // C.ENT:STOCK:DIST_08
+    // spotless:on
     public StockBuilder dist_08(final String dist_08) {
       this.dist_08 = dist_08;
       return this;
     }
 
+    // spotless:off
+    //@ requires dist_09.length() == 24; // C.ENT:STOCK:DIST_09
+    // spotless:on
     public StockBuilder dist_09(final String dist_09) {
       this.dist_09 = dist_09;
       return this;
     }
 
+    // spotless:off
+    //@ requires dist_10.length() == 24; // C.ENT:STOCK:DIST_10
+    // spotless:on
     public StockBuilder dist_10(final String dist_10) {
       this.dist_10 = dist_10;
       return this;
@@ -372,21 +444,33 @@ public final class Stock extends SerializableEntityBase<Stock> {
       return this;
     }
 
+    // spotless:off
+    //@ requires ytd >= 0; // C.ENT:STOCK:YTD
+    // spotless:on
     public StockBuilder ytd(final int ytd) {
       this.ytd = ytd;
       return this;
     }
 
+    // spotless:off
+    //@ requires order_cnt >= 0; // C.ENT:STOCK:ORDER_CNT
+    // spotless:on
     public StockBuilder order_cnt(final int order_cnt) {
       this.order_cnt = order_cnt;
       return this;
     }
 
+    // spotless:off
+    //@ requires remote_cnt >= 0; // C.ENT:STOCK:REMOTE_CNT
+    // spotless:on
     public StockBuilder remote_cnt(final int remote_cnt) {
       this.remote_cnt = remote_cnt;
       return this;
     }
 
+    // spotless:off
+    //@ requires data.length() <= 50; // C.ENT:STOCK:DATA
+    // spotless:on
     public StockBuilder data(final String data) {
       this.data = data;
       return this;

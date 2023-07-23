@@ -111,6 +111,9 @@ public final class Order extends SerializableEntityBase<Order> {
     return o_ol_cnt;
   }
 
+  // spotless:off
+  //@ requires o_ol_cnt >= 0; // C.ENT:ORDER:OL_CNT;
+  // spotless:on
   public void setO_ol_cnt(final int o_ol_cnt) {
     this.o_ol_cnt = o_ol_cnt;
   }
@@ -119,6 +122,9 @@ public final class Order extends SerializableEntityBase<Order> {
     return o_all_local;
   }
 
+  // spotless:off
+  //@ requires o_all_local >= 0; // C.ENT:ORDER:O_ALL_LOCAL;
+  // spotless:on
   public void setO_all_local(final int o_all_local) {
     this.o_all_local = o_all_local;
   }
@@ -170,11 +176,17 @@ public final class Order extends SerializableEntityBase<Order> {
       return this;
     }
 
+    // spotless:off
+    //@ requires ol_cnt >= 0; // C.ENT:ORDER:OL_CNT;
+    // spotless:on
     public OrderBuilder ol_cnt(final int ol_cnt) {
       this.ol_cnt = ol_cnt;
       return this;
     }
 
+    // spotless:off
+    //@ requires all_local >= 0; // C.ENT:ORDER:OL_CNT;
+    // spotless:on
     public OrderBuilder all_local(final int all_local) {
       this.all_local = all_local;
       return this;

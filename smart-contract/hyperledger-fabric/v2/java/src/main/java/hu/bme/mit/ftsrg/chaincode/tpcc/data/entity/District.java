@@ -99,6 +99,9 @@ public final class District extends SerializableEntityBase<District> {
     return d_name;
   }
 
+  // spotless:off
+  //@ requires d_name.length() <= 10; // C.ENT:DISTRICT:NAME
+  // spotless:on
   public void setD_name(final String d_name) {
     this.d_name = d_name;
   }
@@ -107,6 +110,9 @@ public final class District extends SerializableEntityBase<District> {
     return d_street_1;
   }
 
+  // spotless:off
+  //@ requires d_street_1.length() <= 20; // C.ENT:DISTRICT:STREET_1
+  // spotless:on
   public void setD_street_1(final String d_street_1) {
     this.d_street_1 = d_street_1;
   }
@@ -115,6 +121,9 @@ public final class District extends SerializableEntityBase<District> {
     return d_street_2;
   }
 
+  // spotless:off
+  //@ requires d_street_2.length() <= 20; // C.ENT:DISTRICT:STREET_2
+  // spotless:on
   public void setD_street_2(final String d_street_2) {
     this.d_street_2 = d_street_2;
   }
@@ -123,6 +132,9 @@ public final class District extends SerializableEntityBase<District> {
     return d_city;
   }
 
+  // spotless:off
+  //@ requires d_city.length() <= 20; // C.ENT:DISTRICT:CITY
+  // spotless:on
   public void setD_city(final String d_city) {
     this.d_city = d_city;
   }
@@ -131,6 +143,9 @@ public final class District extends SerializableEntityBase<District> {
     return d_state;
   }
 
+  // spotless:off
+  //@ requires d_state.length() == 2; // C.ENT:DISTRICT:STATE
+  // spotless:on
   public void setD_state(final String d_state) {
     this.d_state = d_state;
   }
@@ -139,6 +154,9 @@ public final class District extends SerializableEntityBase<District> {
     return d_zip;
   }
 
+  // spotless:off
+  //@ requires d_zip.length() == 9; // C.ENT:DISTRICT:ZIP
+  // spotless:on
   public void setD_zip(final String d_zip) {
     this.d_zip = d_zip;
   }
@@ -205,31 +223,49 @@ public final class District extends SerializableEntityBase<District> {
       return this;
     }
 
+    // spotless:off
+    //@ requires name.length() <= 10; // C.ENT:DISTRICT:NAME
+    // spotless:on
     public DistrictBuilder name(final String name) {
       this.name = name;
       return this;
     }
 
+    // spotless:off
+    //@ requires street_1.length() <= 10; // C.ENT:DISTRICT:STREET_1
+    // spotless:on
     public DistrictBuilder street_1(final String street_1) {
       this.street_1 = street_1;
       return this;
     }
 
+    // spotless:off
+    //@ requires street_2.length() <= 10; // C.ENT:DISTRICT:STREET_2
+    // spotless:on
     public DistrictBuilder street_2(final String street_2) {
       this.street_2 = street_2;
       return this;
     }
 
+    // spotless:off
+    //@ requires city.length() <= 10; // C.ENT:DISTRICT:CITY
+    // spotless:on
     public DistrictBuilder city(final String city) {
       this.city = city;
       return this;
     }
 
+    // spotless:off
+    //@ requires state.length() == 2; // C.ENT:DISTRICT:STATE
+    // spotless:on
     public DistrictBuilder state(final String state) {
       this.state = state;
       return this;
     }
 
+    // spotless:off
+    //@ requires zip.length() == 9; // C.ENT:DISTRICT:ZIP
+    // spotless:on
     public DistrictBuilder zip(final String zip) {
       this.zip = zip;
       return this;

@@ -162,6 +162,9 @@ public class Customer extends SerializableEntityBase<Customer> {
     return c_first;
   }
 
+  // spotless:off
+  //@ requires c_first.length() <= 16; // C.ENT:CUSTOMER:FIRST
+  // spotless:on
   public void setC_first(final String c_first) {
     this.c_first = c_first;
   }
@@ -170,6 +173,9 @@ public class Customer extends SerializableEntityBase<Customer> {
     return c_middle;
   }
 
+  // spotless:off
+  //@ requires c_middle.length() == 2; // C.ENT:CUSTOMER:MIDDLE
+  // spotless:on
   public void setC_middle(final String c_middle) {
     this.c_middle = c_middle;
   }
@@ -178,6 +184,9 @@ public class Customer extends SerializableEntityBase<Customer> {
     return c_last;
   }
 
+  // spotless:off
+  //@ requires c_last.length() <= 16; // C.ENT:CUSTOMER:LAST
+  // spotless:on
   public void setC_last(final String c_last) {
     this.c_last = c_last;
   }
@@ -186,6 +195,9 @@ public class Customer extends SerializableEntityBase<Customer> {
     return c_street_1;
   }
 
+  // spotless:off
+  //@ requires c_street_1.length() <= 20; // C.ENT:CUSTOMER:STREET_1
+  // spotless:on
   public void setC_street_1(final String c_street_1) {
     this.c_street_1 = c_street_1;
   }
@@ -194,6 +206,9 @@ public class Customer extends SerializableEntityBase<Customer> {
     return c_street_2;
   }
 
+  // spotless:off
+  //@ requires c_street_2.length() <= 20; // C.ENT:CUSTOMER:STREET_2
+  // spotless:on
   public void setC_street_2(final String c_street_2) {
     this.c_street_2 = c_street_2;
   }
@@ -202,6 +217,9 @@ public class Customer extends SerializableEntityBase<Customer> {
     return c_city;
   }
 
+  // spotless:off
+  //@ requires c_city.length() <= 20; // C.ENT:CUSTOMER:CITY
+  // spotless:on
   public void setC_city(final String c_city) {
     this.c_city = c_city;
   }
@@ -210,6 +228,9 @@ public class Customer extends SerializableEntityBase<Customer> {
     return c_state;
   }
 
+  // spotless:off
+  //@ requires c_state.length() == 2; // C.ENT:CUSTOMER:STATE
+  // spotless:on
   public void setC_state(final String c_state) {
     this.c_state = c_state;
   }
@@ -218,6 +239,9 @@ public class Customer extends SerializableEntityBase<Customer> {
     return c_zip;
   }
 
+  // spotless:off
+  //@ requires c_zip.length() == 9; // C.ENT:CUSTOMER:ZIP
+  // spotless:on
   public void setC_zip(final String c_zip) {
     this.c_zip = c_zip;
   }
@@ -226,6 +250,9 @@ public class Customer extends SerializableEntityBase<Customer> {
     return c_phone;
   }
 
+  // spotless:off
+  //@ requires c_phone.length() == 16; // C.ENT:CUSTOMER:PHONE
+  // spotless:on
   public void setC_phone(final String c_phone) {
     this.c_phone = c_phone;
   }
@@ -242,6 +269,9 @@ public class Customer extends SerializableEntityBase<Customer> {
     return c_credit;
   }
 
+  // spotless:off
+  //@ requires c_credit.length() == 2; // C.ENT:CUSTOMER:CREDIT
+  // spotless:on
   public void setC_credit(final String c_credit) {
     this.c_credit = c_credit;
   }
@@ -282,6 +312,9 @@ public class Customer extends SerializableEntityBase<Customer> {
     return c_payment_cnt;
   }
 
+  // spotless:off
+  //@ requires c_payment_cnt >= 0; // C.ENT:CUSTOMER:PAYMENT_CNT
+  // spotless:on
   public void setC_payment_cnt(final int c_payment_cnt) {
     this.c_payment_cnt = c_payment_cnt;
   }
@@ -290,6 +323,9 @@ public class Customer extends SerializableEntityBase<Customer> {
     return c_delivery_cnt;
   }
 
+  // spotless:off
+  //@ requires c_delivery_cnt >= 0; // C.ENT:CUSTOMER:DELIVERY_CNT
+  // spotless:on
   public void setC_delivery_cnt(final int c_delivery_cnt) {
     this.c_delivery_cnt = c_delivery_cnt;
   }
@@ -298,6 +334,9 @@ public class Customer extends SerializableEntityBase<Customer> {
     return c_data;
   }
 
+  // spotless:off
+  //@ requires c_data.length() <= 500; // C.ENT:CUSTOMER:DATA
+  // spotless:on
   public void setC_data(final String c_data) {
     this.c_data = c_data;
   }
@@ -366,46 +405,73 @@ public class Customer extends SerializableEntityBase<Customer> {
       return this;
     }
 
+    // spotless:off
+    //@ requires first.length() <= 16; // C.ENT:CUSTOMER:FIRST
+    // spotless:on
     public CustomerBuilder first(final String first) {
       this.first = first;
       return this;
     }
 
+    // spotless:off
+    //@ requires middle.length() == 2; // C.ENT:CUSTOMER:MIDDLE
+    // spotless:on
     public CustomerBuilder middle(final String middle) {
       this.middle = middle;
       return this;
     }
 
+    // spotless:off
+    //@ requires last.length() <= 16; // C.ENT:CUSTOMER:LAST
+    // spotless:on
     public CustomerBuilder last(final String last) {
       this.last = last;
       return this;
     }
 
+    // spotless:off
+    //@ requires street_1.length() <= 20; // C.ENT:CUSTOMER:STREET_1
+    // spotless:on
     public CustomerBuilder street_1(final String street_1) {
       this.street_1 = street_1;
       return this;
     }
 
+    // spotless:off
+    //@ requires street_2.length() <= 20; // C.ENT:CUSTOMER:STREET_2
+    // spotless:on
     public CustomerBuilder street_2(final String street_2) {
       this.street_2 = street_2;
       return this;
     }
 
+    // spotless:off
+    //@ requires city.length() <= 20; // C.ENT:CUSTOMER:CITY
+    // spotless:on
     public CustomerBuilder city(final String city) {
       this.city = city;
       return this;
     }
 
+    // spotless:off
+    //@ requires state.length() == 2; // C.ENT:CUSTOMER:STATE
+    // spotless:on
     public CustomerBuilder state(final String state) {
       this.state = state;
       return this;
     }
 
+    // spotless:off
+    //@ requires zip.length() == 9; // C.ENT:CUSTOMER:ZIP
+    // spotless:on
     public CustomerBuilder zip(final String zip) {
       this.zip = zip;
       return this;
     }
 
+    // spotless:off
+    //@ requires phone.length() == 16; // C.ENT:CUSTOMER:PHONE
+    // spotless:on
     public CustomerBuilder phone(final String phone) {
       this.phone = phone;
       return this;
@@ -416,6 +482,9 @@ public class Customer extends SerializableEntityBase<Customer> {
       return this;
     }
 
+    // spotless:off
+    //@ requires credit.length() == 2; // C.ENT:CUSTOMER:CREDIT
+    // spotless:on
     public CustomerBuilder credit(final String credit) {
       this.credit = credit;
       return this;
@@ -441,11 +510,17 @@ public class Customer extends SerializableEntityBase<Customer> {
       return this;
     }
 
+    // spotless:off
+    //@ requires payment_cnt >= 0; // C.ENT:CUSTOMER:PAYMENT_CNT
+    // spotless:on
     public CustomerBuilder payment_cnt(final int payment_cnt) {
       this.payment_cnt = payment_cnt;
       return this;
     }
 
+    // spotless:off
+    //@ requires delivery_cnt >= 0; // C.ENT:CUSTOMER:DELIVERY_CNT
+    // spotless:on
     public CustomerBuilder delivery_cnt(final int delivery_cnt) {
       this.delivery_cnt = delivery_cnt;
       return this;
