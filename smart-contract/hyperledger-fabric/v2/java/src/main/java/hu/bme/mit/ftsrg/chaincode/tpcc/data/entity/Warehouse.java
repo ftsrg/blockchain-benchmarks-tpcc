@@ -137,7 +137,7 @@ public class Warehouse extends SerializableEntityBase<Warehouse> {
   }
 
   // spotless:off
-  //@ requires w_zip.length() == 2; // C.ENT:WAREHOUSE:ZIP
+  //@ requires w_zip.length() == 9; // C.ENT:WAREHOUSE:ZIP
   // spotless:on
   public void setW_zip(final String w_zip) {
     this.w_zip = w_zip;
@@ -226,7 +226,7 @@ public class Warehouse extends SerializableEntityBase<Warehouse> {
     }
 
     // spotless:off
-    //@ requires zip.length() == 2; // C.ENT:WAREHOUSE:ZIP
+    //@ requires zip.length() == 9; // C.ENT:WAREHOUSE:ZIP
     // spotless:on
     public WarehouseBuilder zip(final String zip) {
       this.zip = zip;
