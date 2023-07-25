@@ -904,7 +904,7 @@ public final class TPCC implements ContractInterface {
             .street_1("xyz")
             .street_2("123")
             .city("Budapest")
-            .state("Buda")
+            .state("HU")
             .zip("000101111")
             .phone("123456789")
             .since("19/01/2020")
