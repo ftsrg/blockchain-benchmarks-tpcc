@@ -80,7 +80,7 @@ tasks.withType<JavaCompile>().configureEach {
           else -> "rac"
         }
     options.isFork = true
-    options.compilerArgs.addAll(listOf("-jml", "-$mode", "-timeout", "30", "--nullable-by-default"))
+    options.compilerArgs.addAll(listOf("-jml", "-$mode", "-timeout", "30", "--nullable-by-default", "--specs-path", "specs/"))
     options.forkOptions.javaHome = openJMLJavaHomeDir.asFile
   }
 }
