@@ -3,11 +3,14 @@
 scripts_dir=$(dirname "$(readlink -f "$0")")
 . "$scripts_dir/common.sh"
 
-TEST_INPUTS_DIR=${TEST_INPUTS_DIR:-$scripts_dir/../../smart-contract/hyperledger-fabric/v2/java/transaction_data/test_inputs}
+TEST_INPUTS_DIR=${TEST_INPUTS_DIR:-$scripts_dir/../../smart-contract/hyperledger-fabric/v2/java/test_data/transactions}
 
 assert_cmd "$HTTPIE"
 assert_cmd "$JQ"
 
 TOKEN=$(get_token)
 invoke method=init args:='[]'
-invoke method=doNewOrder args:="$(cat "$TEST_INPUTS_DIR/doNewOrderInput")"
+invoke method=newOrder args[]=@"$TEST_INPUTS_DIR/newOrder.json"
+query method=orderStatus args[]=@"$TEST_INPUTS_DIR/orderStatus.json"
+invoke method=payment args[]=@"$TEST_INPUTS_DIR/payment.json"
+query method=stockLevel args[]=@"$TEST_INPUTS_DIR/stockLevel.json"
