@@ -326,6 +326,14 @@ public final class TPCC implements ContractInterface {
    */
   private DeliveryOutput delivery(final TPCCContext ctx, final DeliveryInput input)
       throws EntityNotFoundException {
+    // spotless:off
+    //@ ensures \result.getW_id() == input.getW_id(); // C.TXIO:DELIVERY:EQ_W_ID
+    //@ ensures \result.getO_carrier_id() == input.getO_carrier_id(); // C.TXIO:DELIVERY:EQ_CARRIER_ID
+    //@ ensures \result.getDelivered().size() <= 10; // C.TXIO:DELIVERY:LIM_DELIVERED
+    //@ ensures \result.getSkipped() >= 0 & \result.getSkipped() <= 10; // C.TXIO:DELIVERY:LIM_SKIPPED
+    //@ ensures \result.getSkipped() == 10 - \result.getDelivered().size(); // C.TXIO:DELIVERY:FORM_SKIPPED
+    // spotless:on
+
     /*
      * [TPC-C 2.7.4.2]
      * For a given warehouse number (W_ID), for each of the districts
@@ -387,6 +395,14 @@ public final class TPCC implements ContractInterface {
    */
   private NewOrderOutput newOrder(final TPCCContext ctx, final NewOrderInput input)
       throws EntityNotFoundException, EntityExistsException {
+    // spotless:off
+    //@ ensures \result.getW_id() == input.getW_id(); // C.TXIO:NEWORDER:EQ_W_ID
+    //@ ensures \result.getD_id() == input.getD_id(); // C.TXIO:NEWORDER:EQ_D_ID
+    //@ ensures \result.getC_id() == input.getC_id(); // C.TXIO:NEWORDER:EQ_D_ID
+    //@ ensures \result.getO_ol_cnt().size() == input.getI_ids().size(); // C.TXIO:NEWORDER:SIZE_OL_CNT
+    //@ ensures \result.getItems().size() == input.getI_ids().size(); // C.TXIO:NEWORDER:SIZE_ITEMS
+    // spotless:on
+
     /*
      * [TPC-C 2.4.2.2]
      * For a given warehouse number (W_ID), district number (D_W_ID,
@@ -539,6 +555,12 @@ public final class TPCC implements ContractInterface {
    */
   private OrderStatusOutput orderStatus(final TPCCContext ctx, final OrderStatusInput input)
       throws NotFoundException, EntityNotFoundException {
+    // spotless:off
+    //@ ensures \result.getW_id() == input.getW_id(); // C.TXIO:ORDERSTATUS:EQ_W_ID
+    //@ ensures \result.getD_id() == input.getD_id(); // C.TXIO:ORDERSTATUS:EQ_D_ID
+    //@ ensures \result.getC_id() == input.getC_id(); // C.TXIO:ORDERSTATUS:EQ_D_ID
+    // spotless:on
+
     /*
      * [TPC-C 2.6.2.2]
      * For a given customer number (C_W_ID, C_D_ID, C_ID): ...
@@ -627,6 +649,14 @@ public final class TPCC implements ContractInterface {
    */
   private PaymentOutput payment(final TPCCContext ctx, final PaymentInput input)
       throws EntityNotFoundException, EntityExistsException, NotFoundException {
+    // spotless:off
+    //@ ensures \result.getW_id() == input.getW_id(); // C.TXIO:PAYMENT:EQ_W_ID
+    //@ ensures \result.getD_id() == input.getD_id(); // C.TXIO:PAYMENT:EQ_D_ID
+    //@ ensures \result.getC_id() == input.getC_id(); // C.TXIO:PAYMENT:EQ_D_ID
+    //@ ensures \result.getH_amount() == input.getH_amount(); // C.TXIO:PAYMENT:EQ_H_AMOUNT
+    //@ ensures \result.getH_date() == input.getH_date(); // C.TXIO:PAYMENT:EQ_H_DATE
+    // spotless:on
+
     /*
      * [TPC-C 2.5.2.2]
      * For a given warehouse number (W_ID), district number (D_W_ID,
@@ -800,6 +830,13 @@ public final class TPCC implements ContractInterface {
    */
   private StockLevelOutput stockLevel(final TPCCContext ctx, final StockLevelInput input)
       throws EntityNotFoundException, NotFoundException {
+    // spotless:off
+    //@ ensures \result.getW_id() == input.getW_id(); // C.TXIO:STOCKLEVEL:EQ_W_ID
+    //@ ensures \result.getD_id() == input.getD_id(); // C.TXIO:STOCKLEVEL:EQ_D_ID
+    //@ ensures \result.getThreshold() == input.getThreshold(); // C.TXIO:STOCKLEVEL:EQ_THRESHOLD
+    //@ ensures \result.logStock() >= 0; // C.TXIO:STOCKLEVEL:LIM_LOW_STOCK
+    // spotless:on
+
     /*
      * [TPC-C 2.8.2.2]
      * For a given warehouse number (W_ID), district number (D_W_ID,
