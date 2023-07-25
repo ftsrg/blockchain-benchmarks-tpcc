@@ -5,7 +5,7 @@ COPY src/ src/
 COPY buildSrc/ buildSrc/
 COPY build.gradle.kts ./ 
 COPY gradle.properties ./
-COPY specs/ specs/
+COPY specs/ ./specs/
 
 RUN gradle --no-daemon shadowJar
 
