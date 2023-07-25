@@ -1,0 +1,102 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+package hu.bme.mit.ftsrg.chaincode.tpcc.data.entity;
+
+import hu.bme.mit.ftsrg.chaincode.dataaccess.SerializableEntityBase;
+
+public class Warehouse extends SerializableEntityBase<Warehouse> {
+
+  public /*@ pure @*/ int getW_id();
+
+  public /*@ pure @*/ String getW_name();
+
+  /*@
+    @ // C.ENT:WAREHOUSE:NAME
+    @ requires w_name.length() <= 10;
+    @*/
+  public void setW_name(final String w_name);
+
+  public /*@ pure @*/ String getW_street_1();
+
+  /*@
+    @ // C.ENT:WAREHOUSE:STREET_1
+    @ requires w_street_1.length() <= 20;
+    @*/
+  public void setW_street_1(final String w_street_1);
+
+  public /*@ pure @*/ String getW_street_2();
+
+  /*@
+    @ // C.ENT:WAREHOUSE:STREET_2
+    @ requires w_street_2.length() <= 20;
+    @*/
+  public void setW_street_2(final String w_street_2);
+
+  public /*@ pure @*/ String getW_city();
+
+  /*@
+    @ // C.ENT:WAREHOUSE:CITY
+    @ requires w_city.length() <= 20;
+    @*/
+  public void setW_city(final String w_city);
+
+  public /*@ pure @*/ String getW_state();
+
+  /*@
+    @ // C.ENT:WAREHOUSE:STATE
+    @ requires w_state.length() == 2;
+    @*/
+  public void setW_state(final String w_state);
+
+  public /*@ pure @*/ String getW_zip();
+
+  /*@
+    @ // C.ENT:WAREHOUSE:ZIP
+    @ requires w_zip.length() == 9;
+    @*/
+  public void setW_zip(final String w_zip);
+
+  public /*@ pure @*/ double getW_tax();
+
+  public /*@ pure @*/ double getW_ytd();
+
+
+  public static final class WarehouseBuilder {
+
+    /*@
+      @ // C.ENT:WAREHOUSE:NAME
+      @ requires name.length() <= 10;
+      @*/
+    public WarehouseBuilder name(final String name);
+
+    /*@
+      @ // C.ENT:WAREHOUSE:STREET_1
+      @ requires street_1.length() <= 20;
+      @*/
+    public WarehouseBuilder street_1(final String street_1);
+
+    /*@
+      @ // C.ENT:WAREHOUSE:STREET_2
+      @ requires street_2.length() <= 20;
+      @*/
+    public WarehouseBuilder street_2(final String street_2);
+
+    /*@
+      @ // C.ENT:WAREHOUSE:CITY
+      @ requires city.length() <= 20;
+      @*/
+    public WarehouseBuilder city(final String city);
+
+    /*@
+      @ // C.ENT:WAREHOUSE:STATE
+      @ requires state.length() == 2;
+      @*/
+    public WarehouseBuilder state(final String state);
+
+    /*@
+      @ // C.ENT:WAREHOUSE:ZIP
+      @ requires zip.length() == 9;
+      @*/
+    public WarehouseBuilder zip(final String zip);
+  }
+}

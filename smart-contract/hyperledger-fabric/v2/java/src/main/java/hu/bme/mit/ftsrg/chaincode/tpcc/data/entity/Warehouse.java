@@ -81,9 +81,6 @@ public class Warehouse extends SerializableEntityBase<Warehouse> {
     return w_name;
   }
 
-  // spotless:off
-  //@ requires w_name.length() <= 10; // C.ENT:WAREHOUSE:NAME
-  // spotless:on
   public void setW_name(final String w_name) {
     this.w_name = w_name;
   }
@@ -92,9 +89,6 @@ public class Warehouse extends SerializableEntityBase<Warehouse> {
     return w_street_1;
   }
 
-  // spotless:off
-  //@ requires w_street_1.length() <= 20; // C.ENT:WAREHOUSE:STREET_1
-  // spotless:on
   public void setW_street_1(final String w_street_1) {
     this.w_street_1 = w_street_1;
   }
@@ -103,9 +97,6 @@ public class Warehouse extends SerializableEntityBase<Warehouse> {
     return w_street_2;
   }
 
-  // spotless:off
-  //@ requires w_street_2.length() <= 20; // C.ENT:WAREHOUSE:STREET_2
-  // spotless:on
   public void setW_street_2(final String w_street_2) {
     this.w_street_2 = w_street_2;
   }
@@ -114,9 +105,6 @@ public class Warehouse extends SerializableEntityBase<Warehouse> {
     return w_city;
   }
 
-  // spotless:off
-  //@ requires w_city.length() <= 20; // C.ENT:WAREHOUSE:CITY
-  // spotless:on
   public void setW_city(final String w_city) {
     this.w_city = w_city;
   }
@@ -125,9 +113,6 @@ public class Warehouse extends SerializableEntityBase<Warehouse> {
     return w_state;
   }
 
-  // spotless:off
-  //@ requires w_state.length() == 2; // C.ENT:WAREHOUSE:STATE
-  // spotless:on
   public void setW_state(final String w_state) {
     this.w_state = w_state;
   }
@@ -136,9 +121,6 @@ public class Warehouse extends SerializableEntityBase<Warehouse> {
     return w_zip;
   }
 
-  // spotless:off
-  //@ requires w_zip.length() == 9; // C.ENT:WAREHOUSE:ZIP
-  // spotless:on
   public void setW_zip(final String w_zip) {
     this.w_zip = w_zip;
   }
@@ -185,49 +167,31 @@ public class Warehouse extends SerializableEntityBase<Warehouse> {
       return this;
     }
 
-    // spotless:off
-    //@ requires name.length() <= 10; // C.ENT:WAREHOUSE:NAME
-    // spotless:on
     public WarehouseBuilder name(final String name) {
       this.name = name;
       return this;
     }
 
-    // spotless:off
-    //@ requires street_1.length() <= 20; // C.ENT:WAREHOUSE:STREET_1
-    // spotless:on
     public WarehouseBuilder street_1(final String street_1) {
       this.street_1 = street_1;
       return this;
     }
 
-    // spotless:off
-    //@ requires street_2.length() <= 20; // C.ENT:WAREHOUSE:STREET_2
-    // spotless:on
     public WarehouseBuilder street_2(final String street_2) {
       this.street_2 = street_2;
       return this;
     }
 
-    // spotless:off
-    //@ requires city.length() <= 20; // C.ENT:WAREHOUSE:CITY
-    // spotless:on
     public WarehouseBuilder city(final String city) {
       this.city = city;
       return this;
     }
 
-    // spotless:off
-    //@ requires state.length() == 2; // C.ENT:WAREHOUSE:STATE
-    // spotless:on
     public WarehouseBuilder state(final String state) {
       this.state = state;
       return this;
     }
 
-    // spotless:off
-    //@ requires zip.length() == 9; // C.ENT:WAREHOUSE:ZIP
-    // spotless:on
     public WarehouseBuilder zip(final String zip) {
       this.zip = zip;
       return this;

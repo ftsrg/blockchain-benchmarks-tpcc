@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
 package hu.bme.mit.ftsrg.chaincode.tpcc;
 
 import hu.bme.mit.ftsrg.chaincode.dataaccess.exception.EntityExistsException;

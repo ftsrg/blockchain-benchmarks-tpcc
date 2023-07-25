@@ -129,9 +129,6 @@ public final class OrderLine extends SerializableEntityBase<OrderLine> {
     return ol_quantity;
   }
 
-  // spotless:off
-  //@ requires ol_quantity >= 0; // C.ENT:ORDER-LINE:QUANTITY
-  // spotless:on
   public void setOl_quantity(final int ol_quantity) {
     this.ol_quantity = ol_quantity;
   }
@@ -148,9 +145,6 @@ public final class OrderLine extends SerializableEntityBase<OrderLine> {
     return ol_dist_info;
   }
 
-  // spotless:off
-  //@ requires ol_dist_info.length() <= 24; // C.ENT:ORDER-LINE:DIST_INFO
-  // spotless:on
   public void setOl_dist_info(final String ol_dist_info) {
     this.ol_dist_info = ol_dist_info;
   }
@@ -209,9 +203,6 @@ public final class OrderLine extends SerializableEntityBase<OrderLine> {
       return this;
     }
 
-    // spotless:off
-    //@ requires quantity >= 0; // C.ENT:ORDER-LINE:QUANTITY
-    // spotless:on
     public OrderLineBuilder quantity(final int quantity) {
       this.quantity = quantity;
       return this;
@@ -222,9 +213,6 @@ public final class OrderLine extends SerializableEntityBase<OrderLine> {
       return this;
     }
 
-    // spotless:off
-    //@ requires dist_info.length() <= 24; // C.ENT:ORDER-LINE:DIST_INFO
-    // spotless:on
     public OrderLineBuilder dist_info(final String dist_info) {
       this.dist_info = dist_info;
       return this;

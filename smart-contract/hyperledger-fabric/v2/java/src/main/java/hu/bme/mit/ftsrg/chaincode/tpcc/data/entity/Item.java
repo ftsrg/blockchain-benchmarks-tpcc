@@ -63,9 +63,6 @@ public final class Item extends SerializableEntityBase<Item> {
     return i_name;
   }
 
-  // spotless:off
-  //@ requires i_name.length() <= 24; // C.ENT:ITEM:NAME
-  // spotless:on
   public void setI_name(final String i_name) {
     this.i_name = i_name;
   }
@@ -74,9 +71,6 @@ public final class Item extends SerializableEntityBase<Item> {
     return i_price;
   }
 
-  // spotless:off
-  //@ requires i_price >= 0; // C.ENT:ITEM:PRICE
-  // spotless:on
   public void setI_price(final double i_price) {
     this.i_price = i_price;
   }
@@ -85,9 +79,6 @@ public final class Item extends SerializableEntityBase<Item> {
     return i_data;
   }
 
-  // spotless:off
-  //@ requires i_data.length() <= 50; // C.ENT:ITEM:DATA
-  // spotless:on
   public void setI_data(final String i_data) {
     this.i_data = i_data;
   }
@@ -115,25 +106,16 @@ public final class Item extends SerializableEntityBase<Item> {
       return this;
     }
 
-    // spotless:off
-    //@ requires name.length() <= 24; // C.ENT:ITEM:NAME
-    // spotless:on
     public ItemBuilder name(final String name) {
       this.name = name;
       return this;
     }
 
-    // spotless:off
-    //@ requires price >= 0; // C.ENT:ITEM:PRICE
-    // spotless:on
     public ItemBuilder price(final double price) {
       this.price = price;
       return this;
     }
 
-    // spotless:off
-    //@ requires data.length() <= 50; // C.ENT:ITEM:DATA
-    // spotless:on
     public ItemBuilder data(final String data) {
       this.data = data;
       return this;

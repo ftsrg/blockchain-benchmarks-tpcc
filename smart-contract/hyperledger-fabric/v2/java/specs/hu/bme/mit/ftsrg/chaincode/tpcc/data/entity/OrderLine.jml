@@ -1,0 +1,56 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+package hu.bme.mit.ftsrg.chaincode.tpcc.data.entity;
+
+import hu.bme.mit.ftsrg.chaincode.dataaccess.SerializableEntityBase;
+
+public final class OrderLine extends SerializableEntityBase<OrderLine> {
+
+  public /*@ pure @*/ int getOl_o_id();
+
+  public /*@ pure @*/ int getOl_d_id();
+
+  public /*@ pure @*/ int getOl_w_id();
+
+  public /*@ pure @*/ int getOl_number();
+
+  public /*@ pure @*/ int getOl_i_id();
+
+  public /*@ pure @*/ int getOl_supply_w_id();
+
+  public /*@ pure @*/ String getOl_delivery_d();
+
+  public /*@ pure @*/ int getOl_quantity();
+
+  /*@
+    @ // C.ENT:ORDER-LINE:QUANTITY
+    @ requires ol_quantity >= 0;
+    @*/
+  public void setOl_quantity(final int ol_quantity);
+
+  public /*@ pure @*/ double getOl_amount();
+
+  public /*@ pure @*/ String getOl_dist_info();
+
+  /*@
+    @ // C.ENT:ORDER-LINE:DIST_INFO
+    @ requires ol_dist_info.length() <= 24;
+    @*/
+  public void setOl_dist_info(final String ol_dist_info);
+
+
+  public static final class OrderLineBuilder {
+
+    /*@
+      @ // C.ENT:ORDER-LINE:QUANTITY
+      @ requires quantity >= 0;
+      @*/
+    public OrderLineBuilder quantity(final int quantity);
+
+    /*@
+      @ // C.ENT:ORDER-LINE:DIST_INFO
+      @ requires dist_info.length() <= 24;
+      @*/
+    public OrderLineBuilder dist_info(final String dist_info);
+  }
+}

@@ -1,0 +1,14 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+package hu.bme.mit.ftsrg.chaincode.tpcc.data.entity;
+
+import hu.bme.mit.ftsrg.chaincode.dataaccess.SerializableEntityBase;
+
+public final class NewOrder extends SerializableEntityBase<NewOrder> {
+
+  public /*@ pure @*/ int getNo_o_id();
+
+  public /*@ pure @*/ int getNo_d_id();
+
+  public /*@ pure @*/ int getNo_w_id();
+}
