@@ -875,6 +875,18 @@ public final class TPCC implements ContractInterface {
   }
 
   /**
+   * Pad a district info string to a required length.
+   *
+   * @param info The district info string
+   * @return The string padded to a length of 24 with leading spaces
+   * @throws IllegalArgumentException if the info string is already longer than 24 characters
+   */
+  private static String padDistrictInfo(final String info) {
+    if (info.length() > 24) throw new IllegalArgumentException("District info is too long (maximum 24 chars)");
+    return String.format("%24s", info);
+  }
+
+  /**
    * Initialize WAREHOUSE entities.
    *
    * <p><b>NOTE:</b> this code has been factored out of {@link TPCC#init(TPCCContext)} only so that
@@ -1053,8 +1065,8 @@ public final class TPCC implements ContractInterface {
             .i_id(1)
             .w_id(1)
             .quantity(100)
-            .dist_all("null")
-            .dist_01("good")
+            .dist_all(padDistrictInfo("null"))
+            .dist_01(padDistrictInfo("good"))
             .ytd(0)
             .order_cnt(0)
             .remote_cnt(0)
@@ -1065,8 +1077,8 @@ public final class TPCC implements ContractInterface {
             .i_id(2)
             .w_id(1)
             .quantity(90)
-            .dist_all("null")
-            .dist_01("good")
+            .dist_all(padDistrictInfo("null"))
+            .dist_01(padDistrictInfo("good"))
             .ytd(0)
             .order_cnt(0)
             .remote_cnt(0)
@@ -1077,8 +1089,8 @@ public final class TPCC implements ContractInterface {
             .i_id(3)
             .w_id(1)
             .quantity(99)
-            .dist_all("null")
-            .dist_01("good")
+            .dist_all(padDistrictInfo("null"))
+            .dist_01(padDistrictInfo("good"))
             .ytd(0)
             .order_cnt(0)
             .remote_cnt(0)
@@ -1476,7 +1488,7 @@ public final class TPCC implements ContractInterface {
             .delivery_d(null)
             .quantity(i_qty)
             .amount(orderLineAmount)
-            .dist_info("s_dist_" + stockDistrictId)
+            .dist_info(padDistrictInfo("s_dist_" + stockDistrictId))
             .build();
     registry.create(ctx, orderLine);
 
