@@ -21,13 +21,12 @@ public final class TPCC implements ContractInterface {
   private DeliveryOutput delivery(final TPCCContext ctx, final DeliveryInput input)
       throws EntityNotFoundException, EntityExistsException;
 
-
   /*@
     @ ensures \result.getW_id() == input.getW_id(); // C.TXIO:NEWORDER:EQ_W_ID
     @ ensures \result.getD_id() == input.getD_id(); // C.TXIO:NEWORDER:EQ_D_ID
     @ ensures \result.getC_id() == input.getC_id(); // C.TXIO:NEWORDER:EQ_D_ID
-    @ ensures \result.getO_ol_cnt().size() == input.getI_ids().size(); // C.TXIO:NEWORDER:SIZE_OL_CNT
-    @ ensures \result.getItems().size() == input.getI_ids().size(); // C.TXIO:NEWORDER:SIZE_ITEMS
+    @ ensures \result.getO_ol_cnt() == input.getI_ids().length; // C.TXIO:NEWORDER:SIZE_OL_CNT
+    @ ensures \result.getItems().size() == input.getI_ids().length; // C.TXIO:NEWORDER:SIZE_ITEMS
     @*/
   private NewOrderOutput newOrder(final TPCCContext ctx, final NewOrderInput input)
       throws EntityNotFoundException, EntityExistsException;
@@ -54,7 +53,7 @@ public final class TPCC implements ContractInterface {
     @ ensures \result.getW_id() == input.getW_id(); // C.TXIO:STOCKLEVEL:EQ_W_ID
     @ ensures \result.getD_id() == input.getD_id(); // C.TXIO:STOCKLEVEL:EQ_D_ID
     @ ensures \result.getThreshold() == input.getThreshold(); // C.TXIO:STOCKLEVEL:EQ_THRESHOLD
-    @ ensures \result.logStock() >= 0; // C.TXIO:STOCKLEVEL:LIM_LOW_STOCK
+    @ ensures \result.getLow_stock() >= 0; // C.TXIO:STOCKLEVEL:LIM_LOW_STOCK
     @*/
   private StockLevelOutput stockLevel(final TPCCContext ctx, final StockLevelInput input)
       throws EntityNotFoundException, NotFoundException;

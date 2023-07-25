@@ -1,0 +1,12 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+package hu.bme.mit.ftsrg.chaincode.tpcc.data.input;
+
+public final class StockLevelInput {
+
+  public /*@ pure @*/ int getW_id();
+
+  public /*@ pure @*/ int getD_id();
+
+  public /*@ pure @*/ int getThreshold();
+}

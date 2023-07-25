@@ -1,0 +1,22 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+package hu.bme.mit.ftsrg.chaincode.tpcc.data.input;
+
+public final class PaymentInput {
+
+  public /*@ pure @*/ int getW_id();
+
+  public /*@ pure @*/ int getD_id();
+
+  public /*@ pure @*/ double getH_amount();
+
+  public /*@ pure @*/ int getC_w_id();
+
+  public /*@ pure @*/ int getC_d_id();
+
+  public /*@ pure @*/ int getC_id();
+
+  public /*@ pure @*/ String getC_last();
+
+  public /*@ pure @*/ String getH_date();
+}
