@@ -12,6 +12,7 @@ RUN gradle --no-daemon shadowJar
 
 FROM eclipse-temurin:17-jre
 ARG CC_SERVER_PORT=9999
+ARG CC_JMX_PORT=9010
 
 ENV TINI_VERSION v0.19.0
 ADD [ \
@@ -32,7 +33,9 @@ COPY --chown=javauser:javauser [ \
 ]
 
 ENV PORT $CC_SERVER_PORT
+ENV JMX_PORT $CC_JMX_PORT
 EXPOSE $CC_SERVER_PORT
+EXPOSE $CC_JMX_PORT
 
 USER javauser
 ENTRYPOINT [ "/tini", "--", "/docker-entrypoint" ]

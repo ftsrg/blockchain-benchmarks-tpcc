@@ -198,9 +198,12 @@ services:
     container_name: tpcc
     build: ../../smart-contract/hyperledger-fabric/v2/java/
     environment:
-      - CHAINCODE_SERVER_ADDRESS=0.0.0.0:9999
-      - CORE_CHAINCODE_ID_NAME=tpcc:a03d5726c28a155d993f6789701908d88746d0e5f0c9078860a7b4ae18411886
+      CHAINCODE_SERVER_ADDRESS: 0.0.0.0:9999
+      CORE_CHAINCODE_ID_NAME: tpcc:a03d5726c28a155d993f6789701908d88746d0e5f0c9078860a7b4ae18411886
+      DOCKER_HOST_HOSTNAME: ${DOCKER_HOST_HOSTNAME?:"Please export DOCKER_HOST_HOSTNAME in your shell"}
     expose:
       - 9999
+    ports:
+      - 9010:9010 # JMX
     networks:
       - basic
