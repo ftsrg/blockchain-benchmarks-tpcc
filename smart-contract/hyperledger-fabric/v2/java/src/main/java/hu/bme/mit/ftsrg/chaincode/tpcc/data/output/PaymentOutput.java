@@ -5,6 +5,7 @@ package hu.bme.mit.ftsrg.chaincode.tpcc.data.output;
 import hu.bme.mit.ftsrg.chaincode.tpcc.TPCC;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.entity.Customer;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.entity.District;
+import hu.bme.mit.ftsrg.chaincode.tpcc.data.entity.History;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.entity.Warehouse;
 import hu.bme.mit.ftsrg.chaincode.tpcc.middleware.TPCCContext;
 import lombok.EqualsAndHashCode;
@@ -664,6 +665,12 @@ public final class PaymentOutput {
       this.c_credit_lim(customer.getC_credit_lim());
       this.c_discount(customer.getC_discount());
       this.c_balance(customer.getC_balance());
+      return this;
+    }
+
+    public DoPaymentOutputBuilder fromHistory(final History history) {
+      this.h_amount = history.getH_amount();
+      this.h_date = history.getH_date();
       return this;
     }
 

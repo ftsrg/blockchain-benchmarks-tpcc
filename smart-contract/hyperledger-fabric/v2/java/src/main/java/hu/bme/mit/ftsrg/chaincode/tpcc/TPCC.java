@@ -785,6 +785,7 @@ public final class TPCC implements ContractInterface {
             .fromWarehouse(warehouse)
             .fromCustomer(customer)
             .fromDistrict(district)
+            .fromHistory(history)
             .build();
     if (customer.getC_credit().equals("BC"))
       output.setC_data(customer.getC_data().substring(0, 200));
