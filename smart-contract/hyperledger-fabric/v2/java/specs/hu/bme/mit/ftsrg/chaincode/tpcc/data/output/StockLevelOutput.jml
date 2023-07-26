@@ -1,0 +1,14 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+package hu.bme.mit.ftsrg.chaincode.tpcc.data.output;
+
+public final class StockLevelOutput {
+
+  public /*@ pure @*/ int getW_id();
+
+  public /*@ pure @*/ int getD_id();
+
+  public /*@ pure @*/ int getThreshold();
+
+  public /*@ pure @*/ int getLow_stock();
+}

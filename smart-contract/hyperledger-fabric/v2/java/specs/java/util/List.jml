@@ -1,0 +1,8 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+package java.util;
+
+public interface List<E> extends Collection<E> {
+
+  /*@ pure @*/ int size();
+}

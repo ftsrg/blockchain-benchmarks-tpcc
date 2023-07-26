@@ -1,0 +1,106 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+package hu.bme.mit.ftsrg.chaincode.tpcc.data.entity;
+
+import hu.bme.mit.ftsrg.chaincode.dataaccess.SerializableEntityBase;
+
+public final class District extends SerializableEntityBase<District> {
+
+  public /*@ pure @*/ int getD_id();
+
+  public /*@ pure @*/ int getD_w_id();
+
+  public /*@ pure @*/ String getD_name();
+
+  /*@
+    @ // C.ENT:DISTRICT:NAME
+    @ requires d_name.length() <= 10;
+    @*/
+  public void setD_name(final String d_name);
+
+  public /*@ pure @*/ String getD_street_1();
+
+  /*@
+    @ // C.ENT:DISTRICT:STREET_1
+    @ requires d_street_1.length() <= 20;
+    @*/
+  public void setD_street_1(final String d_street_1);
+
+  public /*@ pure @*/ String getD_street_2();
+
+  /*@
+    @ // C.ENT:DISTRICT:STREET_2
+    @ requires d_street_2.length() <= 20;
+    @*/
+  public void setD_street_2(final String d_street_2);
+
+  public /*@ pure @*/ String getD_city();
+
+  /*@
+    @ // C.ENT:DISTRICT:CITY
+    @ requires d_city.length() <= 20;
+    @*/
+  public void setD_city(final String d_city);
+
+  public /*@ pure @*/ String getD_state();
+
+  /*@
+    @ // C.ENT:DISTRICT:STATE
+    @ requires d_state.length() == 2;
+    @*/
+  public void setD_state(final String d_state);
+
+  public /*@ pure @*/ String getD_zip();
+
+  /*@
+    @ // C.ENT:DISTRICT:ZIP
+    @ requires d_zip.length() == 9;
+    @*/
+  public void setD_zip(final String d_zip);
+
+  public /*@ pure @*/ double getD_tax();
+
+  public /*@ pure @*/ double getD_ytd();
+
+  public /*@ pure @*/ int getD_next_o_id();
+
+
+  public static final class DistrictBuilder {
+
+    /*@
+      @ // C.ENT:DISTRICT:NAME
+      @ requires name.length() <= 10;
+      @*/
+    public DistrictBuilder name(final String name);
+
+    /*@
+      @ // C.ENT:DISTRICT:STREET_1
+      @ requires street_1.length() <= 10;
+      @*/
+    public DistrictBuilder street_1(final String street_1);
+
+    /*@
+      @ // C.ENT:DISTRICT:STREET_2
+      @ requires street_2.length() <= 10;
+      @*/
+    public DistrictBuilder street_2(final String street_2);
+
+    /*@
+      @ // C.ENT:DISTRICT:CITY
+      @ requires city.length() <= 10;
+      @*/
+    public DistrictBuilder city(final String city);
+
+    /*@
+      @ // C.ENT:DISTRICT:STATE
+      @ requires state.length() == 2;
+      @*/
+    public DistrictBuilder state(final String state);
+
+    /*@
+      @ // C.ENT:DISTRICT:ZIP
+      @ requires zip.length() == 9;
+      @*/
+    public DistrictBuilder zip(final String zip);
+  }
+}

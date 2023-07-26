@@ -1,0 +1,30 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+package hu.bme.mit.ftsrg.chaincode.tpcc.data.output;
+
+import java.util.List;
+
+public final class OrderStatusOutput {
+
+  public /*@ pure @*/ int getW_id();
+
+  public /*@ pure @*/ int getD_id();
+
+  public /*@ pure @*/ int getC_id();
+
+  public /*@ pure @*/ String getC_first();
+
+  public /*@ pure @*/ String getC_middle();
+
+  public /*@ pure @*/ String getC_last();
+
+  public /*@ pure @*/ double getC_balance();
+
+  public /*@ pure @*/ int getO_id();
+
+  public /*@ pure @*/ String getO_entry_d();
+
+  public /*@ pure @*/ int getO_carrier_id();
+
+  public /*@ pure @*/ List<OrderLineData> getOrder_lines();
+}

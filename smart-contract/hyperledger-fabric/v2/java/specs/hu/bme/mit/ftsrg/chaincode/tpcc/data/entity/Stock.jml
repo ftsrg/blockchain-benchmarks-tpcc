@@ -1,0 +1,214 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+package hu.bme.mit.ftsrg.chaincode.tpcc.data.entity;
+
+import hu.bme.mit.ftsrg.chaincode.dataaccess.SerializableEntityBase;
+
+public final class Stock extends SerializableEntityBase<Stock> {
+
+  public /*@ pure @*/ int getS_i_id();
+
+  public /*@ pure @*/ int getS_w_id();
+
+  public /*@ pure @*/ int getS_quantity();
+
+  public /*@ pure @*/ String getS_dist_01();
+
+  /*@
+    @ // C.ENT:STOCK:DIST_01
+    @ requires s_dist_01.length() == 24;
+    @*/
+  public void setS_dist_01(final String s_dist_01);
+
+  public /*@ pure @*/ String getS_dist_02();
+
+  /*@
+    @ // C.ENT:STOCK:DIST_02
+    @ requires s_dist_02.length() == 24;
+    @*/
+  public void setS_dist_02(final String s_dist_02);
+
+  public /*@ pure @*/ String getS_dist_03();
+
+  /*@
+    @ // C.ENT:STOCK:DIST_03
+    @ requires s_dist_03.length() == 24;
+    @*/
+  public void setS_dist_03(final String s_dist_03);
+
+  public /*@ pure @*/ String getS_dist_04();
+
+  /*@
+    @ // C.ENT:STOCK:DIST_04
+    @ requires s_dist_04.length() == 24;
+    @*/
+  public void setS_dist_04(final String s_dist_04);
+
+  public /*@ pure @*/ String getS_dist_05();
+
+  /*@
+    @ // C.ENT:STOCK:DIST_05
+    @ requires s_dist_05.length() == 24;
+    @*/
+  public void setS_dist_05(final String s_dist_05);
+
+  public /*@ pure @*/ String getS_dist_06();
+
+  /*@
+    @ // C.ENT:STOCK:DIST_06
+    @ requires s_dist_06.length() == 24;
+    @*/
+  public void setS_dist_06(final String s_dist_06);
+
+  public /*@ pure @*/ String getS_dist_07();
+
+  /*@
+    @ // C.ENT:STOCK:DIST_07
+    @ requires s_dist_07.length() == 24;
+    @*/
+  public void setS_dist_07(final String s_dist_07);
+
+  public /*@ pure @*/ String getS_dist_08();
+
+  /*@
+    @ // C.ENT:STOCK:DIST_08
+    @ requires s_dist_08.length() == 24;
+    @*/
+  public void setS_dist_08(final String s_dist_08);
+
+  public /*@ pure @*/ String getS_dist_09();
+
+  /*@
+    @ // C.ENT:STOCK:DIST_09
+    @ requires s_dist_09.length() == 24;
+    @*/
+  public void setS_dist_09(final String s_dist_09);
+
+  public /*@ pure @*/ String getS_dist_10();
+
+  /*@
+    @ // C.ENT:STOCK:DIST_10
+    @ requires s_dist_10.length() == 24;
+    @*/
+  public void setS_dist_10(final String s_dist_10);
+
+  public /*@ pure @*/ int getS_ytd();
+
+  /*@
+    @ // C.ENT:STOCK:YTD
+    @ requires s_ytd >= 0;
+    @*/
+  public void setS_ytd(final int s_ytd);
+
+  public /*@ pure @*/ int getS_order_cnt();
+
+  /*@
+    @ // C.ENT:STOCK:ORDER_CNT
+    @ requires s_order_cnt >= 0;
+    @*/
+  public void setS_order_cnt(final int s_order_cnt);
+
+  public /*@ pure @*/ int getS_remote_cnt();
+
+  /*@
+    @ // C.ENT:STOCK:REMOTE_CNT
+    @ requires s_remote_cnt >= 0;
+    @*/
+  public void setS_remote_cnt(final int s_remote_cnt);
+
+  public /*@ pure @*/ String getS_data();
+
+  /*@
+    @ // C.ENT:STOCK:DATA
+    @ requires s_data.length() <= 50;
+    @*/
+  public void setS_data(final String s_data);
+
+
+  public static final class StockBuilder {
+
+    /*@
+      @ // C.ENT:STOCK:DIST_01
+      @ requires dist_01.length() == 24;
+      @*/
+    public StockBuilder dist_01(final String dist_01);
+
+    /*@
+      @ // C.ENT:STOCK:DIST_02
+      @ requires dist_02.length() == 24;
+      @*/
+    public StockBuilder dist_02(final String dist_02);
+
+    /*@
+      @ // C.ENT:STOCK:DIST_03
+      @ requires dist_03.length() == 24;
+      @*/
+    public StockBuilder dist_03(final String dist_03);
+
+    /*@
+      @ // C.ENT:STOCK:DIST_04
+      @ requires dist_04.length() == 24;
+      @*/
+    public StockBuilder dist_04(final String dist_04);
+
+    /*@
+      @ // C.ENT:STOCK:DIST_05
+      @ requires dist_05.length() == 24;
+      @*/
+    public StockBuilder dist_05(final String dist_05);
+
+    /*@
+      @ // C.ENT:STOCK:DIST_06
+      @ requires dist_06.length() == 24;
+      @*/
+    public StockBuilder dist_06(final String dist_06);
+
+    /*@
+      @ // C.ENT:STOCK:DIST_07
+      @ requires dist_07.length() == 24;
+      @*/
+    public StockBuilder dist_07(final String dist_07);
+
+    /*@
+      @ // C.ENT:STOCK:DIST_08
+      @ requires dist_08.length() == 24;
+      @*/
+    public StockBuilder dist_08(final String dist_08);
+
+    /*@
+      @ // C.ENT:STOCK:DIST_09
+      @ requires dist_09.length() == 24;
+      @*/
+    public StockBuilder dist_09(final String dist_09);
+
+    /*@
+      @ // C.ENT:STOCK:DIST_10
+      @ requires dist_10.length() == 24;
+      @*/
+    public StockBuilder dist_10(final String dist_10);
+
+    /*@
+      @ // C.ENT:STOCK:YTD
+      @ requires ytd >= 0;
+      @*/
+    public StockBuilder ytd(final int ytd);
+
+    /*@
+      @ // C.ENT:STOCK:ORDER_CNT
+      @ requires order_cnt >= 0;
+      @*/
+    public StockBuilder order_cnt(final int order_cnt);
+
+    /*@
+      @ // C.ENT:STOCK:REMOTE_CNT
+      @ requires remote_cnt >= 0;
+      @*/
+    public StockBuilder remote_cnt(final int remote_cnt);
+
+    /*@
+      @ // C.ENT:STOCK:DATA
+      @ requires data.length() <= 50;
+      @*/
+    public StockBuilder data(final String data);
+  }
+}

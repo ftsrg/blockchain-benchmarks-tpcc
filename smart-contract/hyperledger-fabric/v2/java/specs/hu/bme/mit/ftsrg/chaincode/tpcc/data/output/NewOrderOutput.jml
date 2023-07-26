@@ -1,0 +1,35 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+package hu.bme.mit.ftsrg.chaincode.tpcc.data.output;
+
+import hu.bme.mit.ftsrg.chaincode.tpcc.data.extra.ItemsData;
+import java.util.List;
+
+public final class NewOrderOutput {
+
+  public /*@ pure @*/ int getW_id();
+
+  public /*@ pure @*/ int getD_id();
+
+  public /*@ pure @*/ int getC_id();
+
+  public /*@ pure @*/ String getC_last();
+
+  public /*@ pure @*/ String getC_credit();
+
+  public /*@ pure @*/ double getC_discount();
+
+  public /*@ pure @*/ double getW_tax();
+
+  public /*@ pure @*/ double getD_tax();
+
+  public /*@ pure @*/ int getO_ol_cnt();
+
+  public /*@ pure @*/ int getO_id();
+
+  public /*@ pure @*/ String getO_entry_d();
+
+  public /*@ pure @*/ double getTotal_amount();
+
+  public /*@ pure @*/ List<ItemsData> getItems();
+}

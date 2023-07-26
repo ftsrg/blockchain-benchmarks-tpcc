@@ -1,0 +1,58 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+package hu.bme.mit.ftsrg.chaincode.tpcc.data.entity;
+
+import hu.bme.mit.ftsrg.chaincode.dataaccess.SerializableEntityBase;
+
+public final class Item extends SerializableEntityBase<Item> {
+
+  public /*@ pure @*/ int getI_id();
+
+  public /*@ pure @*/ int getI_im_id();
+
+  public /*@ pure @*/ String getI_name();
+
+  /*@
+    @ // C.ENT:ITEM:NAME
+    @ requires i_name.length() <= 24;
+    @*/
+  public void setI_name(final String i_name);
+
+  public /*@ pure @*/ double getI_price();
+
+  /*@
+    @ // C.ENT:ITEM:PRICE
+    @ requires i_price >= 0;
+    @*/
+  public void setI_price(final double i_price);
+
+  public /*@ pure @*/ String getI_data();
+
+  /*@
+    @ // C.ENT:ITEM:DATA
+    @ requires i_data.length() <= 50;
+    @*/
+  public void setI_data(final String i_data);
+
+
+  public static final class ItemBuilder {
+
+    /*@
+      @ // C.ENT:ITEM:NAME
+      @ requires name.length() <= 24;
+      @*/
+    public ItemBuilder name(final String name);
+
+    /*@
+      @ // C.ENT:ITEM:PRICE
+      @ requires price >= 0;
+      @*/
+    public ItemBuilder price(final double price);
+
+    /*@
+      @ // C.ENT:ITEM:DATA
+      @ requires data.length() <= 50;
+      @*/
+    public ItemBuilder data(final String data);
+  }
+}

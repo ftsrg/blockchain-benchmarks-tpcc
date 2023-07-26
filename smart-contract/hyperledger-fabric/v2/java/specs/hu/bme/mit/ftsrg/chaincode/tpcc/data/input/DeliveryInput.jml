@@ -1,0 +1,12 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+package hu.bme.mit.ftsrg.chaincode.tpcc.data.input;
+
+public final class DeliveryInput {
+
+  public /*@ pure @*/ int getW_id();
+
+  public /*@ pure @*/ int getO_carrier_id();
+
+  public /*@ pure @*/ String getOl_delivery_d();
+}

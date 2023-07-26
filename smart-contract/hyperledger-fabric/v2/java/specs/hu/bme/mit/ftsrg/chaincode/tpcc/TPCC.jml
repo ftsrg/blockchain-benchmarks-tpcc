@@ -1,0 +1,60 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+package hu.bme.mit.ftsrg.chaincode.tpcc;
+
+import hu.bme.mit.ftsrg.chaincode.dataaccess.exception.EntityExistsException;
+import hu.bme.mit.ftsrg.chaincode.dataaccess.exception.EntityNotFoundException;
+import hu.bme.mit.ftsrg.chaincode.tpcc.data.input.*;
+import hu.bme.mit.ftsrg.chaincode.tpcc.data.output.*;
+import hu.bme.mit.ftsrg.chaincode.tpcc.middleware.TPCCContext;
+import org.hyperledger.fabric.contract.ContractInterface;
+
+public final class TPCC implements ContractInterface {
+
+  /*@
+    @ ensures \result.getW_id() == input.getW_id(); // C.TXIO:DELIVERY:EQ_W_ID
+    @ ensures \result.getO_carrier_id() == input.getO_carrier_id(); // C.TXIO:DELIVERY:EQ_CARRIER_ID
+    @ ensures \result.getDelivered().size() <= 10; // C.TXIO:DELIVERY:LIM_DELIVERED
+    @ ensures \result.getSkipped() >= 0 & \result.getSkipped() <= 10; // C.TXIO:DELIVERY:LIM_SKIPPED
+    @ ensures \result.getSkipped() == 10 - \result.getDelivered().size(); // C.TXIO:DELIVERY:FORM_SKIPPED
+    @*/
+  private DeliveryOutput delivery(final TPCCContext ctx, final DeliveryInput input)
+      throws EntityNotFoundException, EntityExistsException;
+
+  /*@
+    @ ensures \result.getW_id() == input.getW_id(); // C.TXIO:NEWORDER:EQ_W_ID
+    @ ensures \result.getD_id() == input.getD_id(); // C.TXIO:NEWORDER:EQ_D_ID
+    @ ensures \result.getC_id() == input.getC_id(); // C.TXIO:NEWORDER:EQ_D_ID
+    @ ensures \result.getO_ol_cnt() == input.getI_ids().length; // C.TXIO:NEWORDER:SIZE_OL_CNT
+    @ ensures \result.getItems().size() == input.getI_ids().length; // C.TXIO:NEWORDER:SIZE_ITEMS
+    @*/
+  private NewOrderOutput newOrder(final TPCCContext ctx, final NewOrderInput input)
+      throws EntityNotFoundException, EntityExistsException;
+
+  /*@
+    @ ensures \result.getW_id() == input.getW_id(); // C.TXIO:ORDERSTATUS:EQ_W_ID
+    @ ensures \result.getD_id() == input.getD_id(); // C.TXIO:ORDERSTATUS:EQ_D_ID
+    @ ensures \result.getC_id() == input.getC_id(); // C.TXIO:ORDERSTATUS:EQ_D_ID
+    @*/
+  private OrderStatusOutput orderStatus(final TPCCContext ctx, final OrderStatusInput input)
+      throws NotFoundException, EntityNotFoundException;
+
+  /*@
+    @ ensures \result.getW_id() == input.getW_id(); // C.TXIO:PAYMENT:EQ_W_ID
+    @ ensures \result.getD_id() == input.getD_id(); // C.TXIO:PAYMENT:EQ_D_ID
+    @ ensures \result.getC_id() == input.getC_id(); // C.TXIO:PAYMENT:EQ_D_ID
+    @ ensures \result.getH_amount() == input.getH_amount(); // C.TXIO:PAYMENT:EQ_H_AMOUNT
+    @ ensures \result.getH_date() == input.getH_date(); // C.TXIO:PAYMENT:EQ_H_DATE
+    @*/
+  private PaymentOutput payment(final TPCCContext ctx, final PaymentInput input)
+      throws EntityNotFoundException, EntityExistsException, NotFoundException;
+
+  /*@
+    @ ensures \result.getW_id() == input.getW_id(); // C.TXIO:STOCKLEVEL:EQ_W_ID
+    @ ensures \result.getD_id() == input.getD_id(); // C.TXIO:STOCKLEVEL:EQ_D_ID
+    @ ensures \result.getThreshold() == input.getThreshold(); // C.TXIO:STOCKLEVEL:EQ_THRESHOLD
+    @ ensures \result.getLow_stock() >= 0; // C.TXIO:STOCKLEVEL:LIM_LOW_STOCK
+    @*/
+  private StockLevelOutput stockLevel(final TPCCContext ctx, final StockLevelInput input)
+      throws EntityNotFoundException, NotFoundException;
+}

@@ -1,0 +1,14 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+package hu.bme.mit.ftsrg.chaincode.tpcc.data.input;
+
+public final class OrderStatusInput {
+
+  public /*@ pure @*/ int getW_id();
+
+  public /*@ pure @*/ int getD_id();
+
+  public /*@ pure @*/ int getC_id();
+
+  public /*@ pure @*/ String getC_last();
+}

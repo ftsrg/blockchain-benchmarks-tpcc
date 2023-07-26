@@ -1,0 +1,17 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+package hu.bme.mit.ftsrg.chaincode.tpcc.data.output;
+
+import hu.bme.mit.ftsrg.chaincode.tpcc.data.extra.DeliveredOrder;
+import java.util.List;
+
+public final class DeliveryOutput {
+
+  public /*@ pure @*/ int getW_id();
+
+  public /*@ pure @*/ int getO_carrier_id();
+
+  public /*@ pure @*/ List<DeliveredOrder> getDelivered();
+
+  public /*@ pure @*/ int getSkipped();
+}

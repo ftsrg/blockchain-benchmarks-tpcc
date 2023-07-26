@@ -1,0 +1,40 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+package hu.bme.mit.ftsrg.chaincode.tpcc.data.entity;
+
+import hu.bme.mit.ftsrg.chaincode.dataaccess.SerializableEntityBase;
+
+public final class History extends SerializableEntityBase<History> {
+
+  public /*@ pure @*/ int getH_c_id();
+
+  public /*@ pure @*/ int getH_c_d_id();
+
+  public /*@ pure @*/ int getH_c_w_id();
+
+  public /*@ pure @*/ int getH_d_id();
+
+  public /*@ pure @*/ int getH_w_id();
+
+  public /*@ pure @*/ String getH_date();
+
+  public /*@ pure @*/ double getH_amount();
+
+  public /*@ pure @*/ String getH_data();
+
+  /*@
+    @ // C.ENT:HISTORY:DATA
+    @ requires h_data.length() <= 24;
+    @*/
+  public void setH_data(final String h_data);
+
+
+  public static final class HistoryBuilder {
+
+    /*@
+      @ // C.ENT:HISTORY:DATA
+      @ requires data.length() <= 24;
+      @*/
+    public HistoryBuilder data(final String data);
+  }
+}

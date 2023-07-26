@@ -1,0 +1,52 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+package hu.bme.mit.ftsrg.chaincode.tpcc.data.entity;
+
+import hu.bme.mit.ftsrg.chaincode.dataaccess.SerializableEntityBase;
+
+public final class Order extends SerializableEntityBase<Order> {
+
+  public /*@ pure @*/ int getO_id();
+
+  public /*@ pure @*/ int getO_d_id();
+
+  public /*@ pure @*/ int getO_w_id();
+
+  public /*@ pure @*/ int getO_c_id();
+
+  public /*@ pure @*/ String getO_entry_d();
+
+  public /*@ pure @*/ int getO_carrier_id();
+
+  public /*@ pure @*/ int getO_ol_cnt();
+
+  /*@
+    @ // C.ENT:ORDER:OL_CNT;
+    @ requires o_ol_cnt >= 0;
+    @*/
+  public void setO_ol_cnt(final int o_ol_cnt);
+
+  public /*@ pure @*/ int getO_all_local();
+
+  /*@
+    @ // C.ENT:ORDER:O_ALL_LOCAL;
+    @ requires o_all_local >= 0;
+    @*/
+  public void setO_all_local(final int o_all_local);
+
+
+  public static final class OrderBuilder {
+
+    /*@
+      @ // C.ENT:ORDER:OL_CNT;
+      @ requires ol_cnt >= 0;
+      @*/
+    public OrderBuilder ol_cnt(final int ol_cnt);
+
+    /*@
+      @ // C.ENT:ORDER:OL_CNT;
+      @ requires all_local >= 0;
+      @*/
+    public OrderBuilder all_local(final int all_local);
+  }
+}

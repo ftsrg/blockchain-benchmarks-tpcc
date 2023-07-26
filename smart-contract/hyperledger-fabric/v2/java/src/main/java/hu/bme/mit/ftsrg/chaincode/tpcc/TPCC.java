@@ -65,66 +65,16 @@ public final class TPCC implements ContractInterface {
    * @param ctx The TX context.
    * @param parameters The JSON encoded parameters of the TX profile.
    * @return The JSON encoded query results according to the specification.
+   * @throws EntityNotFoundException if a required entity is not found
    */
   @Transaction(intent = Transaction.TYPE.SUBMIT)
-  public String doDelivery(final TPCCContext ctx, final String parameters)
+  public String delivery(final TPCCContext ctx, final String parameters)
       throws EntityNotFoundException {
     final String paramString = methodLogger.generateParamsString(ctx, parameters);
-    methodLogger.logStart("doDelivery", paramString);
-
-    /*
-     * [TPC-C 2.7.4.2]
-     * For a given warehouse number (W_ID), for each of the districts
-     * (D_W_ID, D_ID) within that warehouse, and for a given carrier
-     * number (O_CARRIER_ID): ...
-     */
-    final DeliveryInput params = JSON.deserialize(parameters, DeliveryInput.class);
-
-    final List<DeliveredOrder> deliveredOrders = new ArrayList<>();
-    int skipped = 0;
-    logger.debug("Begin for loop to retrieve oldest NEW-ORDERs from the various districts");
-    for (int d_id = 1; d_id <= DISTRICT_COUNT; ++d_id) {
-      /*
-       * [TPC-C 2.7.4.2 (3)]
-       * The row in the NEW-ORDER table with matching NO_W_ID (equals
-       * W_ID) and NO_D_ID (equals D_ID) and with the lowest NO_O_ID
-       * value is selected.  This is the oldest undelivered order of
-       * that district.  NO_O_ID, the order number, is retrieved. [...]
-       */
-      final DeliveredOrder deliveredOrder =
-          this.getOldestNewOrderForDistrict(
-              ctx, params.getW_id(), d_id, params.getO_carrier_id(), params.getOl_delivery_d());
-      if (deliveredOrder == null) {
-        /*
-         * [TPC-C 2.7.4.2 (3) (continued)]
-         * ... If no matching row is found, then the delivery of an order
-         * for this district is skipped.  The condition in which no
-         * outstanding order is present at a given district must be
-         * handled by skipping the delivery of an order for that district
-         * only and resuming the delivery of an order from all remaining
-         * districts of the selected warehouse. If this condition occurs
-         * in more than 1%, or in more than one, whichever is greater, of
-         * the business transactions, it must be reported. [...]
-         */
-        logger.debug(
-            "Could not find new order for District({}, {}); skipping it", params.getW_id(), d_id);
-        ++skipped;
-      } else {
-        deliveredOrders.add(deliveredOrder);
-      }
-    }
-
+    methodLogger.logStart("delivery", paramString);
     final String json =
-        JSON.serialize(
-            DeliveryOutput.builder()
-                .w_id(params.getW_id())
-                .o_carrier_id(params.getO_carrier_id())
-                .delivered(deliveredOrders)
-                .skipped(skipped)
-                .build());
-
-    ctx.commit();
-    methodLogger.logEnd("doDelivery", paramString, json);
+        JSON.serialize(this.delivery(ctx, JSON.deserialize(parameters, DeliveryInput.class)));
+    methodLogger.logEnd("delivery", paramString, json);
     return json;
   }
 
@@ -134,253 +84,35 @@ public final class TPCC implements ContractInterface {
    * @param ctx The TX context.
    * @param parameters The JSON encoded parameters of the TX profile.
    * @return The JSON encoded query results according to the specification.
+   * @throws EntityNotFoundException if a required entity is not found
+   * @throws EntityExistsException if an entity that should be created already exists
    */
   @Transaction(intent = Transaction.TYPE.SUBMIT)
-  public String doNewOrder(final TPCCContext ctx, final String parameters)
+  public String newOrder(final TPCCContext ctx, final String parameters)
       throws EntityNotFoundException, EntityExistsException {
     final String paramString = methodLogger.generateParamsString(ctx, parameters);
-    methodLogger.logStart("doNewOrder", paramString);
-
-    final Registry registry = ctx.getRegistry();
-
-    /*
-     * [TPC-C 2.4.2.2]
-     * For a given warehouse number (W_ID), district number (D_W_ID,
-     * D_ID), customer number (C_W_ID, C_D_ID, C_ ID), count of items
-     * (ol_cnt, not communicated to the SUT), and for a given set of
-     * items (OL_I_ID), supplying warehouses (OL_SUPPLY_W_ID), and
-     * quantities (OL_QUANTITY): ...
-     */
-    final NewOrderInput params = JSON.deserialize(parameters, NewOrderInput.class);
-
-    /*
-     * [TPC-C 2.4.2.2 (3)]
-     * The row in the WAREHOUSE table with matching W_ID is selected
-     * and W_TAX, the warehouse tax rate, is retrieved.
-     */
-    final Warehouse warehouse = Warehouse.builder().id(params.getW_id()).build();
-    registry.read(ctx, warehouse);
-
-    /*
-     * [TPC-C 2.4.2.2 (4)]
-     * The row in the DISTRICT table with matching D_W_ID and D_ ID is
-     * selected, D_TAX, the district tax rate, is retrieved, [...]
-     */
-    final District district =
-        District.builder().w_id(warehouse.getW_id()).id(params.getD_id()).build();
-    registry.read(ctx, district);
-    /*
-     * [TPC-C 2.4.2.2 (4) (continued)]
-     * ... and D_NEXT_O_ID, the next available order number for the
-     * district, is retrieved and incremented by one.
-     */
-    final int nextOrderId = district.getD_next_o_id();
-    district.incrementNextOrderID();
-    registry.update(ctx, district);
-    logger.debug(
-        "Next available order number for DISTRICT with D_ID={} incremented; new DISTRICT: {}",
-        district.getD_id(),
-        district);
-
-    /*
-     * [TPC-C 2.4.2.2 (5)]
-     * The row in the CUSTOMER table with matching C_W_ID, C_D_ID, and
-     * C_ID is selected and C_DISCOUNT, the customer's discount rate,
-     * C_LAST, the customer's last name, and C_CREDIT, the customer's
-     * credit status, are retrieved.
-     */
-    final Customer customer =
-        Customer.builder()
-            .w_id(warehouse.getW_id())
-            .d_id(district.getD_id())
-            .id(params.getC_id())
-            .build();
-    registry.read(ctx, customer);
-
-    /*
-     * [TPC-C 2.4.2.2 (6)]
-     * A new row is inserted into both the NEW-ORDER table and the
-     * ORDER table to reflect the creation of the new order. [...]
-     */
-    final NewOrder newOrder =
-        NewOrder.builder()
-            .o_id(nextOrderId)
-            .d_id(district.getD_id())
-            .w_id(warehouse.getW_id())
-            .build();
-    registry.create(ctx, newOrder);
-    /*
-     * [TPC-C 2.4.2.2 (6) (continued)]
-     * ... O_CARRIER_ID is set to a null value.  If the order includes
-     * only home order-lines, then O_ALL_LOCAL is set to 1, otherwise
-     * O_ALL_LOCAL is set to 0.
-     */
-    /*
-     * [TPC-C 2.4.2.2 (7)]
-     * The number of items, O_OL_CNT, is computed to match ol_cnt.
-     */
-    final Order order =
-        Order.builder()
-            .id(nextOrderId)
-            .d_id(district.getD_id())
-            .w_id(warehouse.getW_id())
-            .c_id(customer.getC_id())
-            .entry_d(params.getO_entry_d())
-            .carrier_id(0)
-            .ol_cnt(params.getI_ids().length)
-            .all_local(this.allMatch(params.getI_w_ids(), warehouse.getW_id()) ? 1 : 0)
-            .build();
-    registry.create(ctx, order);
-
-    /*
-     * [TPC-C 2.4.2.2 (8)]
-     * For each O_OL_CNT item on the order: ...
-     */
-    final List<ItemsData> itemsDataList = new ArrayList<>();
-    double totalOrderLineAmount = 0;
-    final int[] i_ids = params.getI_ids();
-    final int[] i_w_ids = params.getI_w_ids();
-    final int[] i_qtys = params.getI_qtys();
-    for (int i = 0; i < params.getI_ids().length; ++i)
-      totalOrderLineAmount +=
-          this.createOrderLineAndGetAmount(
-              ctx,
-              i_ids[i],
-              i_w_ids[i],
-              i_qtys[i],
-              warehouse.getW_id(),
-              district.getD_id(),
-              nextOrderId,
-              i,
-              itemsDataList);
-
-    /*
-     * [TPC-C 2.4.2.2 (9)]
-     * The total-amount for the complete order is computed as:
-     * sum(OL_AMOUNT) * (1 - C_DISCOUNT) * (1 + W_TAX + D_TAX)
-     */
-    final double totalAmount =
-        totalOrderLineAmount
-            * (1 - customer.getC_discount())
-            * (1 + warehouse.getW_tax() + district.getD_tax());
-    logger.debug("Total amount is {}", totalAmount);
-
-    /*
-     * [TPC-C 2.4.3.3 (1)]
-     * One non-repeating group of fields: W_ID, D_ID, C_ID, O_ID,
-     * O_OL_CNT, C_LAST, C_CREDIT, C_DISCOUNT, W_TAX, D_TAX,
-     * O_ENTRY_D, total_amount, and an optional execution status
-     * message other than "Item number is not valid".
-     */
+    methodLogger.logStart("newOrder", paramString);
     final String json =
-        JSON.serialize(
-            NewOrderOutput.builder()
-                .fromWarehouse(warehouse)
-                .fromDistrict(district)
-                .fromCustomer(customer)
-                .fromOrder(order)
-                .total_amount(totalAmount)
-                .items(itemsDataList)
-                .build());
-
-    ctx.commit();
-    methodLogger.logEnd("doNewOrder", paramString, json);
+        JSON.serialize(this.newOrder(ctx, JSON.deserialize(parameters, NewOrderInput.class)));
+    methodLogger.logEnd("newOrder", paramString, json);
     return json;
   }
 
   /**
-   * Performs the Order-Status read TX profile [2.6].
+   * Performs the Order-Status read TX profile [TPC-C 2.6].
    *
    * @param ctx The TX context.
    * @param parameters The JSON encoded parameters of the TX profile.
    * @return The JSON encoded query results according to the specification.
    */
   @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String doOrderStatus(final TPCCContext ctx, final String parameters)
+  public String orderStatus(final TPCCContext ctx, final String parameters)
       throws NotFoundException, EntityNotFoundException {
     final String paramString = methodLogger.generateParamsString(ctx, parameters);
-    methodLogger.logStart("doOrderStatus", paramString);
-
-    /*
-     * [TPC-C 2.6.2.2]
-     * For a given customer number (C_W_ID, C_D_ID, C_ID): ...
-     */
-    final OrderStatusInput params = JSON.deserialize(parameters, OrderStatusInput.class);
-
-    /*
-     * [TPC-C 2.6.2.2 (3.1)]
-     * Case 1, the CUSTOMER is selected based on CUSTOMER number: the
-     * row in the CUSTOMER table with matching C_W_ID, C_D_ID, and
-     * C_ID is selected and C_BALANCE, C_FIRST, C_MIDDLE, and C_LAST
-     * are retrieved. */
-    /*
-     * [TPC-C 2.6.2.2 (3.2)]
-     * Case 2, the customer is selected based on customer last name:
-     * all rows in the CUSTOMER table with matching C_W_ID, C_D_ID and
-     * C_LAST are selected sorted by C_FIRST in ascending order. Let n
-     * be the number of rows selected. C_BALANCE, C_FIRST, C_MIDDLE,
-     * and C_LAST are retrieved from the row at position n/ 2 rounded
-     * up in the sorted set of selected rows from the CUSTOMER table.
-     */
-    final Customer customer =
-        getCustomerByIDOrLastName(
-            ctx, params.getW_id(), params.getD_id(), params.getC_id(), params.getC_last());
-    /*
-     * [TPC-C 2.6.2.2 (4)]
-     * The row in the ORDER table with matching O_W_ID (equals
-     * C_W_ID), O_D_ID (equals C_D_ID), O_C_ID (equals C_ID), and with
-     * the largest existing O_ID, is selected. This is the most recent
-     * order placed by that customer. O_ID, O_ENTRY_D, and
-     * O_CARRIER_ID are retrieved.
-     */
-    final Order order =
-        getLastOrderOfCustomer(ctx, customer.getC_w_id(), customer.getC_d_id(), customer.getC_id());
-
-    /*
-     * [TPC-C 2.6.2.2 (5)]
-     * All rows in the ORDER-LINE table with matching OL_W_ID (equals
-     * O_W_ID), OL_D_ID (equals O_D_ID), and OL_O_ID (equals O_ID) are
-     * selected and the corresponding sets of OL_I_ID, OL_SUPPLY_W_ID,
-     * OL_QUANTITY, OL_AMOUNT, and OL_DELIVERY_D are retrieved.
-     */
-    final List<OrderLineData> orderLineDataList = new ArrayList<>();
-    for (int i = 1; i <= order.getO_ol_cnt(); ++i) {
-      final OrderLineData orderLineData = this.getOrderLineDataForOrder(ctx, order, i);
-      logger.debug("Created ORDER-LINE data: {}", orderLineData);
-      orderLineDataList.add(orderLineData);
-    }
-
-    /*
-     * [TPC-C 2.6.3.3]
-     * The emulated terminal must display, in the appropriate fields
-     * of the input/output screen, all input data and the output data
-     * resulting from the execution of the transaction. The display
-     * fields are divided in two groups as follows: ...
-     */
-    /*
-     * [TPC-C 2.6.3.3 (1)]
-     * One non-repeating group of fields: W_ID, D_ID, C_ID, C_FIRST,
-     * C_MIDDLE, C_LAST, C_BALANCE, O_ID, O_ENTRY_D, and O_CARRIER_ID;
-     *
-     */
-    /*
-     * [TPC-C 2.6.3.3 (2)]
-     * One repeating group of fields: OL_SUPPLY_W_ID, OL_I_ID,
-     * OL_QUANTITY, OL_AMOUNT, and OL_DELIVERY_D. The group is
-     * repeated O_OL_CNT times (once per item in the order).
-     */
+    methodLogger.logStart("orderStatus", paramString);
     final String json =
-        JSON.serialize(
-            OrderStatusOutput.builder()
-                .w_id(params.getW_id())
-                .d_id(params.getD_id())
-                .fromCustomer(customer)
-                .fromOrder(order)
-                .order_lines(orderLineDataList)
-                .build());
-
-    ctx.commit();
-    methodLogger.logEnd("doOrderStatus", paramString, json);
+        JSON.serialize(this.orderStatus(ctx, JSON.deserialize(parameters, OrderStatusInput.class)));
+    methodLogger.logEnd("orderStatus", paramString, json);
     return json;
   }
 
@@ -390,178 +122,18 @@ public final class TPCC implements ContractInterface {
    * @param ctx The TX context.
    * @param parameters The JSON encoded parameters of the TX profile.
    * @return The JSON encoded query results according to the specification.
+   * @throws EntityNotFoundException if a required entity is not found
+   * @throws EntityExistsException if an entity that should be created already exists
+   * @throws NotFoundException if some entities are not found in the business logic
    */
   @Transaction(intent = Transaction.TYPE.SUBMIT)
-  public String doPayment(final TPCCContext ctx, final String parameters)
+  public String payment(final TPCCContext ctx, final String parameters)
       throws EntityNotFoundException, EntityExistsException, NotFoundException {
     final String paramString = methodLogger.generateParamsString(ctx, parameters);
-    methodLogger.logStart("doPayment", paramString);
-
-    final Registry registry = ctx.getRegistry();
-
-    /*
-     * [TPC-C 2.5.2.2]
-     * For a given warehouse number (W_ID), district number (D_W_ID,
-     * D_ID), customer number (C_W_ID , C_D_ID, C_ ID) or customer last
-     * name (C_W_ID, C_D_ID, C_LAST), and payment amount (H_AMOUNT): ...
-     *
-     */
-    final PaymentInput params = JSON.deserialize(parameters, PaymentInput.class);
-
-    /*
-     * [TPC-C 2.5.2.2 (3)]
-     * The row in the WAREHOUSE table with matching W_ID is selected.
-     * W_NAME, W_STREET_1, W_STREET_2, W_CITY, W_STATE, and W_ZIP are
-     * retrieved [...]
-     */
-    final Warehouse warehouse = Warehouse.builder().id(params.getW_id()).build();
-    registry.read(ctx, warehouse);
-    /*
-     * [TPC-C 2.5.2.2 (3) (continued)]
-     * ... and W_YTD, the warehouse's year-to-date balance, is
-     * increased by H_AMOUNT.
-     */
-    warehouse.increaseYTD(params.getH_amount());
-    registry.update(ctx, warehouse);
-
-    /*
-     * [TPC-C 2.5.2.2 (4)]
-     * The row in the DISTRICT table with matching D_W_ID and D_ID is
-     * selected. D_NAME, D_STREET_1, D_STREET_2, D_CITY, D_STATE, and
-     * D_ZIP are retrieved [...]
-     */
-    final District district =
-        District.builder().w_id(warehouse.getW_id()).id(params.getD_id()).build();
-    registry.read(ctx, district);
-    /*
-     * [TPC-C 2.5.2.2 (4) (continued)]
-     * ... and D_YTD, the district's year-to-date balance, is
-     * increased by H_AMOUNT.
-     */
-    district.increaseYTD(params.getH_amount());
-    registry.update(ctx, district);
-
-    /*
-     * [TPC-C 2.5.2.2 (5.1)]
-     * Case 1, the customer is selected based on customer number: the
-     * row in the CUSTOMER table with matching C_W_ID, C_D_ID and C_ID
-     * is selected. C_FIRST, C_MIDDLE, C_LAST, C_STREET_1, C_STREET_2,
-     * C_CITY, C_STATE, C_ZIP, C_PHONE, C_SINCE, C_CREDIT,
-     * C_CREDIT_LIM, C_DISCOUNT, and C_BALANCE are retrieved. [...]
-     */
-    /*
-     * [TPC-C 2.5.2.2 (5.2)]
-     * Case 2, the customer is selected based on customer last name:
-     * all rows in the CUSTOMER table with matching C_W_ID, C_D_ID and
-     * C_LAST are selected sorted by C_FIRST in ascending order. Let n
-     * be the number of rows selected. C_ID, C_FIRST, C_MIDDLE,
-     * C_STREET_1, C_STREET_2, C_CITY, C_STATE, C_ZIP, C_PHONE,
-     * C_SINCE, C_CREDIT, C_CREDIT_LIM, C_DISCOUNT, and C_BALANCE are
-     * retrieved from the row at position (n/2 rounded up to the next
-     * integer) in the sorted set of selected rows from the CUSTOMER
-     * table. [...]
-     */
-    final Customer customer =
-        getCustomerByIDOrLastName(
-            ctx, warehouse.getW_id(), district.getD_id(), params.getC_id(), params.getC_last());
-    /*
-     * [TPC-C 2.5.2.2 (5.1-2) (continued)]
-     * ... C_BALANCE is decreased by H_AMOUNT. [...]
-     */
-    customer.decreaseBalance(params.getH_amount());
-    /*
-     * [TPC-C 2.5.2.2 (5.1-2) (continued)]
-     * ... C_YTD_PAYMENT is increased by H_AMOUNT. [...]
-     */
-    customer.increaseYTDPayment(params.getH_amount());
-    /*
-     * [TPC-C 2.5.2.2 (5.1-2) (continued)]
-     * ... C_PAYMENT_CNT is incremented by 1.
-     */
-    customer.incrementPaymentCount();
-
-    /*
-     * [TPC-C 2.5.2.2 (6)]
-     * If the value of C_CREDIT is equal to "BC", [...]
-     */
-    if (customer.getC_credit().equals("BC")) {
-      /*
-       * [TPC-C 2.5.2.2 (6) (continued)]
-       * ... then C_DATA is also retrieved from the selected customer
-       * and the following history information: C_ID, C_D_ID, C_W_ID,
-       * D_ID, W_ID, and H_AMOUNT, are inserted at the left of the
-       * C_DATA field by shifting the existing content of C_DATA to
-       * the right by an equal number of bytes [...]
-       */
-      final String historyInfo =
-          generateHistoryInformation(customer, warehouse, district, params.getH_amount());
-      customer.setC_data("%s|%s".formatted(historyInfo, customer.getC_data()));
-      logger.debug("HISTORY information: '{}' inserted at the left of the C_DATA", historyInfo);
-      /*
-       * [TPC-C 2.5.2.2 (6) (continued)]
-       * ... and by discarding the bytes that are shifted out of the
-       * right side of the C_DATA field. The content of the C_DATA
-       * field never exceeds 500 characters.
-       */
-      if (customer.getC_data().length() > 500)
-        customer.setC_data(customer.getC_data().substring(0, 500));
-    }
-    /*
-     * [TPC-C 2.5.2.2 (6) (continued)]
-     * ... The selected customer is updated with the new C_DATA field.
-     */
-    registry.update(ctx, customer);
-
-    /*
-     * [TPC-C 2.5.2.2 (7)]
-     * H_DATA is built by concatenating W_NAME and D_NAME separated by
-     * 4 spaces.
-     */
-    final String h_data =
-        "%s%s%s".formatted(warehouse.getW_name(), " ".repeat(4), district.getD_name());
-
-    /*
-     * [TPC-C 2.5.2.2 (8)]
-     * A new row is inserted into the HISTORY table with H_C_ID =
-     * C_ID, H_C_D_ID = C_D_ID, H_C_W_ID = C_W_ID, H_D_ID = D_ID, and
-     * H_W_ID = W_ID.
-     */
-    final History history =
-        History.builder()
-            .fromCustomer(customer)
-            .d_id(district.getD_id())
-            .w_id(warehouse.getW_id())
-            .date(params.getH_date())
-            .amount(params.getH_amount())
-            .data(h_data)
-            .build();
-    registry.create(ctx, history);
-
-    /*
-     * [TPC-C 2.5.3.3]
-     * The emulated terminal must display, in the appropriate fields
-     * of the input/output screen, all input data and the output data
-     * resulting from the execution of the transaction.  The following
-     * fields are displayed: W_ID, D_ID, C_ID, C_D_ID, C_W_ID,
-     * W_STREET_1, W_STREET_2, W_CITY, W_STATE, W_ZIP, D_STREET_1,
-     * D_STREET_2, D_CITY, D_STATE, D_ZIP, C_FIRST, C_MIDDLE, C_LAST,
-     * C_STREET_1, C_STREET_2, C_CITY, C_STATE, C_ZIP, C_PHONE,
-     * C_SINCE, C_CREDIT, C_CREDIT_LIM, C_DISCOUNT, C_BALANCE, the
-     * first 200 characters of C_DATA (only if C_CREDIT = "BC"),
-     * H_AMOUNT, and H_DATE.
-     */
-    final PaymentOutput output =
-        PaymentOutput.builder()
-            .fromWarehouse(warehouse)
-            .fromCustomer(customer)
-            .fromDistrict(district)
-            .build();
-    if (customer.getC_credit().equals("BC"))
-      output.setC_data(customer.getC_data().substring(0, 200));
-    final String json = JSON.serialize(output);
-
-    ctx.commit();
-    methodLogger.logEnd("doPayment", paramString, json);
+    methodLogger.logStart("payment", paramString);
+    final String json =
+        JSON.serialize(this.payment(ctx, JSON.deserialize(parameters, PaymentInput.class)));
+    methodLogger.logEnd("payment", paramString, json);
     return json;
   }
 
@@ -571,75 +143,17 @@ public final class TPCC implements ContractInterface {
    * @param ctx The TX context.
    * @param parameters The JSON encoded parameters of the TX profile.
    * @return The JSON encoded query results according to the specification.
+   * @throws EntityNotFoundException if a required entity is not found
+   * @throws NotFoundException if some entities are not found in the business logic
    */
   @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String doStockLevel(final TPCCContext ctx, final String parameters)
+  public String stockLevel(final TPCCContext ctx, final String parameters)
       throws EntityNotFoundException, NotFoundException {
     final String paramString = methodLogger.generateParamsString(ctx, parameters);
-    methodLogger.logStart("doStockLevel", paramString);
-
-    /*
-     * [TPC-C 2.8.2.2]
-     * For a given warehouse number (W_ID), district number (D_W_ID,
-     * D_ID), and stock level threshold (threshold): ...
-     */
-    final StockLevelInput params = JSON.deserialize(parameters, StockLevelInput.class);
-
-    /*
-     * [TPC-C 2.8.2.2 (3)]
-     * The row in the DISTRICT table with matching D_W_ID and D_ID is
-     * selected and D_NEXT_O_ID is retrieved.
-     */
-    final District district =
-        District.builder().w_id(params.getW_id()).id(params.getD_id()).build();
-    ctx.getRegistry().read(ctx, district);
-
-    /*
-     * [TPC-C 2.8.2.2 (4)]
-     * All rows in the ORDER-LINE table with matching OL_W_ID (equals
-     * W_ID), OL_D_ID (equals D_ID), and OL_O_ID (lower than
-     * D_NEXT_O_ID and greater than or equal to D_NEXT_O_ID minus 5)
-     * are selected. They are the items for 5 recent orders of the
-     * district.
-     */
-    final int o_id_min = Math.max(district.getD_next_o_id() - 5, 0);
-    final int o_id_max = district.getD_next_o_id();
-    logger.debug("O_ID_MIN={}, O_ID_MAX={}", o_id_min, o_id_max);
-    logger.debug("Getting the most recent 5 orders");
-    final List<Integer> recentItemIds =
-        getItemIdsOfRecentOrders(ctx, params.getW_id(), district.getD_id(), o_id_min, o_id_max);
-
-    /*
-     * [TPC-C 2.8.2.2 (5)]
-     * All rows in the STOCK table with matching S_I_ID (equals
-     * OL_I_ID) and S_W_ID (equals W_ID) from the list of distinct
-     * item numbers and with S_QUANTITY lower than threshold are
-     * counted (giving low_stock).
-     */
-    int lowStock = 0;
-    for (final int i_id : recentItemIds) {
-      final Stock stock = Stock.builder().w_id(params.getW_id()).i_id(i_id).build();
-      ctx.getRegistry().read(ctx, stock);
-      if (stock.getS_quantity() < params.getThreshold()) {
-        logger.debug("The stock quantity is less than the threshold");
-        ++lowStock;
-      }
-    }
-    logger.debug("lowStock is {}", lowStock);
-
-    /*
-     * [TPC-C 2.8.3.3]
-     * The emulated terminal must display, in the appropriate field of
-     * the input/output screen, all input data and the output data
-     * which results from the execution of the transaction.  The
-     * following fields are displayed: W_ID, D_ID, threshold, and
-     * low_stock.
-     */
+    methodLogger.logStart("stockLevel", paramString);
     final String json =
-        JSON.serialize(StockLevelOutput.builder().fromInput(params).low_stock(lowStock).build());
-
-    ctx.commit();
-    methodLogger.logEnd("doStockLevel", paramString, json);
+        JSON.serialize(this.stockLevel(ctx, JSON.deserialize(parameters, StockLevelInput.class)));
+    methodLogger.logEnd("init", paramString, "<void>");
     return json;
   }
 
@@ -804,6 +318,551 @@ public final class TPCC implements ContractInterface {
   }
 
   /**
+   * Performs the Delivery read-write TX profile [TPC-C 2.7].
+   *
+   * @param ctx The TX context.
+   * @param input The input parameters
+   * @return The transaction output
+   */
+  private DeliveryOutput delivery(final TPCCContext ctx, final DeliveryInput input)
+      throws EntityNotFoundException {
+
+    /*
+     * [TPC-C 2.7.4.2]
+     * For a given warehouse number (W_ID), for each of the districts
+     * (D_W_ID, D_ID) within that warehouse, and for a given carrier
+     * number (O_CARRIER_ID): ...
+     */
+
+    final List<DeliveredOrder> deliveredOrders = new ArrayList<>();
+    int skipped = 0;
+    logger.debug("Begin for loop to retrieve oldest NEW-ORDERs from the various districts");
+    for (int d_id = 1; d_id <= DISTRICT_COUNT; ++d_id) {
+      /*
+       * [TPC-C 2.7.4.2 (3)]
+       * The row in the NEW-ORDER table with matching NO_W_ID (equals
+       * W_ID) and NO_D_ID (equals D_ID) and with the lowest NO_O_ID
+       * value is selected.  This is the oldest undelivered order of
+       * that district.  NO_O_ID, the order number, is retrieved. [...]
+       */
+      final DeliveredOrder deliveredOrder =
+          this.getOldestNewOrderForDistrict(
+              ctx, input.getW_id(), d_id, input.getO_carrier_id(), input.getOl_delivery_d());
+      if (deliveredOrder == null) {
+        /*
+         * [TPC-C 2.7.4.2 (3) (continued)]
+         * ... If no matching row is found, then the delivery of an order
+         * for this district is skipped.  The condition in which no
+         * outstanding order is present at a given district must be
+         * handled by skipping the delivery of an order for that district
+         * only and resuming the delivery of an order from all remaining
+         * districts of the selected warehouse. If this condition occurs
+         * in more than 1%, or in more than one, whichever is greater, of
+         * the business transactions, it must be reported. [...]
+         */
+        logger.debug(
+            "Could not find new order for District({}, {}); skipping it", input.getW_id(), d_id);
+        ++skipped;
+      } else {
+        deliveredOrders.add(deliveredOrder);
+      }
+    }
+
+    final DeliveryOutput output =
+        DeliveryOutput.builder()
+            .w_id(input.getW_id())
+            .o_carrier_id(input.getO_carrier_id())
+            .delivered(deliveredOrders)
+            .skipped(skipped)
+            .build();
+    ctx.commit();
+    return output;
+  }
+
+  /**
+   * Performs the New-Order read-write TX profile [TPC-C 2.4].
+   *
+   * @param ctx The TX context.
+   * @param input The input parameters
+   * @return The transaction output
+   */
+  private NewOrderOutput newOrder(final TPCCContext ctx, final NewOrderInput input)
+      throws EntityNotFoundException, EntityExistsException {
+    /*
+     * [TPC-C 2.4.2.2]
+     * For a given warehouse number (W_ID), district number (D_W_ID,
+     * D_ID), customer number (C_W_ID, C_D_ID, C_ ID), count of items
+     * (ol_cnt, not communicated to the SUT), and for a given set of
+     * items (OL_I_ID), supplying warehouses (OL_SUPPLY_W_ID), and
+     * quantities (OL_QUANTITY): ...
+     */
+
+    final Registry registry = ctx.getRegistry();
+
+    /*
+     * [TPC-C 2.4.2.2 (3)]
+     * The row in the WAREHOUSE table with matching W_ID is selected
+     * and W_TAX, the warehouse tax rate, is retrieved.
+     */
+    final Warehouse warehouse = Warehouse.builder().id(input.getW_id()).build();
+    registry.read(ctx, warehouse);
+
+    /*
+     * [TPC-C 2.4.2.2 (4)]
+     * The row in the DISTRICT table with matching D_W_ID and D_ ID is
+     * selected, D_TAX, the district tax rate, is retrieved, [...]
+     */
+    final District district =
+        District.builder().w_id(warehouse.getW_id()).id(input.getD_id()).build();
+    registry.read(ctx, district);
+    /*
+     * [TPC-C 2.4.2.2 (4) (continued)]
+     * ... and D_NEXT_O_ID, the next available order number for the
+     * district, is retrieved and incremented by one.
+     */
+    final int nextOrderId = district.getD_next_o_id();
+    district.incrementNextOrderID();
+    registry.update(ctx, district);
+    logger.debug(
+        "Next available order number for DISTRICT with D_ID={} incremented; new DISTRICT: {}",
+        district.getD_id(),
+        district);
+
+    /*
+     * [TPC-C 2.4.2.2 (5)]
+     * The row in the CUSTOMER table with matching C_W_ID, C_D_ID, and
+     * C_ID is selected and C_DISCOUNT, the customer's discount rate,
+     * C_LAST, the customer's last name, and C_CREDIT, the customer's
+     * credit status, are retrieved.
+     */
+    final Customer customer =
+        Customer.builder()
+            .w_id(warehouse.getW_id())
+            .d_id(district.getD_id())
+            .id(input.getC_id())
+            .build();
+    registry.read(ctx, customer);
+
+    /*
+     * [TPC-C 2.4.2.2 (6)]
+     * A new row is inserted into both the NEW-ORDER table and the
+     * ORDER table to reflect the creation of the new order. [...]
+     */
+    final NewOrder newOrder =
+        NewOrder.builder()
+            .o_id(nextOrderId)
+            .d_id(district.getD_id())
+            .w_id(warehouse.getW_id())
+            .build();
+    registry.create(ctx, newOrder);
+    /*
+     * [TPC-C 2.4.2.2 (6) (continued)]
+     * ... O_CARRIER_ID is set to a null value.  If the order includes
+     * only home order-lines, then O_ALL_LOCAL is set to 1, otherwise
+     * O_ALL_LOCAL is set to 0.
+     */
+    /*
+     * [TPC-C 2.4.2.2 (7)]
+     * The number of items, O_OL_CNT, is computed to match ol_cnt.
+     */
+    final Order order =
+        Order.builder()
+            .id(nextOrderId)
+            .d_id(district.getD_id())
+            .w_id(warehouse.getW_id())
+            .c_id(customer.getC_id())
+            .entry_d(input.getO_entry_d())
+            .carrier_id(0)
+            .ol_cnt(input.getI_ids().length)
+            .all_local(this.allMatch(input.getI_w_ids(), warehouse.getW_id()) ? 1 : 0)
+            .build();
+    registry.create(ctx, order);
+
+    /*
+     * [TPC-C 2.4.2.2 (8)]
+     * For each O_OL_CNT item on the order: ...
+     */
+    final List<ItemsData> itemsDataList = new ArrayList<>();
+    double totalOrderLineAmount = 0;
+    final int[] i_ids = input.getI_ids();
+    final int[] i_w_ids = input.getI_w_ids();
+    final int[] i_qtys = input.getI_qtys();
+    for (int i = 0; i < input.getI_ids().length; ++i)
+      totalOrderLineAmount +=
+          this.createOrderLineAndGetAmount(
+              ctx,
+              i_ids[i],
+              i_w_ids[i],
+              i_qtys[i],
+              warehouse.getW_id(),
+              district.getD_id(),
+              nextOrderId,
+              i,
+              itemsDataList);
+
+    /*
+     * [TPC-C 2.4.2.2 (9)]
+     * The total-amount for the complete order is computed as:
+     * sum(OL_AMOUNT) * (1 - C_DISCOUNT) * (1 + W_TAX + D_TAX)
+     */
+    final double totalAmount =
+        totalOrderLineAmount
+            * (1 - customer.getC_discount())
+            * (1 + warehouse.getW_tax() + district.getD_tax());
+    logger.debug("Total amount is {}", totalAmount);
+
+    /*
+     * [TPC-C 2.4.3.3 (1)]
+     * One non-repeating group of fields: W_ID, D_ID, C_ID, O_ID,
+     * O_OL_CNT, C_LAST, C_CREDIT, C_DISCOUNT, W_TAX, D_TAX,
+     * O_ENTRY_D, total_amount, and an optional execution status
+     * message other than "Item number is not valid".
+     */
+    final NewOrderOutput output =
+        NewOrderOutput.builder()
+            .fromWarehouse(warehouse)
+            .fromDistrict(district)
+            .fromCustomer(customer)
+            .fromOrder(order)
+            .total_amount(totalAmount)
+            .items(itemsDataList)
+            .build();
+    ctx.commit();
+    return output;
+  }
+
+  /**
+   * Performs the Order-Status read TX profile [TPC-C 2.6].
+   *
+   * @param ctx The TX context.
+   * @param input The input parameters
+   * @return The transaction output
+   */
+  private OrderStatusOutput orderStatus(final TPCCContext ctx, final OrderStatusInput input)
+      throws NotFoundException, EntityNotFoundException {
+    /*
+     * [TPC-C 2.6.2.2]
+     * For a given customer number (C_W_ID, C_D_ID, C_ID): ...
+     */
+
+    /*
+     * [TPC-C 2.6.2.2 (3.1)]
+     * Case 1, the CUSTOMER is selected based on CUSTOMER number: the
+     * row in the CUSTOMER table with matching C_W_ID, C_D_ID, and
+     * C_ID is selected and C_BALANCE, C_FIRST, C_MIDDLE, and C_LAST
+     * are retrieved. */
+    /*
+     * [TPC-C 2.6.2.2 (3.2)]
+     * Case 2, the customer is selected based on customer last name:
+     * all rows in the CUSTOMER table with matching C_W_ID, C_D_ID and
+     * C_LAST are selected sorted by C_FIRST in ascending order. Let n
+     * be the number of rows selected. C_BALANCE, C_FIRST, C_MIDDLE,
+     * and C_LAST are retrieved from the row at position n/ 2 rounded
+     * up in the sorted set of selected rows from the CUSTOMER table.
+     */
+    final Customer customer =
+        getCustomerByIDOrLastName(
+            ctx, input.getW_id(), input.getD_id(), input.getC_id(), input.getC_last());
+    /*
+     * [TPC-C 2.6.2.2 (4)]
+     * The row in the ORDER table with matching O_W_ID (equals
+     * C_W_ID), O_D_ID (equals C_D_ID), O_C_ID (equals C_ID), and with
+     * the largest existing O_ID, is selected. This is the most recent
+     * order placed by that customer. O_ID, O_ENTRY_D, and
+     * O_CARRIER_ID are retrieved.
+     */
+    final Order order =
+        getLastOrderOfCustomer(ctx, customer.getC_w_id(), customer.getC_d_id(), customer.getC_id());
+
+    /*
+     * [TPC-C 2.6.2.2 (5)]
+     * All rows in the ORDER-LINE table with matching OL_W_ID (equals
+     * O_W_ID), OL_D_ID (equals O_D_ID), and OL_O_ID (equals O_ID) are
+     * selected and the corresponding sets of OL_I_ID, OL_SUPPLY_W_ID,
+     * OL_QUANTITY, OL_AMOUNT, and OL_DELIVERY_D are retrieved.
+     */
+    final List<OrderLineData> orderLineDataList = new ArrayList<>();
+    for (int i = 1; i <= order.getO_ol_cnt(); ++i) {
+      final OrderLineData orderLineData = this.getOrderLineDataForOrder(ctx, order, i);
+      logger.debug("Created ORDER-LINE data: {}", orderLineData);
+      orderLineDataList.add(orderLineData);
+    }
+
+    /*
+     * [TPC-C 2.6.3.3]
+     * The emulated terminal must display, in the appropriate fields
+     * of the input/output screen, all input data and the output data
+     * resulting from the execution of the transaction. The display
+     * fields are divided in two groups as follows: ...
+     */
+    /*
+     * [TPC-C 2.6.3.3 (1)]
+     * One non-repeating group of fields: W_ID, D_ID, C_ID, C_FIRST,
+     * C_MIDDLE, C_LAST, C_BALANCE, O_ID, O_ENTRY_D, and O_CARRIER_ID;
+     *
+     */
+    /*
+     * [TPC-C 2.6.3.3 (2)]
+     * One repeating group of fields: OL_SUPPLY_W_ID, OL_I_ID,
+     * OL_QUANTITY, OL_AMOUNT, and OL_DELIVERY_D. The group is
+     * repeated O_OL_CNT times (once per item in the order).
+     */
+    final OrderStatusOutput output =
+        OrderStatusOutput.builder()
+            .w_id(input.getW_id())
+            .d_id(input.getD_id())
+            .fromCustomer(customer)
+            .fromOrder(order)
+            .order_lines(orderLineDataList)
+            .build();
+    ctx.commit();
+    return output;
+  }
+
+  /**
+   * Performs the Payment read-write TX profile [TPC-C 2.5].
+   *
+   * @param ctx The TX context.
+   * @param input The input parameters
+   * @return The JSON encoded query results according to the specification.
+   */
+  private PaymentOutput payment(final TPCCContext ctx, final PaymentInput input)
+      throws EntityNotFoundException, EntityExistsException, NotFoundException {
+    /*
+     * [TPC-C 2.5.2.2]
+     * For a given warehouse number (W_ID), district number (D_W_ID,
+     * D_ID), customer number (C_W_ID , C_D_ID, C_ ID) or customer last
+     * name (C_W_ID, C_D_ID, C_LAST), and payment amount (H_AMOUNT): ...
+     *
+     */
+
+    final Registry registry = ctx.getRegistry();
+
+    /*
+     * [TPC-C 2.5.2.2 (3)]
+     * The row in the WAREHOUSE table with matching W_ID is selected.
+     * W_NAME, W_STREET_1, W_STREET_2, W_CITY, W_STATE, and W_ZIP are
+     * retrieved [...]
+     */
+    final Warehouse warehouse = Warehouse.builder().id(input.getW_id()).build();
+    registry.read(ctx, warehouse);
+    /*
+     * [TPC-C 2.5.2.2 (3) (continued)]
+     * ... and W_YTD, the warehouse's year-to-date balance, is
+     * increased by H_AMOUNT.
+     */
+    warehouse.increaseYTD(input.getH_amount());
+    registry.update(ctx, warehouse);
+
+    /*
+     * [TPC-C 2.5.2.2 (4)]
+     * The row in the DISTRICT table with matching D_W_ID and D_ID is
+     * selected. D_NAME, D_STREET_1, D_STREET_2, D_CITY, D_STATE, and
+     * D_ZIP are retrieved [...]
+     */
+    final District district =
+        District.builder().w_id(warehouse.getW_id()).id(input.getD_id()).build();
+    registry.read(ctx, district);
+    /*
+     * [TPC-C 2.5.2.2 (4) (continued)]
+     * ... and D_YTD, the district's year-to-date balance, is
+     * increased by H_AMOUNT.
+     */
+    district.increaseYTD(input.getH_amount());
+    registry.update(ctx, district);
+
+    /*
+     * [TPC-C 2.5.2.2 (5.1)]
+     * Case 1, the customer is selected based on customer number: the
+     * row in the CUSTOMER table with matching C_W_ID, C_D_ID and C_ID
+     * is selected. C_FIRST, C_MIDDLE, C_LAST, C_STREET_1, C_STREET_2,
+     * C_CITY, C_STATE, C_ZIP, C_PHONE, C_SINCE, C_CREDIT,
+     * C_CREDIT_LIM, C_DISCOUNT, and C_BALANCE are retrieved. [...]
+     */
+    /*
+     * [TPC-C 2.5.2.2 (5.2)]
+     * Case 2, the customer is selected based on customer last name:
+     * all rows in the CUSTOMER table with matching C_W_ID, C_D_ID and
+     * C_LAST are selected sorted by C_FIRST in ascending order. Let n
+     * be the number of rows selected. C_ID, C_FIRST, C_MIDDLE,
+     * C_STREET_1, C_STREET_2, C_CITY, C_STATE, C_ZIP, C_PHONE,
+     * C_SINCE, C_CREDIT, C_CREDIT_LIM, C_DISCOUNT, and C_BALANCE are
+     * retrieved from the row at position (n/2 rounded up to the next
+     * integer) in the sorted set of selected rows from the CUSTOMER
+     * table. [...]
+     */
+    final Customer customer =
+        getCustomerByIDOrLastName(
+            ctx, warehouse.getW_id(), district.getD_id(), input.getC_id(), input.getC_last());
+    /*
+     * [TPC-C 2.5.2.2 (5.1-2) (continued)]
+     * ... C_BALANCE is decreased by H_AMOUNT. [...]
+     */
+    customer.decreaseBalance(input.getH_amount());
+    /*
+     * [TPC-C 2.5.2.2 (5.1-2) (continued)]
+     * ... C_YTD_PAYMENT is increased by H_AMOUNT. [...]
+     */
+    customer.increaseYTDPayment(input.getH_amount());
+    /*
+     * [TPC-C 2.5.2.2 (5.1-2) (continued)]
+     * ... C_PAYMENT_CNT is incremented by 1.
+     */
+    customer.incrementPaymentCount();
+
+    /*
+     * [TPC-C 2.5.2.2 (6)]
+     * If the value of C_CREDIT is equal to "BC", [...]
+     */
+    if (customer.getC_credit().equals("BC")) {
+      /*
+       * [TPC-C 2.5.2.2 (6) (continued)]
+       * ... then C_DATA is also retrieved from the selected customer
+       * and the following history information: C_ID, C_D_ID, C_W_ID,
+       * D_ID, W_ID, and H_AMOUNT, are inserted at the left of the
+       * C_DATA field by shifting the existing content of C_DATA to
+       * the right by an equal number of bytes [...]
+       */
+      final String historyInfo =
+          generateHistoryInformation(customer, warehouse, district, input.getH_amount());
+      customer.setC_data("%s|%s".formatted(historyInfo, customer.getC_data()));
+      logger.debug("HISTORY information: '{}' inserted at the left of the C_DATA", historyInfo);
+      /*
+       * [TPC-C 2.5.2.2 (6) (continued)]
+       * ... and by discarding the bytes that are shifted out of the
+       * right side of the C_DATA field. The content of the C_DATA
+       * field never exceeds 500 characters.
+       */
+      if (customer.getC_data().length() > 500)
+        customer.setC_data(customer.getC_data().substring(0, 500));
+    }
+    /*
+     * [TPC-C 2.5.2.2 (6) (continued)]
+     * ... The selected customer is updated with the new C_DATA field.
+     */
+    registry.update(ctx, customer);
+
+    /*
+     * [TPC-C 2.5.2.2 (7)]
+     * H_DATA is built by concatenating W_NAME and D_NAME separated by
+     * 4 spaces.
+     */
+    final String h_data =
+        "%s%s%s".formatted(warehouse.getW_name(), " ".repeat(4), district.getD_name());
+
+    /*
+     * [TPC-C 2.5.2.2 (8)]
+     * A new row is inserted into the HISTORY table with H_C_ID =
+     * C_ID, H_C_D_ID = C_D_ID, H_C_W_ID = C_W_ID, H_D_ID = D_ID, and
+     * H_W_ID = W_ID.
+     */
+    final History history =
+        History.builder()
+            .fromCustomer(customer)
+            .d_id(district.getD_id())
+            .w_id(warehouse.getW_id())
+            .date(input.getH_date())
+            .amount(input.getH_amount())
+            .data(h_data)
+            .build();
+    registry.create(ctx, history);
+
+    /*
+     * [TPC-C 2.5.3.3]
+     * The emulated terminal must display, in the appropriate fields
+     * of the input/output screen, all input data and the output data
+     * resulting from the execution of the transaction.  The following
+     * fields are displayed: W_ID, D_ID, C_ID, C_D_ID, C_W_ID,
+     * W_STREET_1, W_STREET_2, W_CITY, W_STATE, W_ZIP, D_STREET_1,
+     * D_STREET_2, D_CITY, D_STATE, D_ZIP, C_FIRST, C_MIDDLE, C_LAST,
+     * C_STREET_1, C_STREET_2, C_CITY, C_STATE, C_ZIP, C_PHONE,
+     * C_SINCE, C_CREDIT, C_CREDIT_LIM, C_DISCOUNT, C_BALANCE, the
+     * first 200 characters of C_DATA (only if C_CREDIT = "BC"),
+     * H_AMOUNT, and H_DATE.
+     */
+    final PaymentOutput output =
+        PaymentOutput.builder()
+            .fromWarehouse(warehouse)
+            .fromCustomer(customer)
+            .fromDistrict(district)
+            .build();
+    if (customer.getC_credit().equals("BC"))
+      output.setC_data(customer.getC_data().substring(0, 200));
+    ctx.commit();
+    return output;
+  }
+
+  /**
+   * Performs the Stock-Level read TX profile [TPC-C 2.8].
+   *
+   * @param ctx The TX context.
+   * @param input The input parameters
+   * @return The transaction output
+   */
+  private StockLevelOutput stockLevel(final TPCCContext ctx, final StockLevelInput input)
+      throws EntityNotFoundException, NotFoundException {
+    /*
+     * [TPC-C 2.8.2.2]
+     * For a given warehouse number (W_ID), district number (D_W_ID,
+     * D_ID), and stock level threshold (threshold): ...
+     */
+
+    /*
+     * [TPC-C 2.8.2.2 (3)]
+     * The row in the DISTRICT table with matching D_W_ID and D_ID is
+     * selected and D_NEXT_O_ID is retrieved.
+     */
+    final District district = District.builder().w_id(input.getW_id()).id(input.getD_id()).build();
+    ctx.getRegistry().read(ctx, district);
+
+    /*
+     * [TPC-C 2.8.2.2 (4)]
+     * All rows in the ORDER-LINE table with matching OL_W_ID (equals
+     * W_ID), OL_D_ID (equals D_ID), and OL_O_ID (lower than
+     * D_NEXT_O_ID and greater than or equal to D_NEXT_O_ID minus 5)
+     * are selected. They are the items for 5 recent orders of the
+     * district.
+     */
+    final int o_id_min = Math.max(district.getD_next_o_id() - 5, 0);
+    final int o_id_max = district.getD_next_o_id();
+    logger.debug("O_ID_MIN={}, O_ID_MAX={}", o_id_min, o_id_max);
+    logger.debug("Getting the most recent 5 orders");
+    final List<Integer> recentItemIds =
+        getItemIdsOfRecentOrders(ctx, input.getW_id(), district.getD_id(), o_id_min, o_id_max);
+
+    /*
+     * [TPC-C 2.8.2.2 (5)]
+     * All rows in the STOCK table with matching S_I_ID (equals
+     * OL_I_ID) and S_W_ID (equals W_ID) from the list of distinct
+     * item numbers and with S_QUANTITY lower than threshold are
+     * counted (giving low_stock).
+     */
+    int lowStock = 0;
+    for (final int i_id : recentItemIds) {
+      final Stock stock = Stock.builder().w_id(input.getW_id()).i_id(i_id).build();
+      ctx.getRegistry().read(ctx, stock);
+      if (stock.getS_quantity() < input.getThreshold()) {
+        logger.debug("The stock quantity is less than the threshold");
+        ++lowStock;
+      }
+    }
+    logger.debug("lowStock is {}", lowStock);
+
+    /*
+     * [TPC-C 2.8.3.3]
+     * The emulated terminal must display, in the appropriate field of
+     * the input/output screen, all input data and the output data
+     * which results from the execution of the transaction.  The
+     * following fields are displayed: W_ID, D_ID, threshold, and
+     * low_stock.
+     */
+    final StockLevelOutput output =
+        StockLevelOutput.builder().fromInput(input).low_stock(lowStock).build();
+    ctx.commit();
+    return output;
+  }
+
+  /**
    * Check whether all elements in <code>arr</code> are equal to the passed <code>value</code>.
    *
    * @param arr The array to check
@@ -814,6 +873,19 @@ public final class TPCC implements ContractInterface {
   private boolean allMatch(final int[] arr, final int value) {
     for (final int x : arr) if (x != value) return false;
     return true;
+  }
+
+  /**
+   * Pad a district info string to a required length.
+   *
+   * @param info The district info string
+   * @return The string padded to a length of 24 with leading spaces
+   * @throws IllegalArgumentException if the info string is already longer than 24 characters
+   */
+  private static String padDistrictInfo(final String info) {
+    if (info.length() > 24)
+      throw new IllegalArgumentException("District info is too long (maximum 24 chars)");
+    return String.format("%24s", info);
   }
 
   /**
@@ -837,7 +909,7 @@ public final class TPCC implements ContractInterface {
             .street_2("123")
             .city("Budapest")
             .state("LA")
-            .zip("00011111")
+            .zip("000011111")
             .tax(0.1000)
             .ytd(10000)
             .build();
@@ -869,7 +941,7 @@ public final class TPCC implements ContractInterface {
             .street_2("456")
             .city("Budapest")
             .state("BP")
-            .zip("00111111")
+            .zip("000111111")
             .tax(0.0100)
             .ytd(10000)
             .next_o_id(3001)
@@ -899,14 +971,14 @@ public final class TPCC implements ContractInterface {
             .d_id(1)
             .w_id(1)
             .first("Alice")
-            .middle("Is")
+            .middle("IS")
             .last("Yong")
             .street_1("xyz")
             .street_2("123")
             .city("Budapest")
-            .state("Buda")
-            .zip("00101111")
-            .phone("123456789")
+            .state("HU")
+            .zip("000101111")
+            .phone("1234567890123456")
             .since("19/01/2020")
             .credit("GC")
             .credit_lim(50000)
@@ -923,14 +995,14 @@ public final class TPCC implements ContractInterface {
             .d_id(1)
             .w_id(1)
             .first("Peter")
-            .middle("Peet")
+            .middle("XX")
             .last("Peter")
             .street_1("ABC")
             .street_2("23")
             .city("Budapest")
             .state("DC")
-            .zip("00011111")
-            .phone("456712389")
+            .zip("000011111")
+            .phone("6123456789012345")
             .since("19/01/2020")
             .credit("GC")
             .credit_lim(50000)
@@ -995,8 +1067,8 @@ public final class TPCC implements ContractInterface {
             .i_id(1)
             .w_id(1)
             .quantity(100)
-            .dist_all("null")
-            .dist_01("good")
+            .dist_all(padDistrictInfo("null"))
+            .dist_01(padDistrictInfo("good"))
             .ytd(0)
             .order_cnt(0)
             .remote_cnt(0)
@@ -1007,8 +1079,8 @@ public final class TPCC implements ContractInterface {
             .i_id(2)
             .w_id(1)
             .quantity(90)
-            .dist_all("null")
-            .dist_01("good")
+            .dist_all(padDistrictInfo("null"))
+            .dist_01(padDistrictInfo("good"))
             .ytd(0)
             .order_cnt(0)
             .remote_cnt(0)
@@ -1019,8 +1091,8 @@ public final class TPCC implements ContractInterface {
             .i_id(3)
             .w_id(1)
             .quantity(99)
-            .dist_all("null")
-            .dist_01("good")
+            .dist_all(padDistrictInfo("null"))
+            .dist_01(padDistrictInfo("good"))
             .ytd(0)
             .order_cnt(0)
             .remote_cnt(0)
@@ -1038,7 +1110,7 @@ public final class TPCC implements ContractInterface {
   /**
    * Generate history information as per [TPC-C 2.5.2.2 (6)].
    *
-   * <p><b>NOTE:</b> this code has been factored out of {@link TPCC#doPayment(TPCCContext, String)}
+   * <p><b>NOTE:</b> this code has been factored out of {@link TPCC#payment(TPCCContext, String)}
    * only so that OpenJML won't choke on the exceedingly long method.
    *
    * @param customer The relevant customer entity
@@ -1065,7 +1137,7 @@ public final class TPCC implements ContractInterface {
   /**
    * Builds an {@link OrderLineData} instance from an {@link Order} an order <code>number</code>.
    *
-   * <p><b>NOTE:</b> this code has been factored out of {@link TPCC#doOrderStatus(TPCCContext,
+   * <p><b>NOTE:</b> this code has been factored out of {@link TPCC#orderStatus(TPCCContext,
    * String)} only so that OpenJML won't choke on the exceedingly long method.
    *
    * @param ctx The transaction context
@@ -1092,7 +1164,7 @@ public final class TPCC implements ContractInterface {
   /**
    * Retrieves the oldest NEW-ORDER entry for a given warehouse and district.
    *
-   * <p><b>NOTE:</b> this code has been factored out of {@link TPCC#doDelivery(TPCCContext, String)}
+   * <p><b>NOTE:</b> this code has been factored out of {@link TPCC#delivery(TPCCContext, String)}
    * only so that OpenJML won't choke on the exceedingly long method.
    *
    * @param ctx The transaction context
@@ -1226,7 +1298,7 @@ public final class TPCC implements ContractInterface {
    * <p><b>SIDE EFFECTS:</b> As per [TPC-C 2.7.4.2 (6)], the OL_DELIVERY_D values of the matching
    * records are updated.
    *
-   * <p><b>NOTE:</b> this code has been factored out of {@link TPCC#doDelivery(TPCCContext, String)}
+   * <p><b>NOTE:</b> this code has been factored out of {@link TPCC#delivery(TPCCContext, String)}
    * (and then consequently from {@link TPCC#getOldestNewOrderForDistrict(ContextWithRegistry, int,
    * int, int, String)}) only so that OpenJML won't choke on the exceedingly long method.
    *
@@ -1297,7 +1369,7 @@ public final class TPCC implements ContractInterface {
    * </code>. Finally, a new ORDER-LINE entity is created (but this is less of a side effect than
    * the main purpose of this method).
    *
-   * <p><b>NOTE:</b> this code has been factored out of {@link TPCC#doNewOrder(TPCCContext, String)}
+   * <p><b>NOTE:</b> this code has been factored out of {@link TPCC#newOrder(TPCCContext, String)}
    * only so that OpenJML won't choke on the exceedingly long method.
    *
    * @param ctx The transaction context
@@ -1418,7 +1490,7 @@ public final class TPCC implements ContractInterface {
             .delivery_d(null)
             .quantity(i_qty)
             .amount(orderLineAmount)
-            .dist_info("s_dist_" + stockDistrictId)
+            .dist_info(padDistrictInfo("s_dist_" + stockDistrictId))
             .build();
     registry.create(ctx, orderLine);
 
@@ -1598,7 +1670,7 @@ public final class TPCC implements ContractInterface {
     return itemIdsList;
   }
 
-  private static final class NotFoundException extends Exception {
+  public static final class NotFoundException extends Exception {
     NotFoundException(String message) {
       super(message);
     }
