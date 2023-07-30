@@ -11,6 +11,7 @@ assert_cmd "$JQ"
 TOKEN=$(get_token)
 invoke method=init args:='[]'
 invoke method=newOrder args[]=@"$TEST_INPUTS_DIR/newOrder.json"
+invoke method=delivery args[]=@"$TEST_INPUTS_DIR/delivery.json"
 query method=orderStatus args[]=@"$TEST_INPUTS_DIR/orderStatus.json"
 invoke method=payment args[]=@"$TEST_INPUTS_DIR/payment.json"
 query method=stockLevel args[]=@"$TEST_INPUTS_DIR/stockLevel.json"
