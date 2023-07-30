@@ -1199,6 +1199,7 @@ public final class TPCC implements ContractInterface {
     final List<NewOrder> matchingNewOrders =
         registry
             .select(ctx, new NewOrder())
+            /* TODO this code causes a StackOverflowError for some reason
             .matching(
                 new Registry.Matcher<NewOrder>() {
                   @Override
@@ -1206,6 +1207,7 @@ public final class TPCC implements ContractInterface {
                     return entity.getNo_w_id() == w_id && entity.getNo_d_id() == d_id;
                   }
                 })
+            */
             .sortedBy(
                 new Comparator<NewOrder>() {
                   @Override
@@ -1214,6 +1216,14 @@ public final class TPCC implements ContractInterface {
                   }
                 })
             .get();
+    /* Manually remove non-matching NewOrders, see above... */
+    final Iterator<NewOrder> it = matchingNewOrders.iterator();
+    while (it.hasNext()) {
+      final NewOrder no = it.next();
+      if (no.getNo_w_id() != w_id || no.getNo_d_id() != d_id) it.remove();
+    }
+    logger.debug("matchingNewOrders={}", matchingNewOrders);
+
     /*
      * [TPC-C 2.7.4.2 (3) (continued)]
      * ... If no matching row is found, then the delivery of an order
