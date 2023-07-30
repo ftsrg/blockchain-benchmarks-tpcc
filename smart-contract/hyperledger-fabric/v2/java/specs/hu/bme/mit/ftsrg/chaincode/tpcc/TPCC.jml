@@ -19,7 +19,7 @@ public final class TPCC implements ContractInterface {
     @ ensures \result.getSkipped() == 10 - \result.getDelivered().size(); // C.TXIO:DELIVERY:FORM_SKIPPED
     @*/
   private DeliveryOutput delivery(final TPCCContext ctx, final DeliveryInput input)
-      throws EntityNotFoundException, EntityExistsException;
+      throws EntityNotFoundException;
 
   /*@
     @ ensures \result.getW_id() == input.getW_id(); // C.TXIO:NEWORDER:EQ_W_ID
