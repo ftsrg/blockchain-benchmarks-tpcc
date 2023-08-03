@@ -2,10 +2,7 @@ FROM gradle:8-jdk17-jammy AS build
 
 WORKDIR /home/gradle/
 COPY src/ src/
-COPY buildSrc/ buildSrc/
 COPY build.gradle.kts ./ 
-COPY gradle.properties ./
-COPY specs/ ./specs/
 
 RUN gradle --no-daemon shadowJar
 

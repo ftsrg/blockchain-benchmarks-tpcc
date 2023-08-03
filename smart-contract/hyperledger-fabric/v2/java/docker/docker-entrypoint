@@ -5,8 +5,6 @@
 
 # JVM
 OPTS='-Xss1M' # 512K doesn't seem to be enough for doDelivery...
-# JML
-OPTS="$OPTS -Dorg.jmlspecs.openjml.rac=exception"
 # logging
 OPTS="$OPTS -Dorg.slf4j.simpleLogger.defaultLogLevel=debug"
 # profiling
