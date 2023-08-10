@@ -1,0 +1,231 @@
+\documentclass[tikz]{standalone}
+
+\usepackage{etoolbox}
+
+\usetikzlibrary{
+    arrows.meta,
+    backgrounds,
+    calc,
+    fit,
+    positioning,
+    shadows,
+    shapes.multipart,
+}
+
+
+\begin{document}
+
+\definecolor{umlbgleft}{HTML}{F9D4A8}
+\definecolor{umlbgright}{HTML}{FEF8D2}
+\definecolor{umlifaceoutline}{HTML}{76907C}
+\definecolor{umlifacebgleft}{HTML}{C0D2C4}
+\definecolor{umlifacebgright}{HTML}{FAFCFB}
+\definecolor{umlificonoutline}{HTML}{76907C}
+\definecolor{umloutline}{HTML}{968255}
+\definecolor{umlpkgbgleft}{HTML}{D5DEFF}
+\definecolor{umlpkgbgright}{HTML}{F4F8FF}
+\definecolor{umlpkgoutline}{HTML}{8B90A9}
+\definecolor{umltypefg}{HTML}{606060}
+\definecolor{nonuml}{HTML}{606060}
+
+\newcommand\TallStrut{\vrule height 10pt depth 10pt width 0pt}
+
+\newcommand*\Param[2]{#1 : \textcolor{umltypefg}{#2}}
+\newcommand*\Op[3]{%
+    #1(\notblank{#2}{~}{}#2\notblank{#2}{~}{})%
+    \notblank{#3}{~:~\textcolor{umltypefg}{#3}}{}%
+}
+\newcommand\Ellipsis{~~~~\textcolor{nonuml}{[...]}}
+\newcommand*\Multiplicity[2]{~[#1..#2]}
+\newcommand\Any{*}
+\newcommand*\Stereo[1]{«#1»}
+
+\begin{tikzpicture}[
+    basic/.style={
+	draw=umloutline,
+	shading=axis,left color=umlbgleft,right color=umlbgright,
+	drop shadow,
+	font=\bfseries\large,
+    },
+    basictitle/.style={component,minimum height=4ex},
+    basicbox/.style={component,inner sep=1em},
+    basicsimple/.style={
+	basicbox,
+	text width=8em,text centered,minimum height=8ex,
+    },
+    classsimple/.style={basic,font=\bfseries\large,inner sep=1em},
+    classabstractsimple/.style={classsimple,font=\bfseries\itshape\large},
+    class/.style args={#1/#2}{
+	basic,rectangle split,rectangle split parts=2,
+	node contents={%
+	    \nodepart[align=center]{one}\TallStrut\raisebox{-.5ex}{\bfseries#1}%
+	    \nodepart{two}\texttt{#2}%
+	},
+    },
+    classabstract/.style args={#1/#2}{class={\textit{#1}/#2}},
+    iface/.style args={#1/#2}{
+	basic,
+	draw=umlifaceoutline,
+	shading=axis,left color=umlifacebgleft,
+	right color=umlifacebgright,
+	rectangle split,rectangle split parts=2,
+	node contents={%
+	    \nodepart[align=center]{one}{%
+		\bfseries\TallStrut\raisebox{-.5ex}{#1}%
+	    }%
+	    \nodepart{two}{\ttfamily#2}%
+	},
+    },
+    ifacesimple/.style={
+	basic,
+	draw=umloutline,
+	shading=axis,
+	left color=umlifacebgleft,right color=umlifacebgright,
+	inner sep=1em,
+    },
+    folder/.style={
+	basic,
+	draw=umlpkgoutline,
+	left color=umlpkgbgleft,right color=umlpkgbgright,
+	inner sep=1em,
+	append after command={
+	    \pgfextra{
+		\draw[
+		    umlpkgoutline,
+		    fill=umlpkgbgleft,
+		    drop shadow,
+		]
+		    ($(\tikzlastnode.north west)+(.5\pgflinewidth,-\pgflinewidth)$)
+		    rectangle
+		    ($(\tikzlastnode.north)+(-5em,+1.5em)$);
+	    }
+	},
+    },
+    ificon/.pic={
+	\draw[
+	    umlificonoutline,
+	    shading=axis,
+	    left color=umlifacebgleft,right color=umlifacebgright,
+	] (0,0) circle (8pt);
+    },
+    dep/.style={
+	->,dashed,thick,>={Straight Barb[length=.5em,width=.75em]}
+    },
+    impl/.style={dep,>={Triangle[open,length=.75em,width=.75em]}},
+    ext/.style={impl,solid},
+    assoc/.style={->,>={Straight Barb[length=.5em,width=.75em]}},
+    comp/.style={
+	assoc,
+	{Diamond[length=1em,width=.5em]}-{Straight Barb[length=.5em,width=.75em]}
+    },
+    rellab/.style={font=\ttfamily\large},
+]
+	\node (iregistry) [
+	    iface=RegistryInterface/{%
+		\Op{create}{%
+		    \Param{entity}{SerializableEntity}%
+		}{void} \\
+		\Op{read}{%
+		    \Param{entity}{SerializableEntity}%
+		}{void} \\
+		\Op{update}{%
+		    \Param{entity}{SerializableEntity}%
+		}{void} \\
+		\Op{delete}{%
+		    \Param{entity}{SerializableEntity}%
+		}{void} \\
+	    },text width=28em,
+	];
+	\pic at ($(iregistry.north east)+(-1.2em,-1.4em)$) {ificon};
+
+	\node[right=32em of iregistry.north,anchor=north] (ientity) [
+	    iface=SerializableEntityInterface/{%
+		\Op{getType}{}{String} \\
+		\Op{getKeyParts}{}{String\Multiplicity{1}{\Any}} \\
+		\Op{toBuffer}{}{byte\Multiplicity{1}{\Any}} \\
+		\Op{fromBuffer}{%
+		    \Param{buffer}{byte\Multiplicity{1}{\Any}}%
+		}{void} \\
+		\Op{toJson}{}{String} \\
+		\Op{fromJson}{\Param{json}{String}}{void} \\
+	    },text width=26em,
+	];
+	\pic at ($(ientity.north east)+(-1.2em,-1.4em)$) {ificon};
+
+	\node[below=of iregistry] (registry) [classsimple] {Registry};
+
+	\node[below=of registry] (ctxwreg) [
+	    class=ContextWithRegistry/{%
+		\Op{+getRegistry}{}{Registry}%
+	}];
+
+	\node[below=4em of ientity] (entitybase)
+	    [classabstractsimple] {SerializableEntityBase};
+	\node[below=of ctxwreg,xshift=12em] (mwbase)
+	    [classabstractsimple] {ChaincodeStubMiddlewareBase};
+
+	\node[below=15em of ctxwreg] (ctx)
+	    [class=Context/\Op{getStub}{}{ChaincodeStub},text width=17em];
+
+	\node[below=of ctx] (icontract)
+	    [ifacesimple,text width=16em,text centered]
+	    {ContractInterface};
+	\pic at ($(icontract.north east)+(-1.2em,-1.4em)$) {ificon};
+
+	\node[below=18em of entitybase] (istub) [
+	    iface=ChaincodeStub/{%
+		\Op{getState}{%
+		    \Param{key}{String}
+		}{byte\Multiplicity{0}{\Any}} \\
+		\Op{putState}{%
+		    \Param{key}{String},
+		    \Param{value}{byte\Multiplicity{0}{\Any}}%
+		}{void} \\
+		\Ellipsis
+	    },text width=32em,
+	];
+	\pic at ($(istub.north east)+(-1.2em,-1.4em)$) {ificon};
+
+	\coordinate[above=4em of iregistry] (fitcftsrg);
+	\begin{scope}[on background layer]
+		\node (pkgftsrg) [
+		    folder,
+		    fit=(fitcftsrg)(iregistry)(registry)(ctxwreg)(mwbase)(ientity)(entitybase)
+		] {};
+	\end{scope}
+	\node[font=\large\bfseries\ttfamily]
+	    at ($(pkgftsrg.north)+(0,-1em)$)
+	    {hu.bme.mit.ftsrg.chaincode.dataaccess};
+
+	\coordinate[above=2em of istub] (fitcfabric);
+	\begin{scope}[on background layer]
+		\node (pkgfabric) [
+		    folder,
+		    fit=(fitcfabric)(ctx)(icontract)(istub)
+		] {};
+	\end{scope}
+	\node[font=\large\bfseries\ttfamily]
+	    at ($(pkgfabric.north)+(0,-1em)$)
+	    {org.hyperledger.fabric};
+
+	\node[classsimple,left=15em of ctxwreg] (cc) {MyChaincode};
+
+	\draw[impl] (registry) -- (iregistry);
+	\draw[ext] (ctxwreg) -- (ctx);
+	\draw[comp] (ctxwreg)
+	    -- node[right,rellab,pos=.65] {-registry} (registry);
+	\draw[comp,transform canvas={yshift=-1em}] (ctx.east |- istub)
+	    -- node[below,rellab,pos=.7] {-stub} (istub);
+	\draw[dep] (iregistry) -- ++(-12em,-12em) -- (ctx);
+	\draw[dep] (iregistry.east |- ientity) -- (ientity);
+	\draw[impl] (mwbase) |- (istub);
+	\draw[assoc] (mwbase)
+	    -| node[right,rellab,pos=.95] {\#next} (istub);
+	\coordinate (chelper1) at ($(ctxwreg.south east)+(-2em,0)$);
+	\draw[dep] (chelper1) -- (chelper1 |- mwbase.north);
+	\draw[impl] (entitybase) -- (ientity);
+	\draw[dep] (cc) -- node[above,rellab,midway] {\Stereo{use}} (ctxwreg);
+	\draw[impl] (cc) |- (icontract);
+\end{tikzpicture}
+
+\end{document}

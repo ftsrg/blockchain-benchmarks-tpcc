@@ -1,0 +1,166 @@
+\documentclass[tikz]{standalone}
+
+\usetikzlibrary{
+    arrows.meta,
+    calc,
+    fit,
+    positioning,
+    shadows,
+    shapes.multipart,
+}
+
+
+\begin{document}
+
+\definecolor{umlactivationbg}{HTML}{C4E1D5}
+\definecolor{umlactorbgleft}{HTML}{CEE6DC}
+\definecolor{umlactorbgright}{HTML}{F6FEFB}
+\definecolor{umlactoroutline}{HTML}{000000}
+\definecolor{umlifacebgleft}{HTML}{C0D2C4}
+\definecolor{umlifacebgright}{HTML}{FAFCFB}
+\definecolor{umlificonoutline}{HTML}{76907C}
+
+\newcommand\TallStrut{\vrule height 10pt depth 10pt width 0pt}
+
+\newcommand*\Actor[2][]{#1~:~#2}
+\newcommand*\Stereo[1]{«#1»}
+
+\begin{tikzpicture}[
+    actor/.style={
+	draw=umlactoroutline,
+	shading=axis,
+	left color=umlactorbgleft,right color=umlactorbgright,
+	drop shadow,
+	font=\bfseries\Large,
+	node contents={\TallStrut\raisebox{-.5ex}{#1}},
+    minimum height=4em,
+    },
+    ificon/.pic={
+	\draw[
+	    umlificonoutline,
+	    shading=axis,
+	    left color=umlifacebgleft,right color=umlifacebgright,
+	] (0,0) circle (8pt);
+    },
+    activation/.style={
+	draw=black,fill=umlactivationbg,
+	inner xsep=.5em,inner ysep=0,
+	node contents={},
+    },
+    port/.style={
+	draw,fill=black,
+	minimum width=1em,minimum height=1em,
+	node contents={}
+    },
+    life/.style=loosely dashed,
+    longdashed/.style={dash pattern={on 8pt off 5pt}},
+    msg/.style={
+	-{Triangle[width=1em,length=1em]},
+	shorten >=.5em,shorten <=.5em,
+    },
+    reply/.style={
+	msg,longdashed,
+	-{Straight Barb[width=1em,length=1em]},
+    },
+    msgcreate/.style=reply,
+    msglab/.style={font=\ttfamily\Large},
+]
+
+	\node (cc) [actor={\Actor{MyChaincode}}];
+	\node (ctx)
+	    [actor={\Actor[ctx]{ContextWithRegistry}},right=of cc];
+	\node (ent)
+	    [actor={\Actor[ent]{Entity}},right=-6em of ctx,yshift=-12em];
+	\node (reg) [actor={\Actor[reg]{Registry}},right=8em of ctx];
+	\node (stub) [
+	    actor={\Actor[interceptor]{ChaincodeStub}},
+	    right=12em of reg,
+	    text width=25em,text centered,
+	];
+	\pic at ($(stub.north east)+(-1.4em,-1.8em)$) {ificon};
+	\node (fabstub) [
+	    actor={\Actor[fabricStub]{ChaincodeStub}},
+	    right=6em of stub,
+	    text width=24em,text centered,
+	];
+	\pic at ($(fabstub.north east)+(-1.4em,-1.8em)$) {ificon};
+
+	\coordinate (cbot) at ($(cc)+(0,-45em)$);
+	\foreach \a in {cc,ctx,ent,reg,stub,fabstub}
+	    \draw[life] (\a) -- (\a |- cbot);
+
+	\node (in) [port,left=16em of cc,yshift=-4em];
+
+	\coordinate (ccact1start) at (in.east -| cc);
+	\coordinate (ccact1end) at ($(cc.south)+(0,-42em)$);
+	\node (ccact1) [activation,fit=(ccact1start)(ccact1end)];
+	\draw[msg,shorten <=0em] (in)
+	    -- node[above,msglab] {invokeTx(ctx=ctx,parameters)}
+	    (in -| ccact1);
+
+	\coordinate (ctxact1start) at ($(ctx.south)+(0,-5em)$);
+	\coordinate (ctxact1end) at ($(ctxact1start)+(0,-2em)$);
+	\node (ctxact1) [activation,fit=(ctxact1start)(ctxact1end)];
+	\draw[msg] (ccact1 |- ctxact1start)
+	    -- node[above,msglab] {getRegistry()} (ctxact1start);
+	\draw[reply] (ctxact1end)
+	    -- node[above,msglab] {reg} (ctxact1end -| ccact1);
+
+	\draw[msgcreate] (ccact1 |- ent)
+	    -- node[above,msglab] {\Stereo{create}} (ent);
+
+	\coordinate (regact1start) at ($(reg.south)+(0,-15em)$);
+	\coordinate (regact1end) at ($(regact1start)+(0,-24em)$);
+	\node (regact1) [activation,fit=(regact1start)(regact1end)];
+	\draw[msg] (ccact1 |- regact1start)
+	    -- node[above,msglab] {create(ctx=ctx, entity=ent)}
+	    (regact1start);
+
+	\coordinate (ctxact2start) at ($(ctx.south)+(0,-18em)$);
+	\coordinate (ctxact2end) at ($(ctxact2start)+(0,-2em)$);
+	\node (ctxact1) [activation,fit=(ctxact2start)(ctxact2end)];
+	\draw[msg] (regact1 |- ctxact2start)
+	    -- node[above,msglab] {getStub()} (ctxact2start);
+	\draw[reply] (ctxact2end)
+	    -- node[above,msglab] {interceptor} (ctxact2end -| regact1);
+
+	\coordinate (entact1start) at ($(ent.south)+(0,-10em)$);
+	\coordinate (entact1end) at ($(entact1start)+(0,-2em)$);
+	\node (entact1) [activation,fit=(entact1start)(entact1end)];
+	\draw[msg] (regact1 |- entact1start)
+	    -- node[above,msglab] {getKeyParts()} (entact1start);
+	\draw[reply] (entact1end)
+	    -- node[above,msglab] {keyParts} (entact1end -| regact1);
+
+	\coordinate (entact2start) at ($(ent.south)+(0,-14em)$);
+	\coordinate (entact2end) at ($(entact2start)+(0,-2em)$);
+	\node (entact2) [activation,fit=(entact2start)(entact2end)];
+	\draw[msg] (regact1 |- entact2start)
+	    -- node[above,msglab] {toBuffer()} (entact2start);
+	\draw[reply] (entact2end)
+	    -- node[above,msglab] {buffer} (entact2end -| regact1);
+
+	\coordinate (stubact1start) at ($(stub.south)+(0,-30em)$);
+	\coordinate (stubact1end) at ($(stubact1start)+(0,-6em)$);
+	\node (stubact1) [activation,fit=(stubact1start)(stubact1end)];
+	\draw[msg] (regact1 |- stubact1start)
+	    -- node[above,msglab] {putState(key=keyParts,value=buffer)}
+	    (stubact1start);
+	\draw[reply] (stubact1end) -- (stubact1end -| regact1);
+
+	\coordinate (fabstubact1start) at ($(fabstub.south)+(0,-32em)$);
+	\coordinate (fabstubact1end) at ($(fabstubact1start)+(0,-2em)$);
+	\node (fabstubact1) [
+	    activation,fit=(fabstubact1start)(fabstubact1end),
+	];
+	\draw[msg] (stubact1 |- fabstubact1start)
+	    -- node[above,msglab] {putState(key=keyParts,value=buffer)}
+	    (fabstubact1start);
+	\draw[reply] (fabstubact1end) -- (fabstubact1end -| stubact1);
+
+	\draw[reply] (regact1end) -- (regact1end -| ccact1);
+
+	\draw[reply] (ccact1end) -- (ccact1end -| in) node[port,solid];
+\end{tikzpicture}
+
+\end{document}
