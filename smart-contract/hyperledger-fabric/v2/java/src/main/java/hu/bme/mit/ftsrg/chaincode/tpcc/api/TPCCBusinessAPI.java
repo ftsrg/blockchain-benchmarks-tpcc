@@ -60,7 +60,7 @@ class TPCCBusinessAPI {
        * that district.  NO_O_ID, the order number, is retrieved. [...]
        */
       final DeliveredOrder deliveredOrder =
-          getOldestNewOrderForDistrict(
+          deliverOldestNewOrderForDistrict(
               ctx, input.getW_id(), d_id, input.getO_carrier_id(), input.getOl_delivery_d());
       if (deliveredOrder == null) {
         /*
@@ -905,7 +905,7 @@ class TPCCBusinessAPI {
    * @param ol_delivery_d The delivery date
    * @return The oldest NEW-ORDER entry with matching parameters
    */
-  private static DeliveredOrder getOldestNewOrderForDistrict(
+  private static DeliveredOrder deliverOldestNewOrderForDistrict(
       final ContextWithRegistry ctx,
       final int w_id,
       final int d_id,
@@ -915,7 +915,7 @@ class TPCCBusinessAPI {
     final String paramString =
         methodLogger.generateParamsString(
             methodLogger.generateParamsString(ctx, w_id, d_id, o_carrier_id), ol_delivery_d);
-    methodLogger.logStart("getOldestNewOrderForDistrict", paramString);
+    methodLogger.logStart("deliverOldestNewOrderForDistrict", paramString);
 
     final Registry registry = ctx.getRegistry();
 
@@ -1029,7 +1029,7 @@ class TPCCBusinessAPI {
         DeliveredOrder.builder().d_id(d_id).o_id(order.getO_id()).build();
 
     methodLogger.logEnd(
-        "getOldestNewOrderForDistrict", paramString, JSON.serialize(deliveredOrder));
+        "deliverOldestNewOrderForDistrict", paramString, JSON.serialize(deliveredOrder));
     return deliveredOrder;
   }
 
@@ -1041,8 +1041,8 @@ class TPCCBusinessAPI {
    *
    * <p><b>NOTE:</b> this code has been factored out of {@link TPCCContractAPI#delivery(TPCCContext,
    * String)} (and then consequently from {@link
-   * TPCCContractAPI#getOldestNewOrderForDistrict(ContextWithRegistry, int, int, int, String)}) only
-   * so that OpenJML won't choke on the exceedingly long method.
+   * TPCCContractAPI#deliverOldestNewOrderForDistrict(ContextWithRegistry, int, int, int, String)})
+   * only so that OpenJML won't choke on the exceedingly long method.
    *
    * @param ctx The transaction context
    * @param w_id The warehouse's ID
