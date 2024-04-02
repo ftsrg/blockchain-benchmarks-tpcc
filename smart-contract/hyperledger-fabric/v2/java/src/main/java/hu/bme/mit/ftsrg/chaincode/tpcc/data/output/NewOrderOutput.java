@@ -2,13 +2,11 @@
 
 package hu.bme.mit.ftsrg.chaincode.tpcc.data.output;
 
-import hu.bme.mit.ftsrg.chaincode.tpcc.TPCC;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.entity.Customer;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.entity.District;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.entity.Order;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.entity.Warehouse;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.extra.ItemsData;
-import hu.bme.mit.ftsrg.chaincode.tpcc.middleware.TPCCContext;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;
