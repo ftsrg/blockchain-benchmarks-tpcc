@@ -1001,7 +1001,7 @@ class TPCCBusinessAPI {
     double orderLineAmountTotal = 0;
     for (int i = 1; i <= order.getO_ol_cnt(); ++i)
       orderLineAmountTotal +=
-          getOrderLineAmount(ctx, w_id, d_id, order.getO_id(), i, ol_delivery_d);
+          getOrderLineAmountAndUpdateTime(ctx, w_id, d_id, order.getO_id(), i, ol_delivery_d);
 
     /*
      * [TPC-C 2.7.4.2 (7)]
@@ -1052,7 +1052,7 @@ class TPCCBusinessAPI {
    * @param ol_delivery_d The delivery date
    * @return The OL_AMOUNT field of the matching ORDER-LINE
    */
-  private static double getOrderLineAmount(
+  private static double getOrderLineAmountAndUpdateTime(
       final ContextWithRegistry ctx,
       final int w_id,
       final int d_id,
@@ -1063,7 +1063,7 @@ class TPCCBusinessAPI {
     final String paramString =
         methodLogger.generateParamsString(
             methodLogger.generateParamsString(ctx, w_id, d_id, o_id, number), ol_delivery_d);
-    methodLogger.logStart("getOrderLineAmount", paramString);
+    methodLogger.logStart("getOrderLineAmountAndUpdateTime", paramString);
 
     /*
      * [TPC-C 2.7.4.2 (6)]
@@ -1087,7 +1087,7 @@ class TPCCBusinessAPI {
     ctx.getRegistry().update(ctx, orderLine);
 
     methodLogger.logEnd(
-        "getOrderLineAmount", paramString, String.valueOf(orderLine.getOl_amount()));
+        "getOrderLineAmountAndUpdateTime", paramString, String.valueOf(orderLine.getOl_amount()));
     return orderLine.getOl_amount();
   }
 
