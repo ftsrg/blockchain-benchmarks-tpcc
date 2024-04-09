@@ -201,10 +201,60 @@ class TPCCBusinessAPI {
     final int[] i_ids = input.getI_ids();
     final int[] i_w_ids = input.getI_w_ids();
     final int[] i_qtys = input.getI_qtys();
-    for (int i = 0; i < input.getI_ids().length; ++i)
+    for (int i = 0; i < input.getI_ids().length; ++i) {
+      /*
+       * [TPC-C 2.4.2.2 (8.1)]
+       * The row in the ITEM table with matching I_ID (equals OL_I_ID)
+       * is selected and I_PRICE, the price of the item, I_NAME, the
+       * name of the item, and I_DATA are retrieved.  If I_ID has an
+       * unused value (see Clause 2.4.1.5), a "not-found" condition is
+       * signaled, resulting in a rollback of the database transaction
+       * (see Clause 2.4.2.3).
+       */
+      final Item item = Item.builder().id(i_ids[i]).build();
+      try {
+        registry.read(ctx, item);
+      } catch (EntityNotFoundException e) {
+        /*
+         * [TPC-C 2.4.2.3]
+         * For transactions that rollback as a result of an unused item
+         * number, the complete transaction profile must be executed
+         * with the exception that the follow ing steps need not be
+         * done:
+         * - Selecting and retrieving the row in the STOCK table with
+         *   S_I_ID matching the unused item number.
+         * - Examining the strings I_DATA and S_DATA for the unused
+         *   item.
+         * - Inserting a new row into the ORDER-LINE table for the
+         *   unused item.
+         * - Adding the amount for the unused item to the sum of all
+         *   OL_AMOUNT.
+         */
+        /*
+         * [TPC-C 2.4.3.4]
+         * For transactions that are rolled back as a result of an
+         * unused item number (1% of all New-Order transactions), the
+         * emulated terminal must display in the appropriate fields of
+         * the input/output screen the fields: W_ID, D_ID, C_ID, C_LAST,
+         * C_CREDIT, O_ID, and the execution status message
+         * "Item number is not valid".  Note that no execution status
+         * message is required for successfully committed transactions.
+         * However, this field may not display
+         * "Item number is not valid" if the transaction is successful.
+         */
+        return NewOrderOutput.builder()
+            .fromWarehouse(warehouse)
+            .fromDistrict(district)
+            .fromCustomer(customer)
+            .fromOrder(order)
+            .message("Item number is not valid")
+            .build();
+      }
+
       totalOrderLineAmount +=
           createOrderLineAndGetAmount(
               ctx,
+              item,
               i_ids[i],
               i_w_ids[i],
               i_qtys[i],
@@ -213,6 +263,7 @@ class TPCCBusinessAPI {
               nextOrderId,
               i,
               itemsDataList);
+    }
 
     /*
      * [TPC-C 2.4.2.2 (9)]
@@ -1127,6 +1178,7 @@ class TPCCBusinessAPI {
    */
   private static double createOrderLineAndGetAmount(
       final ContextWithRegistry ctx,
+      final Item item,
       final int i_id,
       final int i_w_id,
       final int i_qty,
@@ -1144,18 +1196,6 @@ class TPCCBusinessAPI {
     methodLogger.logStart("createOrderLineAndGetAmount", paramString);
 
     final Registry registry = ctx.getRegistry();
-
-    /*
-     * [TPC-C 2.4.2.2 (8.1)]
-     * The row in the ITEM table with matching I_ID (equals OL_I_ID)
-     * is selected and I_PRICE, the price of the item, I_NAME, the
-     * name of the item, and I_DATA are retrieved.  If I_ID has an
-     * unused value (see Clause 2.4.1.5), a "not-found" condition is
-     * signaled, resulting in a rollback of the database transaction
-     * (see Clause 2.4.2.3).
-     */
-    final Item item = Item.builder().id(i_id).build();
-    registry.read(ctx, item);
 
     /*
      * [TPC-C 2.4.2.2 (8.2)]
