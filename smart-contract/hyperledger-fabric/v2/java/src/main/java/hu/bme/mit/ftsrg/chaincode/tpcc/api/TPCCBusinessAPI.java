@@ -1260,7 +1260,6 @@ class TPCCBusinessAPI {
      * set to the content of S_DIST_xx, where xx represents the
      * district number (OL_D_ID)
      */
-    final String stockDistrictId = String.format("%02d", d_id);
     final OrderLine orderLine =
         OrderLine.builder()
             .o_id(nextOrderId)
@@ -1272,7 +1271,7 @@ class TPCCBusinessAPI {
             .delivery_d(null)
             .quantity(i_qty)
             .amount(orderLineAmount)
-            .dist_info(padDistrictInfo("s_dist_" + stockDistrictId))
+            .dist_info(padDistrictInfo(stock.getS_dist(d_id)))
             .build();
     registry.create(ctx, orderLine);
 
