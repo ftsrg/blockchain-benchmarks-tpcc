@@ -1355,6 +1355,14 @@ class TPCCBusinessAPI {
       if (matchingCustomers.isEmpty())
         throw new NotFoundException("Customer matching last name '%s' not found".formatted(c_last));
 
+      matchingCustomers.sort(
+          new Comparator<Customer>() {
+            @Override
+            public int compare(final Customer a, final Customer b) {
+              return a.getC_last().compareTo(b.getC_last());
+            }
+          });
+
       final double N = Math.ceil(matchingCustomers.size() / 2d);
       if (N > Integer.MAX_VALUE) logger.warn("Size of matching CUSTOMER list is out of range");
       final int n = (int) N;
