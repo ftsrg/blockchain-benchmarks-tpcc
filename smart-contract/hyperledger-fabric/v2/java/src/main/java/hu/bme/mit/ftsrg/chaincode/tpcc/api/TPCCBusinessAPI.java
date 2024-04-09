@@ -498,8 +498,9 @@ class TPCCBusinessAPI {
        * right side of the C_DATA field. The content of the C_DATA
        * field never exceeds 500 characters.
        */
-      if (customer.getC_data().length() > 500)
+      if (customer.getC_data().length() > 500) {
         customer.setC_data(customer.getC_data().substring(0, 500));
+      }
     }
     /*
      * [TPC-C 2.5.2.2 (6) (continued)]
@@ -552,8 +553,9 @@ class TPCCBusinessAPI {
             .fromDistrict(district)
             .fromHistory(history)
             .build();
-    if (customer.getC_credit().equals("BC"))
+    if (customer.getC_credit().equals("BC")) {
       output.setC_data(customer.getC_data().substring(0, 200));
+    }
     ctx.commit();
     return output;
   }
@@ -652,7 +654,11 @@ class TPCCBusinessAPI {
    *     <code>false</code> otherwise
    */
   private static boolean allMatch(final int[] arr, final int value) {
-    for (final int x : arr) if (x != value) return false;
+    for (final int x : arr) {
+      if (x != value) {
+        return false;
+      }
+    }
     return true;
   }
 
@@ -664,8 +670,10 @@ class TPCCBusinessAPI {
    * @throws IllegalArgumentException if the info string is already longer than 24 characters
    */
   private static String padDistrictInfo(final String info) {
-    if (info.length() > 24)
+    if (info.length() > 24) {
       throw new IllegalArgumentException("District info is too long (maximum 24 chars)");
+    }
+
     return String.format("%24s", info);
   }
 
@@ -1001,7 +1009,9 @@ class TPCCBusinessAPI {
     final Iterator<NewOrder> it = matchingNewOrders.iterator();
     while (it.hasNext()) {
       final NewOrder no = it.next();
-      if (no.getNo_w_id() != w_id || no.getNo_d_id() != d_id) it.remove();
+      if (no.getNo_w_id() != w_id || no.getNo_d_id() != d_id) {
+        it.remove();
+      }
     }
     logger.debug("matchingNewOrders={}", matchingNewOrders);
 
@@ -1016,7 +1026,9 @@ class TPCCBusinessAPI {
      * in more than 1%, or in more than one, whichever is greater, of
      * the business transactions, it must be reported. [...]
      */
-    if (matchingNewOrders.isEmpty()) return null;
+    if (matchingNewOrders.isEmpty()) {
+      return null;
+    }
     final NewOrder oldestNewOrder =
         matchingNewOrders.get(0); // after the sorting, the first one is the oldest
     logger.debug("Oldest NEW-ORDER retrieved is: {}", oldestNewOrder);
@@ -1050,9 +1062,10 @@ class TPCCBusinessAPI {
      * selected. [...]
      */
     double orderLineAmountTotal = 0;
-    for (int i = 1; i <= order.getO_ol_cnt(); ++i)
+    for (int i = 1; i <= order.getO_ol_cnt(); ++i) {
       orderLineAmountTotal +=
           getOrderLineAmountAndUpdateTime(ctx, w_id, d_id, order.getO_id(), i, ol_delivery_d);
+    }
 
     /*
      * [TPC-C 2.7.4.2 (7)]
@@ -1214,8 +1227,11 @@ class TPCCBusinessAPI {
      * otherwise S_QUANTITY is updated to (S_QUANTITY - OL_QUANTITY)
      * + 91. [...]
      */
-    if (stock.getS_quantity() >= i_qty + 10) stock.decreaseQuantity(i_qty);
-    else stock.setS_quantity(stock.getS_quantity() - i_qty + 91);
+    if (stock.getS_quantity() >= i_qty + 10) {
+      stock.decreaseQuantity(i_qty);
+    } else {
+      stock.setS_quantity(stock.getS_quantity() - i_qty + 91);
+    }
     /*
      * [TPC-C 2.4.2.2 (8.2) (continued)]
      * ... S_YTD is increased by OL_QUANTITY [...]
@@ -1231,7 +1247,9 @@ class TPCCBusinessAPI {
      * ... If the order-line is remote, then S_REMOTE_CNT is
      * incremented by 1.
      */
-    if (i_w_id != w_id) stock.incrementRemoteCount();
+    if (i_w_id != w_id) {
+      stock.incrementRemoteCount();
+    }
     registry.update(ctx, stock);
 
     /*
@@ -1335,8 +1353,9 @@ class TPCCBusinessAPI {
             methodLogger.generateParamsString(ctx, c_w_id, c_d_id, c_id), c_last);
     methodLogger.logStart("getCustomerByIDOrLastName", paramString);
 
-    if (c_id == null && c_last == null)
+    if (c_id == null && c_last == null) {
       throw new IllegalArgumentException("At least one of c_id and c_last must be specified");
+    }
 
     if (c_id != null) {
       final Customer customer =
@@ -1350,10 +1369,14 @@ class TPCCBusinessAPI {
 
       // Stream-based one-liner replaced with below code to accommodate OpenJML...
       final List<Customer> matchingCustomers = new ArrayList<>();
-      for (final Customer c : allCustomers)
-        if (c.getC_last().equals(c_last)) matchingCustomers.add(c);
-      if (matchingCustomers.isEmpty())
+      for (final Customer c : allCustomers) {
+        if (c.getC_last().equals(c_last)) {
+          matchingCustomers.add(c);
+        }
+      }
+      if (matchingCustomers.isEmpty()) {
         throw new NotFoundException("Customer matching last name '%s' not found".formatted(c_last));
+      }
 
       matchingCustomers.sort(
           new Comparator<Customer>() {
@@ -1364,7 +1387,9 @@ class TPCCBusinessAPI {
           });
 
       final double N = Math.ceil(matchingCustomers.size() / 2d);
-      if (N > Integer.MAX_VALUE) logger.warn("Size of matching CUSTOMER list is out of range");
+      if (N > Integer.MAX_VALUE) {
+        logger.warn("Size of matching CUSTOMER list is out of range");
+      }
       final int n = (int) N;
 
       final Customer customer = matchingCustomers.get(n);
@@ -1392,13 +1417,20 @@ class TPCCBusinessAPI {
     Registry registry = ctx.getRegistry();
     final List<Order> allOrders =
         registry.readAll(ctx, Order.builder().w_id(o_w_id).d_id(o_d_id).build());
-    if (allOrders.isEmpty()) throw new NotFoundException("No orders found");
+    if (allOrders.isEmpty()) {
+      throw new NotFoundException("No orders found");
+    }
 
     // Stream-based one-liner replaced with below code to accommodate OpenJML...
     final List<Order> matchingOrders = new ArrayList<>();
-    for (final Order o : allOrders) if (o.getO_c_id() == o_c_id) matchingOrders.add(o);
-    if (matchingOrders.isEmpty())
+    for (final Order o : allOrders) {
+      if (o.getO_c_id() == o_c_id) {
+        matchingOrders.add(o);
+      }
+    }
+    if (matchingOrders.isEmpty()) {
       throw new NotFoundException("Could not find last order of customer");
+    }
     matchingOrders.sort(
         new Comparator<Order>() {
           @Override
@@ -1452,7 +1484,9 @@ class TPCCBusinessAPI {
         itemIds.add(orderLine.getOl_i_id());
       }
     }
-    if (itemIds.isEmpty()) throw new NotFoundException("Could not find item IDs of recent ORDERs");
+    if (itemIds.isEmpty()) {
+      throw new NotFoundException("Could not find item IDs of recent ORDERs");
+    }
 
     final List<Integer> itemIdsList = new ArrayList<>(itemIds);
     methodLogger.logEnd("getItemIdsOfRecentOrders", paramString, itemIdsList.toString());

@@ -90,10 +90,15 @@ public final class WriteBackCachedChaincodeStubMiddleware extends ChaincodeStubM
     for (final Map.Entry<String, CachedItem> entry : cache.entrySet()) {
       final CachedItem item = entry.getValue();
 
-      if (item == null || !item.isDirty() || item.getValue() == null) continue;
+      if (item == null || !item.isDirty() || item.getValue() == null) {
+        continue;
+      }
 
-      if (item.isToDelete()) this.nextLayer.delState(item.getKey());
-      else this.nextLayer.putState(item.getKey(), item.getValue());
+      if (item.isToDelete()) {
+        this.nextLayer.delState(item.getKey());
+      } else {
+        this.nextLayer.putState(item.getKey(), item.getValue());
+      }
     }
   }
 
@@ -118,7 +123,9 @@ public final class WriteBackCachedChaincodeStubMiddleware extends ChaincodeStubM
     }
 
     public void setValue(final byte[] value) {
-      if (Arrays.equals(this.value, value)) return;
+      if (Arrays.equals(this.value, value)) {
+        return;
+      }
 
       this.value = value;
       this.dirty = true;
