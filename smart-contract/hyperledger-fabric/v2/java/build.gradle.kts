@@ -49,7 +49,8 @@ dependencies {
 application { mainClass.set("org.hyperledger.fabric.contract.ContractRouter") }
 
 tasks.named<ShadowJar>("shadowJar") {
-  dependsOn(tasks.named("initOpenJML"))
+  if (System.getenv("NO_JML") == "")
+    dependsOn(tasks.named("initOpenJML"))
 
   archiveBaseName.set("chaincode")
   archiveClassifier.set("")
@@ -71,9 +72,9 @@ tasks.test {
 // }
 
 tasks.withType<JavaCompile>().configureEach {
-  dependsOn(tasks.named("initOpenJML"))
   // Only when not compiling because of Spotless
-  if (!gradle.startParameter.taskNames.any { it.contains("spotlessApply") }) {
+  if (!gradle.startParameter.taskNames.any { it.contains("spotlessApply") } && System.getenv("NO_JML") == "") {
+    dependsOn(tasks.named("initOpenJML"))
     val mode =
         when (System.getenv("JML_MODE")) {
           "esc" -> "esc"
