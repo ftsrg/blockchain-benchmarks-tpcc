@@ -12,6 +12,9 @@ val downloadDir = layout.buildDirectory.dir("tmp/download")
 val jmlavac = openJMLJavaHomeDir.file("bin/jmlavac")
 val jmlava = openJMLJavaHomeDir.file("bin/jmlava")
 
+val withoutOpenJML: String? by project
+val noOpenJML: Boolean = withoutOpenJML != null && withoutOpenJML.toBoolean()
+
 plugins {
   application
   id("com.github.johnrengelman.shadow") version "7.1.2"
@@ -49,8 +52,6 @@ dependencies {
 application { mainClass.set("org.hyperledger.fabric.contract.ContractRouter") }
 
 tasks.named<ShadowJar>("shadowJar") {
-  dependsOn(tasks.named("initOpenJML"))
-
   archiveBaseName.set("chaincode")
   archiveClassifier.set("")
   archiveVersion.set("")
@@ -58,63 +59,65 @@ tasks.named<ShadowJar>("shadowJar") {
 
 tasks.named<Test>("test") { useJUnitPlatform() }
 
-tasks.test {
-  java {
-    executable = "$openJMLDir/bin/jmlava"
-    jvmArgs = listOf("-Dorg.jmlspecs.openjml.rac=exception")
+if (!noOpenJML) {
+  tasks.named<ShadowJar>("shadowJar") {
+    dependsOn(tasks.named("initOpenJML"))
   }
-}
 
-// java {
-//   sourceCompatibility = JavaVersion.VERSION_17
-//   targetCompatibility = JavaVersion.VERSION_17
-// }
+  tasks.test {
+    java {
+      executable = "$openJMLDir/bin/jmlava"
+      jvmArgs = listOf("-Dorg.jmlspecs.openjml.rac=exception")
+    }
+  }
 
-tasks.withType<JavaCompile>().configureEach {
-  dependsOn(tasks.named("initOpenJML"))
-  // Only when not compiling because of Spotless
-  if (!gradle.startParameter.taskNames.any { it.contains("spotlessApply") }) {
-    val mode =
+  tasks.withType<JavaCompile>().configureEach {
+    dependsOn(tasks.named("initOpenJML"))
+    // Only when not compiling because of Spotless
+    if (!gradle.startParameter.taskNames.any { it.contains("spotlessApply") }) {
+      val mode =
         when (System.getenv("JML_MODE")) {
           "esc" -> "esc"
           else -> "rac"
         }
-    options.isFork = true
-    options.compilerArgs.addAll(
+      options.isFork = true
+      options.compilerArgs.addAll(
         listOf(
-            "-jml", "-$mode", "-timeout", "30", "--nullable-by-default", "--specs-path", "specs/"))
-    options.forkOptions.javaHome = openJMLJavaHomeDir.asFile
+          "-jml", "-$mode", "-timeout", "30", "--nullable-by-default", "--specs-path", "specs/"))
+      options.forkOptions.javaHome = openJMLJavaHomeDir.asFile
+    }
+  }
+
+  configure<SpotlessExtension> {
+    java {
+      importOrder()
+      removeUnusedImports()
+      googleJavaFormat()
+      formatAnnotations()
+      toggleOffOn()
+    }
+    kotlin {
+      target("src/*/kotlin/**/*.kt", "buildSrc/src/*/kotlin/**/*.kt")
+      ktfmt()
+    }
+    kotlinGradle { ktfmt() }
+  }
+
+  tasks.register("initOpenJML") {
+    val openJMLVersion: String by project
+
+    val zipFile: File = downloadDir.get().file("openjml.zip").asFile
+    downloadOpenJML(openJMLVersion, zipFile, logger)
+    extractOpenJML(zipFile, openJMLDir, logger)
+
+    // `jmlavac' is what we call `javac' that is actually
+    // OpenJML's javac; likewise, `jmlava' is a wrapper for `java' with
+    // OpenJML already in the classpath
+    generateJmlavac(jmlavac.asFile, openJMLJavaHomeDir, logger)
+    replaceJavac(openJMLJavaHomeDir, jmlavac.asFile, logger)
+    generateJmlava(jmlava.asFile, openJMLJavaHomeDir, logger)
+    replaceJava(openJMLJavaHomeDir, jmlava.asFile, logger)
+    logger.lifecycle("✅ OpenJML successfully initialized in $openJMLDir")
   }
 }
 
-configure<SpotlessExtension> {
-  java {
-    importOrder()
-    removeUnusedImports()
-    googleJavaFormat()
-    formatAnnotations()
-    toggleOffOn()
-  }
-  kotlin {
-    target("src/*/kotlin/**/*.kt", "buildSrc/src/*/kotlin/**/*.kt")
-    ktfmt()
-  }
-  kotlinGradle { ktfmt() }
-}
-
-tasks.register("initOpenJML") {
-  val openJMLVersion: String by project
-
-  val zipFile: File = downloadDir.get().file("openjml.zip").asFile
-  downloadOpenJML(openJMLVersion, zipFile, logger)
-  extractOpenJML(zipFile, openJMLDir, logger)
-
-  // `jmlavac' is what we call `javac' that is actually
-  // OpenJML's javac; likewise, `jmlava' is a wrapper for `java' with
-  // OpenJML already in the classpath
-  generateJmlavac(jmlavac.asFile, openJMLJavaHomeDir, logger)
-  replaceJavac(openJMLJavaHomeDir, jmlavac.asFile, logger)
-  generateJmlava(jmlava.asFile, openJMLJavaHomeDir, logger)
-  replaceJava(openJMLJavaHomeDir, jmlava.asFile, logger)
-  logger.lifecycle("✅ OpenJML successfully initialized in $openJMLDir")
-}
