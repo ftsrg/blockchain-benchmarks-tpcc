@@ -305,9 +305,6 @@ public final class TPCC implements ContractInterface {
    * @return The customer with matching (C_W_ID, C_D_ID, C_ID), unless C_ID >= 2, in which case an
    *     exception should be thrown by OpenJML
    */
-  // spotless:off
-  //@ requires c_id < 2;
-  // spotless:on
   @Transaction(intent = Transaction.TYPE.EVALUATE)
   public String OJMLTEST__getCustomer(
       final TPCCContext ctx, final int c_w_id, final int c_d_id, final int c_id) {

@@ -57,4 +57,9 @@ public final class TPCC implements ContractInterface {
     @*/
   private StockLevelOutput stockLevel(final TPCCContext ctx, final StockLevelInput input)
       throws EntityNotFoundException, NotFoundException;
+
+  /*@
+    @ requires c_id < 2;
+    @*/
+  public String OJMLTEST__getCustomer(final TPCCContext ctx, final int c_w_id, final int c_d_id, final int c_id);
 }
