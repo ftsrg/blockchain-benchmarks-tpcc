@@ -15,6 +15,16 @@ However, note that normally, you do not need to locally build the chaincode.
 The [test network](../../../../test-network/README.adoc) will build generate this JAR as part of a [dockerized](https://www.docker.com/) build process.
 Build directly only if you know what you are doing.
 
+## Development
+
+You most likely do not want to build with OpenJML for local development, eg in your IDE.
+To disable OpenJML, simply set the `withoutOpenJML` Gradle property to `true`.
+For example, in `gradle.properties`:
+
+```properties
+withoutOpenJML = "true"
+```
+
 
 ## License
 

@@ -1,6 +1,7 @@
+/* SPDX-License-Identifier: Apache-2.0 */
 package hu.bme.mit.ftsrg.chaincode.tpcc.middleware;
 
-import hu.bme.mit.ftsrg.chaincode.dataaccess.ContextWithRegistry;
+import hu.bme.mit.ftsrg.hypernate.context.ContextWithRegistry;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;

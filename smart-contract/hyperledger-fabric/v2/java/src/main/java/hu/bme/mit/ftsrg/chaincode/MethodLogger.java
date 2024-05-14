@@ -1,6 +1,7 @@
+/* SPDX-License-Identifier: Apache-2.0 */
 package hu.bme.mit.ftsrg.chaincode;
 
-import hu.bme.mit.ftsrg.chaincode.dataaccess.SerializableEntity;
+import hu.bme.mit.ftsrg.hypernate.entity.Entity;
 import java.util.ArrayList;
 import java.util.List;
 import org.hyperledger.fabric.contract.Context;
@@ -42,7 +43,7 @@ public final class MethodLogger {
     return "%s,%s".formatted(ctx.toString(), generateParamsString(params));
   }
 
-  public <Type extends SerializableEntity<Type>> String generateParamsString(
+  public <Type extends Entity<Type>> String generateParamsString(
       final Context ctx, final Type obj) {
     return "%s,%s".formatted(ctx.toString(), obj.toString());
   }

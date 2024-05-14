@@ -1,19 +1,19 @@
 /* SPDX-License-Identifier: Apache-2.0 */
-
 package hu.bme.mit.ftsrg.chaincode.tpcc.api;
 
 import com.jcabi.aspects.Loggable;
 import hu.bme.mit.ftsrg.chaincode.MethodLogger;
-import hu.bme.mit.ftsrg.chaincode.dataaccess.ContextWithRegistry;
-import hu.bme.mit.ftsrg.chaincode.dataaccess.Registry;
-import hu.bme.mit.ftsrg.chaincode.dataaccess.exception.EntityExistsException;
-import hu.bme.mit.ftsrg.chaincode.dataaccess.exception.EntityNotFoundException;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.entity.*;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.extra.*;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.input.*;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.output.*;
 import hu.bme.mit.ftsrg.chaincode.tpcc.middleware.TPCCContext;
 import hu.bme.mit.ftsrg.chaincode.tpcc.util.JSON;
+import hu.bme.mit.ftsrg.hypernate.Registry;
+import hu.bme.mit.ftsrg.hypernate.context.ContextWithRegistry;
+import hu.bme.mit.ftsrg.hypernate.entity.EntityExistsException;
+import hu.bme.mit.ftsrg.hypernate.entity.EntityNotFoundException;
+import hu.bme.mit.ftsrg.hypernate.entity.SerializationException;
 import java.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +39,7 @@ class TPCCBusinessAPI {
    * @return The transaction output
    */
   static DeliveryOutput delivery(final TPCCContext ctx, final DeliveryInput input)
-      throws EntityNotFoundException {
+      throws EntityNotFoundException, SerializationException {
 
     /*
      * [TPC-C 2.7.4.2]
@@ -101,7 +101,7 @@ class TPCCBusinessAPI {
    * @return The transaction output
    */
   static NewOrderOutput newOrder(final TPCCContext ctx, final NewOrderInput input)
-      throws EntityNotFoundException, EntityExistsException {
+      throws EntityNotFoundException, EntityExistsException, SerializationException {
     /*
      * [TPC-C 2.4.2.2]
      * For a given warehouse number (W_ID), district number (D_W_ID,
@@ -119,7 +119,7 @@ class TPCCBusinessAPI {
      * and W_TAX, the warehouse tax rate, is retrieved.
      */
     final Warehouse warehouse = Warehouse.builder().id(input.getW_id()).build();
-    registry.read(ctx, warehouse);
+    registry.read(warehouse);
 
     /*
      * [TPC-C 2.4.2.2 (4)]
@@ -128,7 +128,7 @@ class TPCCBusinessAPI {
      */
     final District district =
         District.builder().w_id(warehouse.getW_id()).id(input.getD_id()).build();
-    registry.read(ctx, district);
+    registry.read(district);
     /*
      * [TPC-C 2.4.2.2 (4) (continued)]
      * ... and D_NEXT_O_ID, the next available order number for the
@@ -136,7 +136,7 @@ class TPCCBusinessAPI {
      */
     final int nextOrderId = district.getD_next_o_id();
     district.incrementNextOrderID();
-    registry.update(ctx, district);
+    registry.update(district);
     logger.debug(
         "Next available order number for DISTRICT with D_ID={} incremented; new DISTRICT: {}",
         district.getD_id(),
@@ -155,7 +155,7 @@ class TPCCBusinessAPI {
             .d_id(district.getD_id())
             .id(input.getC_id())
             .build();
-    registry.read(ctx, customer);
+    registry.read(customer);
 
     /*
      * [TPC-C 2.4.2.2 (6)]
@@ -168,7 +168,7 @@ class TPCCBusinessAPI {
             .d_id(district.getD_id())
             .w_id(warehouse.getW_id())
             .build();
-    registry.create(ctx, newOrder);
+    registry.create(newOrder);
     /*
      * [TPC-C 2.4.2.2 (6) (continued)]
      * ... O_CARRIER_ID is set to a null value.  If the order includes
@@ -190,7 +190,7 @@ class TPCCBusinessAPI {
             .ol_cnt(input.getI_ids().length)
             .all_local(allMatch(input.getI_w_ids(), warehouse.getW_id()) ? 1 : 0)
             .build();
-    registry.create(ctx, order);
+    registry.create(order);
 
     /*
      * [TPC-C 2.4.2.2 (8)]
@@ -213,7 +213,7 @@ class TPCCBusinessAPI {
        */
       final Item item = Item.builder().id(i_ids[i]).build();
       try {
-        registry.read(ctx, item);
+        registry.read(item);
       } catch (EntityNotFoundException e) {
         /*
          * [TPC-C 2.4.2.3]
@@ -304,7 +304,7 @@ class TPCCBusinessAPI {
    * @return The transaction output
    */
   static OrderStatusOutput orderStatus(final TPCCContext ctx, final OrderStatusInput input)
-      throws NotFoundException, EntityNotFoundException {
+      throws NotFoundException, EntityNotFoundException, SerializationException {
     /*
      * [TPC-C 2.6.2.2]
      * For a given customer number (C_W_ID, C_D_ID, C_ID): ...
@@ -392,7 +392,10 @@ class TPCCBusinessAPI {
    * @return The JSON encoded query results according to the specification.
    */
   static PaymentOutput payment(final TPCCContext ctx, final PaymentInput input)
-      throws EntityNotFoundException, EntityExistsException, NotFoundException {
+      throws EntityNotFoundException,
+          EntityExistsException,
+          NotFoundException,
+          SerializationException {
     /*
      * [TPC-C 2.5.2.2]
      * For a given warehouse number (W_ID), district number (D_W_ID,
@@ -410,14 +413,14 @@ class TPCCBusinessAPI {
      * retrieved [...]
      */
     final Warehouse warehouse = Warehouse.builder().id(input.getW_id()).build();
-    registry.read(ctx, warehouse);
+    registry.read(warehouse);
     /*
      * [TPC-C 2.5.2.2 (3) (continued)]
      * ... and W_YTD, the warehouse's year-to-date balance, is
      * increased by H_AMOUNT.
      */
     warehouse.increaseYTD(input.getH_amount());
-    registry.update(ctx, warehouse);
+    registry.update(warehouse);
 
     /*
      * [TPC-C 2.5.2.2 (4)]
@@ -427,14 +430,14 @@ class TPCCBusinessAPI {
      */
     final District district =
         District.builder().w_id(warehouse.getW_id()).id(input.getD_id()).build();
-    registry.read(ctx, district);
+    registry.read(district);
     /*
      * [TPC-C 2.5.2.2 (4) (continued)]
      * ... and D_YTD, the district's year-to-date balance, is
      * increased by H_AMOUNT.
      */
     district.increaseYTD(input.getH_amount());
-    registry.update(ctx, district);
+    registry.update(district);
 
     /*
      * [TPC-C 2.5.2.2 (5.1)]
@@ -506,7 +509,7 @@ class TPCCBusinessAPI {
      * [TPC-C 2.5.2.2 (6) (continued)]
      * ... The selected customer is updated with the new C_DATA field.
      */
-    registry.update(ctx, customer);
+    registry.update(customer);
 
     /*
      * [TPC-C 2.5.2.2 (7)]
@@ -531,7 +534,7 @@ class TPCCBusinessAPI {
             .amount(input.getH_amount())
             .data(h_data)
             .build();
-    registry.create(ctx, history);
+    registry.create(history);
 
     /*
      * [TPC-C 2.5.3.3]
@@ -568,7 +571,7 @@ class TPCCBusinessAPI {
    * @return The transaction output
    */
   static StockLevelOutput stockLevel(final TPCCContext ctx, final StockLevelInput input)
-      throws EntityNotFoundException, NotFoundException {
+      throws EntityNotFoundException, NotFoundException, SerializationException {
     /*
      * [TPC-C 2.8.2.2]
      * For a given warehouse number (W_ID), district number (D_W_ID,
@@ -581,7 +584,7 @@ class TPCCBusinessAPI {
      * selected and D_NEXT_O_ID is retrieved.
      */
     final District district = District.builder().w_id(input.getW_id()).id(input.getD_id()).build();
-    ctx.getRegistry().read(ctx, district);
+    ctx.getRegistry().read(district);
 
     /*
      * [TPC-C 2.8.2.2 (4)]
@@ -608,7 +611,7 @@ class TPCCBusinessAPI {
     int lowStock = 0;
     for (final int i_id : recentItemIds) {
       final Stock stock = Stock.builder().w_id(input.getW_id()).i_id(i_id).build();
-      ctx.getRegistry().read(ctx, stock);
+      ctx.getRegistry().read(stock);
       if (stock.getS_quantity() < input.getThreshold()) {
         logger.debug("The stock quantity is less than the threshold");
         ++lowStock;
@@ -635,7 +638,7 @@ class TPCCBusinessAPI {
    *
    * @param ctx The transaction context
    */
-  static void init(final TPCCContext ctx) throws EntityExistsException {
+  static void init(final TPCCContext ctx) throws EntityExistsException, SerializationException {
     initWarehouses(ctx);
     initDistricts(ctx);
     initCustomers(ctx);
@@ -686,7 +689,8 @@ class TPCCBusinessAPI {
    * @param ctx The transaction context
    * @throws EntityExistsException if a warehouse entry already exists on the ledger
    */
-  private static void initWarehouses(final ContextWithRegistry ctx) throws EntityExistsException {
+  private static void initWarehouses(final ContextWithRegistry ctx)
+      throws EntityExistsException, SerializationException {
     final String paramString = methodLogger.generateParamsString(ctx.toString());
     methodLogger.logStart("initWarehouses", paramString);
 
@@ -703,7 +707,7 @@ class TPCCBusinessAPI {
             .ytd(10000)
             .build();
 
-    ctx.getRegistry().create(ctx, warehouse);
+    ctx.getRegistry().create(warehouse);
 
     methodLogger.logEnd("initWarehouses", paramString, "<void>");
   }
@@ -717,7 +721,8 @@ class TPCCBusinessAPI {
    * @param ctx The transaction context
    * @throws EntityExistsException if a district entry already exists on the ledger
    */
-  private static void initDistricts(final ContextWithRegistry ctx) throws EntityExistsException {
+  private static void initDistricts(final ContextWithRegistry ctx)
+      throws EntityExistsException, SerializationException {
     final String paramString = methodLogger.generateParamsString(ctx.toString());
     methodLogger.logStart("initDistricts", paramString);
 
@@ -736,7 +741,7 @@ class TPCCBusinessAPI {
             .next_o_id(3001)
             .build();
 
-    ctx.getRegistry().create(ctx, district);
+    ctx.getRegistry().create(district);
 
     methodLogger.logEnd("initDistricts", paramString, "<void>");
   }
@@ -750,7 +755,8 @@ class TPCCBusinessAPI {
    * @param ctx The transaction context
    * @throws EntityExistsException if a customer entry already exists on the ledger
    */
-  private static void initCustomers(final ContextWithRegistry ctx) throws EntityExistsException {
+  private static void initCustomers(final ContextWithRegistry ctx)
+      throws EntityExistsException, SerializationException {
     final String paramString = methodLogger.generateParamsString(ctx.toString());
     methodLogger.logStart("initCustomers", paramString);
 
@@ -804,8 +810,8 @@ class TPCCBusinessAPI {
             .build();
 
     final Registry registry = ctx.getRegistry();
-    registry.create(ctx, alice);
-    registry.create(ctx, peter);
+    registry.create(alice);
+    registry.create(peter);
 
     methodLogger.logEnd("initDistricts", paramString, "<void>");
   }
@@ -819,7 +825,8 @@ class TPCCBusinessAPI {
    * @param ctx The transaction context
    * @throws EntityExistsException if an item entry already exists on the ledger
    */
-  private static void initItems(final ContextWithRegistry ctx) throws EntityExistsException {
+  private static void initItems(final ContextWithRegistry ctx)
+      throws EntityExistsException, SerializationException {
     final String paramString = methodLogger.generateParamsString(ctx.toString());
     methodLogger.logStart("initItems", paramString);
 
@@ -831,9 +838,9 @@ class TPCCBusinessAPI {
         Item.builder().id(3).im_id(456).name("Glass").price(78.00).data("GENERIC").build();
 
     final Registry registry = ctx.getRegistry();
-    registry.create(ctx, cup);
-    registry.create(ctx, plate);
-    registry.create(ctx, glass);
+    registry.create(cup);
+    registry.create(plate);
+    registry.create(glass);
 
     methodLogger.logEnd("initItems", paramString, "<void>");
   }
@@ -847,7 +854,8 @@ class TPCCBusinessAPI {
    * @param ctx The transaction context
    * @throws EntityExistsException if a stock entry already exists on the ledger
    */
-  private static void initStocks(final ContextWithRegistry ctx) throws EntityExistsException {
+  private static void initStocks(final ContextWithRegistry ctx)
+      throws EntityExistsException, SerializationException {
     final String paramString = methodLogger.generateParamsString(ctx.toString());
     methodLogger.logStart("initStocks", paramString);
 
@@ -889,9 +897,9 @@ class TPCCBusinessAPI {
             .build();
 
     final Registry registry = ctx.getRegistry();
-    registry.create(ctx, stock1);
-    registry.create(ctx, stock2);
-    registry.create(ctx, stock3);
+    registry.create(stock1);
+    registry.create(stock2);
+    registry.create(stock3);
 
     methodLogger.logEnd("initStocks", paramString, "<void>");
   }
@@ -937,13 +945,13 @@ class TPCCBusinessAPI {
    */
   private static OrderLineData getOrderLineDataForOrder(
       final ContextWithRegistry ctx, final Order order, final int number)
-      throws EntityNotFoundException {
+      throws EntityNotFoundException, SerializationException {
     final String paramString =
         methodLogger.generateParamsString(ctx.toString(), order.toString(), String.valueOf(number));
     methodLogger.logStart("getOrderLineDataForOrder", paramString);
 
     final OrderLine orderLine = OrderLine.builder().fromOrder(order).number(number).build();
-    ctx.getRegistry().read(ctx, orderLine);
+    ctx.getRegistry().read(orderLine);
 
     final OrderLineData orderLineData = OrderLineData.builder().fromOrderLine(orderLine).build();
 
@@ -970,7 +978,7 @@ class TPCCBusinessAPI {
       final int d_id,
       final int o_carrier_id,
       final String ol_delivery_d)
-      throws EntityNotFoundException {
+      throws EntityNotFoundException, SerializationException {
     final String paramString =
         methodLogger.generateParamsString(
             methodLogger.generateParamsString(ctx, w_id, d_id, o_carrier_id), ol_delivery_d);
@@ -987,7 +995,7 @@ class TPCCBusinessAPI {
      */
     final List<NewOrder> matchingNewOrders =
         registry
-            .select(ctx, new NewOrder())
+            .select(new NewOrder())
             /* TODO this code causes a StackOverflowError for some reason
             .matching(
                 new Registry.Matcher<NewOrder>() {
@@ -1037,7 +1045,7 @@ class TPCCBusinessAPI {
      * [TPC-C 2.7.4.2 (4)]
      * The selected row in the NEW-ORDER table is deleted.
      */
-    registry.delete(ctx, oldestNewOrder);
+    registry.delete(oldestNewOrder);
 
     /*
      * [TPC-C 2.7.4.2 (5)]
@@ -1047,13 +1055,13 @@ class TPCCBusinessAPI {
      */
     final Order order =
         Order.builder().w_id(w_id).d_id(d_id).id(oldestNewOrder.getNo_o_id()).build();
-    registry.read(ctx, order);
+    registry.read(order);
     /*
      * [TPC-C 2.7.4.2 (5) (continued)]
      * ... and O_CARRIER_ID is updated.
      */
     order.setO_carrier_id(o_carrier_id);
-    registry.update(ctx, order);
+    registry.update(order);
 
     /*
      * [TPC-C 2.7.4.2 (6)]
@@ -1075,7 +1083,7 @@ class TPCCBusinessAPI {
      */
     final Customer customer =
         Customer.builder().w_id(w_id).d_id(d_id).id(order.getO_c_id()).build();
-    registry.read(ctx, customer);
+    registry.read(customer);
     /*
      * [TPC-C 2.7.4.2 (7) (continued)]
      * ... and C_BALANCE is increased by the sum of all order-line
@@ -1087,7 +1095,7 @@ class TPCCBusinessAPI {
      * ... C_DELIVERY_CNT is incremented by 1.
      */
     customer.incrementDeliveryCount();
-    registry.update(ctx, customer);
+    registry.update(customer);
 
     final DeliveredOrder deliveredOrder =
         DeliveredOrder.builder().d_id(d_id).o_id(order.getO_id()).build();
@@ -1105,7 +1113,7 @@ class TPCCBusinessAPI {
    *
    * <p><b>NOTE:</b> this code has been factored out of {@link TPCCContractAPI#delivery(TPCCContext,
    * String)} (and then consequently from {@link
-   * TPCCContractAPI#deliverOldestNewOrderForDistrict(ContextWithRegistry, int, int, int, String)})
+   * TPCCBusinessAPI#deliverOldestNewOrderForDistrict(ContextWithRegistry, int, int, int, String)})
    * only so that OpenJML won't choke on the exceedingly long method.
    *
    * @param ctx The transaction context
@@ -1123,7 +1131,7 @@ class TPCCBusinessAPI {
       final int o_id,
       final int number,
       final String ol_delivery_d)
-      throws EntityNotFoundException {
+      throws EntityNotFoundException, SerializationException {
     final String paramString =
         methodLogger.generateParamsString(
             methodLogger.generateParamsString(ctx, w_id, d_id, o_id, number), ol_delivery_d);
@@ -1137,7 +1145,7 @@ class TPCCBusinessAPI {
      */
     final OrderLine orderLine =
         OrderLine.builder().w_id(w_id).d_id(d_id).o_id(o_id).number(number).build();
-    ctx.getRegistry().read(ctx, orderLine);
+    ctx.getRegistry().read(orderLine);
     /*
      * [TPC-C 2.7.4.2 (6) (continued)]
      * ... All OL_DELIVERY_D, the delivery dates, are updated to the
@@ -1148,7 +1156,7 @@ class TPCCBusinessAPI {
      * [TPC-C 2.7.4.2 (6) (continued)]
      * ... and the sum of all OL_AMOUNT is retrieved.
      */
-    ctx.getRegistry().update(ctx, orderLine);
+    ctx.getRegistry().update(orderLine);
 
     methodLogger.logEnd(
         "getOrderLineAmountAndUpdateTime", paramString, String.valueOf(orderLine.getOl_amount()));
@@ -1200,7 +1208,7 @@ class TPCCBusinessAPI {
       final int nextOrderId,
       final int number,
       final Collection<ItemsData> itemsDataCollection)
-      throws EntityNotFoundException, EntityExistsException {
+      throws EntityNotFoundException, EntityExistsException, SerializationException {
     final String paramString =
         methodLogger.generateParamsString(
             methodLogger.generateParamsString(
@@ -1219,7 +1227,7 @@ class TPCCBusinessAPI {
      * [...]
      */
     final Stock stock = Stock.builder().w_id(i_w_id).i_id(i_id).build();
-    registry.read(ctx, stock);
+    registry.read(stock);
     /*
      * [TPC-C 2.4.2.2 (8.2) (continued)]
      * ... If the retrieved value for S_QUANTITY exceeds OL_QUANTITY
@@ -1250,7 +1258,7 @@ class TPCCBusinessAPI {
     if (i_w_id != w_id) {
       stock.incrementRemoteCount();
     }
-    registry.update(ctx, stock);
+    registry.update(stock);
 
     /*
      * [TPC-C 2.4.2.2 (8.3)]
@@ -1291,7 +1299,7 @@ class TPCCBusinessAPI {
             .amount(orderLineAmount)
             .dist_info(padDistrictInfo(stock.getS_dist(d_id)))
             .build();
-    registry.create(ctx, orderLine);
+    registry.create(orderLine);
 
     /*
      * [TPC-C 2.4.3.3]
@@ -1347,7 +1355,7 @@ class TPCCBusinessAPI {
       final int c_d_id,
       final Integer c_id,
       final String c_last)
-      throws EntityNotFoundException, NotFoundException {
+      throws EntityNotFoundException, NotFoundException, SerializationException {
     final String paramString =
         methodLogger.generateParamsString(
             methodLogger.generateParamsString(ctx, c_w_id, c_d_id, c_id), c_last);
@@ -1359,13 +1367,12 @@ class TPCCBusinessAPI {
 
     if (c_id != null) {
       final Customer customer =
-          ctx.getRegistry()
-              .read(ctx, Customer.builder().w_id(c_w_id).d_id(c_d_id).id(c_id).build());
+          ctx.getRegistry().read(Customer.builder().w_id(c_w_id).d_id(c_d_id).id(c_id).build());
       methodLogger.logEnd("getCustomerByIDOrLastName", paramString, JSON.serialize(customer));
       return customer;
     } else {
       final List<Customer> allCustomers =
-          ctx.getRegistry().readAll(ctx, Customer.builder().w_id(c_w_id).d_id(c_d_id).build());
+          ctx.getRegistry().readAll(Customer.builder().w_id(c_w_id).d_id(c_d_id).build());
 
       // Stream-based one-liner replaced with below code to accommodate OpenJML...
       final List<Customer> matchingCustomers = new ArrayList<>();
@@ -1410,13 +1417,13 @@ class TPCCBusinessAPI {
    */
   private static Order getLastOrderOfCustomer(
       final ContextWithRegistry ctx, final int o_w_id, final int o_d_id, final int o_c_id)
-      throws NotFoundException {
+      throws NotFoundException, SerializationException {
     final String paramString = methodLogger.generateParamsString(ctx, o_w_id, o_d_id, o_c_id);
     methodLogger.logStart("getLastOrderOfCustomer", paramString);
 
     Registry registry = ctx.getRegistry();
     final List<Order> allOrders =
-        registry.readAll(ctx, Order.builder().w_id(o_w_id).d_id(o_d_id).build());
+        registry.readAll(Order.builder().w_id(o_w_id).d_id(o_d_id).build());
     if (allOrders.isEmpty()) {
       throw new NotFoundException("No orders found");
     }
@@ -1460,7 +1467,7 @@ class TPCCBusinessAPI {
       final int d_id,
       final int o_id_min,
       final int o_id_max)
-      throws EntityNotFoundException, NotFoundException {
+      throws EntityNotFoundException, NotFoundException, SerializationException {
     final String paramString =
         methodLogger.generateParamsString(ctx, w_id, d_id, o_id_min, o_id_max);
     methodLogger.logStart("getItemIdsOfRecentOrders", paramString);
@@ -1470,7 +1477,7 @@ class TPCCBusinessAPI {
       final Order order = Order.builder().w_id(w_id).d_id(d_id).id(current_o_id).build();
 
       try {
-        ctx.getRegistry().read(ctx, order);
+        ctx.getRegistry().read(order);
       } catch (EntityNotFoundException _e) {
         logger.warn(
             "Order with o_id={} not found while looking up recent orders; ignoring", current_o_id);
@@ -1480,7 +1487,7 @@ class TPCCBusinessAPI {
       for (int ol_number = 1; ol_number <= order.getO_ol_cnt(); ol_number++) {
         final OrderLine orderLine =
             OrderLine.builder().w_id(w_id).d_id(d_id).o_id(current_o_id).number(ol_number).build();
-        ctx.getRegistry().read(ctx, orderLine);
+        ctx.getRegistry().read(orderLine);
         itemIds.add(orderLine.getOl_i_id());
       }
     }

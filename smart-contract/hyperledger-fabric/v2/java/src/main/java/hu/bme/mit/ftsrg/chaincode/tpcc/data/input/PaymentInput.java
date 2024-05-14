@@ -1,5 +1,4 @@
 /* SPDX-License-Identifier: Apache-2.0 */
-
 package hu.bme.mit.ftsrg.chaincode.tpcc.data.input;
 
 import lombok.EqualsAndHashCode;

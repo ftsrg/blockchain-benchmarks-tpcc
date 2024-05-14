@@ -2,9 +2,9 @@
 
 package hu.bme.mit.ftsrg.chaincode.tpcc.data.entity;
 
-import hu.bme.mit.ftsrg.chaincode.dataaccess.SerializableEntityBase;
+import hu.bme.mit.ftsrg.hypernate.entity.Entity;
 
-public class Warehouse extends SerializableEntityBase<Warehouse> {
+public class Warehouse implements Entity<Warehouse> {
 
   public /*@ pure @*/ int getW_id();
 

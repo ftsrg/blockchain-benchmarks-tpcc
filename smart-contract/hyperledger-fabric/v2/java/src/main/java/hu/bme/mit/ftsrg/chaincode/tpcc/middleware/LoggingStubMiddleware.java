@@ -1,6 +1,7 @@
+/* SPDX-License-Identifier: Apache-2.0 */
 package hu.bme.mit.ftsrg.chaincode.tpcc.middleware;
 
-import hu.bme.mit.ftsrg.chaincode.dataaccess.ChaincodeStubMiddlewareBase;
+import hu.bme.mit.ftsrg.hypernate.middleware.ChaincodeStubMiddlewareBase;
 import java.util.Arrays;
 import org.hyperledger.fabric.shim.ChaincodeStub;
 import org.slf4j.Logger;

@@ -2,9 +2,9 @@
 
 package hu.bme.mit.ftsrg.chaincode.tpcc.data.entity;
 
-import hu.bme.mit.ftsrg.chaincode.dataaccess.SerializableEntityBase;
+import hu.bme.mit.ftsrg.hypernate.entity.Entity;
 
-public class Customer extends SerializableEntityBase<Customer> {
+public class Customer implements Entity<Customer> {
 
   public /*@ pure @*/ int getC_id();
 

@@ -2,8 +2,8 @@
 
 package hu.bme.mit.ftsrg.chaincode.tpcc;
 
-import hu.bme.mit.ftsrg.chaincode.dataaccess.exception.EntityExistsException;
-import hu.bme.mit.ftsrg.chaincode.dataaccess.exception.EntityNotFoundException;
+import hu.bme.mit.ftsrg.hypernate.entity.EntityExistsException;
+import hu.bme.mit.ftsrg.hypernate.entity.EntityNotFoundException;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.input.*;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.output.*;
 import hu.bme.mit.ftsrg.chaincode.tpcc.middleware.TPCCContext;
@@ -57,4 +57,9 @@ public final class TPCC implements ContractInterface {
     @*/
   private StockLevelOutput stockLevel(final TPCCContext ctx, final StockLevelInput input)
       throws EntityNotFoundException, NotFoundException;
+
+  /*@
+    @ requires c_id < 2;
+    @*/
+  public String OJMLTEST__getCustomer(final TPCCContext ctx, final int c_w_id, final int c_d_id, final int c_id);
 }

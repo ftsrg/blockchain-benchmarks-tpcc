@@ -1,15 +1,15 @@
 /* SPDX-License-Identifier: Apache-2.0 */
-
 package hu.bme.mit.ftsrg.chaincode.tpcc.api;
 
 import com.jcabi.aspects.Loggable;
 import hu.bme.mit.ftsrg.chaincode.MethodLogger;
-import hu.bme.mit.ftsrg.chaincode.dataaccess.exception.EntityExistsException;
-import hu.bme.mit.ftsrg.chaincode.dataaccess.exception.EntityNotFoundException;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.entity.*;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.input.*;
 import hu.bme.mit.ftsrg.chaincode.tpcc.middleware.TPCCContext;
 import hu.bme.mit.ftsrg.chaincode.tpcc.util.JSON;
+import hu.bme.mit.ftsrg.hypernate.entity.EntityExistsException;
+import hu.bme.mit.ftsrg.hypernate.entity.EntityNotFoundException;
+import hu.bme.mit.ftsrg.hypernate.entity.SerializationException;
 import org.hyperledger.fabric.contract.Context;
 import org.hyperledger.fabric.contract.ContractInterface;
 import org.hyperledger.fabric.contract.annotation.Contact;
@@ -60,7 +60,7 @@ public final class TPCCContractAPI implements ContractInterface {
    */
   @Transaction(intent = Transaction.TYPE.SUBMIT)
   public String delivery(final TPCCContext ctx, final String parameters)
-      throws EntityNotFoundException {
+      throws EntityNotFoundException, SerializationException {
     final String paramString = methodLogger.generateParamsString(ctx, parameters);
     methodLogger.logStart("delivery", paramString);
     final String json =
@@ -81,7 +81,7 @@ public final class TPCCContractAPI implements ContractInterface {
    */
   @Transaction(intent = Transaction.TYPE.SUBMIT)
   public String newOrder(final TPCCContext ctx, final String parameters)
-      throws EntityNotFoundException, EntityExistsException {
+      throws EntityNotFoundException, EntityExistsException, SerializationException {
     final String paramString = methodLogger.generateParamsString(ctx, parameters);
     methodLogger.logStart("newOrder", paramString);
     final String json =
@@ -100,7 +100,7 @@ public final class TPCCContractAPI implements ContractInterface {
    */
   @Transaction(intent = Transaction.TYPE.EVALUATE)
   public String orderStatus(final TPCCContext ctx, final String parameters)
-      throws NotFoundException, EntityNotFoundException {
+      throws NotFoundException, EntityNotFoundException, SerializationException {
     final String paramString = methodLogger.generateParamsString(ctx, parameters);
     methodLogger.logStart("orderStatus", paramString);
     final String json =
@@ -122,7 +122,7 @@ public final class TPCCContractAPI implements ContractInterface {
    */
   @Transaction(intent = Transaction.TYPE.SUBMIT)
   public String payment(final TPCCContext ctx, final String parameters)
-      throws EntityNotFoundException, EntityExistsException, NotFoundException {
+      throws EntityNotFoundException, EntityExistsException, NotFoundException, SerializationException {
     final String paramString = methodLogger.generateParamsString(ctx, parameters);
     methodLogger.logStart("payment", paramString);
     final String json =
@@ -143,7 +143,7 @@ public final class TPCCContractAPI implements ContractInterface {
    */
   @Transaction(intent = Transaction.TYPE.EVALUATE)
   public String stockLevel(final TPCCContext ctx, final String parameters)
-      throws EntityNotFoundException, NotFoundException {
+      throws EntityNotFoundException, NotFoundException, SerializationException {
     final String paramString = methodLogger.generateParamsString(ctx, parameters);
     methodLogger.logStart("stockLevel", paramString);
     final String json =
@@ -159,7 +159,7 @@ public final class TPCCContractAPI implements ContractInterface {
    * @param ctx The transaction context
    */
   @Transaction(intent = Transaction.TYPE.SUBMIT)
-  public void init(final TPCCContext ctx) throws EntityExistsException {
+  public void init(final TPCCContext ctx) throws EntityExistsException, SerializationException {
     final String paramString = methodLogger.generateParamsString(ctx.toString());
     methodLogger.logStart("init", paramString);
     TPCCBusinessAPI.init(ctx);
@@ -175,12 +175,12 @@ public final class TPCCContractAPI implements ContractInterface {
    */
   @Transaction(intent = Transaction.TYPE.EVALUATE)
   public String readWarehouse(final TPCCContext ctx, final int w_id)
-      throws EntityNotFoundException {
+      throws EntityNotFoundException, SerializationException {
     final String paramString = methodLogger.generateParamsString(ctx, w_id);
     methodLogger.logStart("readWarehouse", paramString);
 
     final Warehouse warehouse = Warehouse.builder().id(w_id).build();
-    ctx.getRegistry().read(ctx, warehouse);
+    ctx.getRegistry().read(warehouse);
 
     ctx.commit();
     final String json = JSON.serialize(warehouse);
@@ -199,12 +199,12 @@ public final class TPCCContractAPI implements ContractInterface {
    */
   @Transaction(intent = Transaction.TYPE.EVALUATE)
   public String readOrder(final TPCCContext ctx, final int w_id, final int d_id, final int o_id)
-      throws EntityNotFoundException {
+      throws EntityNotFoundException, SerializationException {
     final String paramString = methodLogger.generateParamsString(ctx, w_id, d_id, o_id);
     methodLogger.logStart("readOrder", paramString);
 
     final Order order = Order.builder().w_id(w_id).d_id(d_id).id(o_id).build();
-    ctx.getRegistry().read(ctx, order);
+    ctx.getRegistry().read(order);
 
     ctx.commit();
     final String json = JSON.serialize(order);
@@ -220,12 +220,12 @@ public final class TPCCContractAPI implements ContractInterface {
    * @return The item with matchign I_ID
    */
   @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String readItem(final TPCCContext ctx, final int i_id) throws EntityNotFoundException {
+  public String readItem(final TPCCContext ctx, final int i_id) throws EntityNotFoundException, SerializationException {
     final String paramString = methodLogger.generateParamsString(ctx, i_id);
     methodLogger.logStart("readItem", paramString);
 
     final Item item = Item.builder().id(i_id).build();
-    ctx.getRegistry().read(ctx, item);
+    ctx.getRegistry().read(item);
 
     ctx.commit();
     final String json = JSON.serialize(item);
@@ -244,12 +244,12 @@ public final class TPCCContractAPI implements ContractInterface {
    */
   @Transaction(intent = Transaction.TYPE.EVALUATE)
   public String readNewOrder(final TPCCContext ctx, final int w_id, final int d_id, final int o_id)
-      throws EntityNotFoundException {
+      throws EntityNotFoundException, SerializationException {
     final String paramString = methodLogger.generateParamsString(ctx, w_id, d_id, o_id);
     methodLogger.logStart("readNewOrder", paramString);
 
     final NewOrder newOrder = NewOrder.builder().w_id(w_id).d_id(d_id).o_id(o_id).build();
-    ctx.getRegistry().read(ctx, newOrder);
+    ctx.getRegistry().read(newOrder);
 
     ctx.commit();
     final String json = JSON.serialize(newOrder);

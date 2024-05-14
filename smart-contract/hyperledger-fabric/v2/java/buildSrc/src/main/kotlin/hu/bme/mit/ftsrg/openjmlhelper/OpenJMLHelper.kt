@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: Apache-2.0 */
 package hu.bme.mit.ftsrg.openjmlhelper
 
 import java.io.File
