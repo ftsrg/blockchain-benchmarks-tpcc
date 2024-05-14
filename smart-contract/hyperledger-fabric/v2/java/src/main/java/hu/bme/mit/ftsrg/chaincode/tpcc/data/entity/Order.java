@@ -1,5 +1,4 @@
 /* SPDX-License-Identifier: Apache-2.0 */
-
 package hu.bme.mit.ftsrg.chaincode.tpcc.data.entity;
 
 import hu.bme.mit.ftsrg.hypernate.entity.Entity;

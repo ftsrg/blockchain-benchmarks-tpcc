@@ -1,13 +1,10 @@
 /* SPDX-License-Identifier: Apache-2.0 */
-
-package hu.bme.mit.ftsrg.chaincode.tpcc;
+package hu.bme.mit.ftsrg.chaincode.tpcc.api;
 
 import com.jcabi.aspects.Loggable;
 import hu.bme.mit.ftsrg.chaincode.MethodLogger;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.entity.*;
-import hu.bme.mit.ftsrg.chaincode.tpcc.data.extra.DeliveredOrder;
-import hu.bme.mit.ftsrg.chaincode.tpcc.data.extra.ItemsData;
-import hu.bme.mit.ftsrg.chaincode.tpcc.data.extra.OrderLineData;
+import hu.bme.mit.ftsrg.chaincode.tpcc.data.extra.*;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.input.*;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.output.*;
 import hu.bme.mit.ftsrg.chaincode.tpcc.middleware.TPCCContext;
@@ -18,306 +15,21 @@ import hu.bme.mit.ftsrg.hypernate.entity.EntityExistsException;
 import hu.bme.mit.ftsrg.hypernate.entity.EntityNotFoundException;
 import hu.bme.mit.ftsrg.hypernate.entity.SerializationException;
 import java.util.*;
-import org.hyperledger.fabric.contract.Context;
-import org.hyperledger.fabric.contract.ContractInterface;
-import org.hyperledger.fabric.contract.annotation.Contact;
-import org.hyperledger.fabric.contract.annotation.Contract;
-import org.hyperledger.fabric.contract.annotation.Default;
-import org.hyperledger.fabric.contract.annotation.Info;
-import org.hyperledger.fabric.contract.annotation.License;
-import org.hyperledger.fabric.contract.annotation.Transaction;
-import org.hyperledger.fabric.shim.ChaincodeStub;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Contract(
-    name = "TPCC",
-    info =
-        @Info(
-            title = "tpcc contract",
-            description = "My Smart Contract",
-            version = "0.0.1",
-            license = @License(name = "Apache-2.0"),
-            contact =
-                @Contact(email = "tnnopcc@example.com", name = "tpcc", url = "http://tpcc.me")))
-
-/**
+/*
  * The implementation of the TPC-C benchmark smart contract according to the specification version
  * v5.11.0.
  */
-@Default
 @Loggable(Loggable.DEBUG) // FIXME how to configure AspectJ with OpenJML and Gradle?
-public final class TPCC implements ContractInterface {
+class TPCCBusinessAPI {
 
-  private static final Logger logger = LoggerFactory.getLogger(TPCC.class);
+  private static final Logger logger = LoggerFactory.getLogger(TPCCBusinessAPI.class);
 
-  private static final MethodLogger methodLogger = new MethodLogger(logger, "TPCC");
+  private static final MethodLogger methodLogger = new MethodLogger(logger, "TPCCBusinessAPI");
 
-  public static final int DISTRICT_COUNT = 10;
-
-  @Override
-  public Context createContext(final ChaincodeStub stub) {
-    return new TPCCContext(stub);
-  }
-
-  /**
-   * Performs the Delivery read-write TX profile [TPC-C 2.7].
-   *
-   * @param ctx The TX context.
-   * @param parameters The JSON encoded parameters of the TX profile.
-   * @return The JSON encoded query results according to the specification.
-   * @throws EntityNotFoundException if a required entity is not found
-   */
-  @Transaction(intent = Transaction.TYPE.SUBMIT)
-  public String delivery(final TPCCContext ctx, final String parameters)
-      throws EntityNotFoundException, SerializationException {
-    final String paramString = methodLogger.generateParamsString(ctx, parameters);
-    methodLogger.logStart("delivery", paramString);
-    final String json =
-        JSON.serialize(this.delivery(ctx, JSON.deserialize(parameters, DeliveryInput.class)));
-    methodLogger.logEnd("delivery", paramString, json);
-    return json;
-  }
-
-  /**
-   * Performs the New-Order read-write TX profile [TPC-C 2.4].
-   *
-   * @param ctx The TX context.
-   * @param parameters The JSON encoded parameters of the TX profile.
-   * @return The JSON encoded query results according to the specification.
-   * @throws EntityNotFoundException if a required entity is not found
-   * @throws EntityExistsException if an entity that should be created already exists
-   */
-  @Transaction(intent = Transaction.TYPE.SUBMIT)
-  public String newOrder(final TPCCContext ctx, final String parameters)
-      throws EntityNotFoundException, EntityExistsException, SerializationException {
-    final String paramString = methodLogger.generateParamsString(ctx, parameters);
-    methodLogger.logStart("newOrder", paramString);
-    final String json =
-        JSON.serialize(this.newOrder(ctx, JSON.deserialize(parameters, NewOrderInput.class)));
-    methodLogger.logEnd("newOrder", paramString, json);
-    return json;
-  }
-
-  /**
-   * Performs the Order-Status read TX profile [TPC-C 2.6].
-   *
-   * @param ctx The TX context.
-   * @param parameters The JSON encoded parameters of the TX profile.
-   * @return The JSON encoded query results according to the specification.
-   */
-  @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String orderStatus(final TPCCContext ctx, final String parameters)
-      throws NotFoundException, EntityNotFoundException, SerializationException {
-    final String paramString = methodLogger.generateParamsString(ctx, parameters);
-    methodLogger.logStart("orderStatus", paramString);
-    final String json =
-        JSON.serialize(this.orderStatus(ctx, JSON.deserialize(parameters, OrderStatusInput.class)));
-    methodLogger.logEnd("orderStatus", paramString, json);
-    return json;
-  }
-
-  /**
-   * Performs the Payment read-write TX profile [TPC-C 2.5].
-   *
-   * @param ctx The TX context.
-   * @param parameters The JSON encoded parameters of the TX profile.
-   * @return The JSON encoded query results according to the specification.
-   * @throws EntityNotFoundException if a required entity is not found
-   * @throws EntityExistsException if an entity that should be created already exists
-   * @throws NotFoundException if some entities are not found in the business logic
-   */
-  @Transaction(intent = Transaction.TYPE.SUBMIT)
-  public String payment(final TPCCContext ctx, final String parameters)
-      throws EntityNotFoundException,
-          EntityExistsException,
-          NotFoundException,
-          SerializationException {
-    final String paramString = methodLogger.generateParamsString(ctx, parameters);
-    methodLogger.logStart("payment", paramString);
-    final String json =
-        JSON.serialize(this.payment(ctx, JSON.deserialize(parameters, PaymentInput.class)));
-    methodLogger.logEnd("payment", paramString, json);
-    return json;
-  }
-
-  /**
-   * Performs the Stock-Level read TX profile [TPC-C 2.8].
-   *
-   * @param ctx The TX context.
-   * @param parameters The JSON encoded parameters of the TX profile.
-   * @return The JSON encoded query results according to the specification.
-   * @throws EntityNotFoundException if a required entity is not found
-   * @throws NotFoundException if some entities are not found in the business logic
-   */
-  @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String stockLevel(final TPCCContext ctx, final String parameters)
-      throws EntityNotFoundException, NotFoundException, SerializationException {
-    final String paramString = methodLogger.generateParamsString(ctx, parameters);
-    methodLogger.logStart("stockLevel", paramString);
-    final String json =
-        JSON.serialize(this.stockLevel(ctx, JSON.deserialize(parameters, StockLevelInput.class)));
-    methodLogger.logEnd("init", paramString, "<void>");
-    return json;
-  }
-
-  /**
-   * Creates some dummy initial entities for testing.
-   *
-   * @param ctx The transaction context
-   */
-  @Transaction(intent = Transaction.TYPE.SUBMIT)
-  public void init(final TPCCContext ctx) throws EntityExistsException, SerializationException {
-    final String paramString = methodLogger.generateParamsString(ctx.toString());
-    methodLogger.logStart("init", paramString);
-
-    this.initWarehouses(ctx);
-    this.initDistricts(ctx);
-    this.initCustomers(ctx);
-    this.initItems(ctx);
-    this.initStocks(ctx);
-
-    ctx.commit();
-    methodLogger.logEnd("init", paramString, "<void>");
-  }
-
-  /**
-   * Returns a warehouse entity (for debugging).
-   *
-   * @param ctx The transaction context
-   * @param w_id The W_ID of the warehouse
-   * @return The warehouse with matching W_ID
-   */
-  @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String readWarehouse(final TPCCContext ctx, final int w_id)
-      throws EntityNotFoundException, SerializationException {
-    final String paramString = methodLogger.generateParamsString(ctx, w_id);
-    methodLogger.logStart("readWarehouse", paramString);
-
-    final Warehouse warehouse = Warehouse.builder().id(w_id).build();
-    ctx.getRegistry().read(warehouse);
-
-    ctx.commit();
-    final String json = JSON.serialize(warehouse);
-    methodLogger.logEnd("readWarehouse", paramString, json);
-    return json;
-  }
-
-  /**
-   * Returns an order entity (for debugging).
-   *
-   * @param ctx The transaction context
-   * @param w_id The W_ID of the order
-   * @param d_id The D_ID of the order
-   * @param o_id The O_ID of the order
-   * @return The order with matching (W_ID, D_ID, O_ID)
-   */
-  @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String readOrder(final TPCCContext ctx, final int w_id, final int d_id, final int o_id)
-      throws EntityNotFoundException, SerializationException {
-    final String paramString = methodLogger.generateParamsString(ctx, w_id, d_id, o_id);
-    methodLogger.logStart("readOrder", paramString);
-
-    final Order order = Order.builder().w_id(w_id).d_id(d_id).id(o_id).build();
-    ctx.getRegistry().read(order);
-
-    ctx.commit();
-    final String json = JSON.serialize(order);
-    methodLogger.logEnd("readOrder", paramString, json);
-    return json;
-  }
-
-  /**
-   * Returns an item entity (for debugging).
-   *
-   * @param ctx The transaction context
-   * @param i_id The I_ID of the item
-   * @return The item with matchign I_ID
-   */
-  @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String readItem(final TPCCContext ctx, final int i_id)
-      throws EntityNotFoundException, SerializationException {
-    final String paramString = methodLogger.generateParamsString(ctx, i_id);
-    methodLogger.logStart("readItem", paramString);
-
-    final Item item = Item.builder().id(i_id).build();
-    ctx.getRegistry().read(item);
-
-    ctx.commit();
-    final String json = JSON.serialize(item);
-    methodLogger.logEnd("readItem", paramString, json);
-    return json;
-  }
-
-  /**
-   * Returns a new-order entity (for debugging).
-   *
-   * @param ctx The transaction context
-   * @param w_id The W_ID of the new-order
-   * @param d_id The D_ID of the new-order
-   * @param o_id The O_ID of the new-order
-   * @return The new-order with matching (W_ID, D_ID, O_ID)
-   */
-  @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String readNewOrder(final TPCCContext ctx, final int w_id, final int d_id, final int o_id)
-      throws EntityNotFoundException, SerializationException {
-    final String paramString = methodLogger.generateParamsString(ctx, w_id, d_id, o_id);
-    methodLogger.logStart("readNewOrder", paramString);
-
-    final NewOrder newOrder = NewOrder.builder().w_id(w_id).d_id(d_id).o_id(o_id).build();
-    ctx.getRegistry().read(newOrder);
-
-    ctx.commit();
-    final String json = JSON.serialize(newOrder);
-    methodLogger.logEnd("readNewOrder", paramString, json);
-    return json;
-  }
-
-  /**
-   * Should always return 'pong' (for diagnostics).
-   *
-   * @param ctx The transaction context (unused)
-   * @return 'pong'
-   */
-  @SuppressWarnings("SameReturnValue")
-  @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String ping(final TPCCContext ctx) {
-    final String paramString = methodLogger.generateParamsString(ctx.toString());
-    methodLogger.logStart("ping", paramString);
-
-    ctx.commit();
-    final String pong = "pong";
-    methodLogger.logEnd("ping", paramString, pong);
-    return pong;
-  }
-
-  /**
-   * Dummy OpenJML test.
-   *
-   * <p>Should only allow getting the details of customer #1, but not customer #2
-   *
-   * <p><b>WARNING:</b> may only be called only after {@link TPCC#init}
-   *
-   * @param ctx The transaction context
-   * @param c_w_id The C_W_ID of the customer
-   * @param c_d_id The C_D_ID of the customer
-   * @param c_id The C_ID of the customer
-   * @return The customer with matching (C_W_ID, C_D_ID, C_ID), unless C_ID >= 2, in which case an
-   *     exception should be thrown by OpenJML
-   */
-  @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String OJMLTEST__getCustomer(
-      final TPCCContext ctx, final int c_w_id, final int c_d_id, final int c_id) {
-    final String paramString = methodLogger.generateParamsString(ctx, c_w_id, c_d_id, c_id);
-    methodLogger.logStart("OJMLTEST__getCustomer", paramString);
-
-    final Customer customer = Customer.builder().w_id(c_w_id).d_id(c_d_id).id(c_id).build();
-
-    ctx.commit();
-    final String json = JSON.serialize(customer);
-    methodLogger.logEnd("OJMLTEST__getCustomer", paramString, json);
-    return json;
-  }
+  private static final int DISTRICT_COUNT = 10;
 
   /**
    * Performs the Delivery read-write TX profile [TPC-C 2.7].
@@ -326,7 +38,7 @@ public final class TPCC implements ContractInterface {
    * @param input The input parameters
    * @return The transaction output
    */
-  private DeliveryOutput delivery(final TPCCContext ctx, final DeliveryInput input)
+  static DeliveryOutput delivery(final TPCCContext ctx, final DeliveryInput input)
       throws EntityNotFoundException, SerializationException {
 
     /*
@@ -348,7 +60,7 @@ public final class TPCC implements ContractInterface {
        * that district.  NO_O_ID, the order number, is retrieved. [...]
        */
       final DeliveredOrder deliveredOrder =
-          this.getOldestNewOrderForDistrict(
+          deliverOldestNewOrderForDistrict(
               ctx, input.getW_id(), d_id, input.getO_carrier_id(), input.getOl_delivery_d());
       if (deliveredOrder == null) {
         /*
@@ -388,7 +100,7 @@ public final class TPCC implements ContractInterface {
    * @param input The input parameters
    * @return The transaction output
    */
-  private NewOrderOutput newOrder(final TPCCContext ctx, final NewOrderInput input)
+  static NewOrderOutput newOrder(final TPCCContext ctx, final NewOrderInput input)
       throws EntityNotFoundException, EntityExistsException, SerializationException {
     /*
      * [TPC-C 2.4.2.2]
@@ -476,7 +188,7 @@ public final class TPCC implements ContractInterface {
             .entry_d(input.getO_entry_d())
             .carrier_id(0)
             .ol_cnt(input.getI_ids().length)
-            .all_local(this.allMatch(input.getI_w_ids(), warehouse.getW_id()) ? 1 : 0)
+            .all_local(allMatch(input.getI_w_ids(), warehouse.getW_id()) ? 1 : 0)
             .build();
     registry.create(order);
 
@@ -489,10 +201,60 @@ public final class TPCC implements ContractInterface {
     final int[] i_ids = input.getI_ids();
     final int[] i_w_ids = input.getI_w_ids();
     final int[] i_qtys = input.getI_qtys();
-    for (int i = 0; i < input.getI_ids().length; ++i)
+    for (int i = 0; i < input.getI_ids().length; ++i) {
+      /*
+       * [TPC-C 2.4.2.2 (8.1)]
+       * The row in the ITEM table with matching I_ID (equals OL_I_ID)
+       * is selected and I_PRICE, the price of the item, I_NAME, the
+       * name of the item, and I_DATA are retrieved.  If I_ID has an
+       * unused value (see Clause 2.4.1.5), a "not-found" condition is
+       * signaled, resulting in a rollback of the database transaction
+       * (see Clause 2.4.2.3).
+       */
+      final Item item = Item.builder().id(i_ids[i]).build();
+      try {
+        registry.read(item);
+      } catch (EntityNotFoundException e) {
+        /*
+         * [TPC-C 2.4.2.3]
+         * For transactions that rollback as a result of an unused item
+         * number, the complete transaction profile must be executed
+         * with the exception that the follow ing steps need not be
+         * done:
+         * - Selecting and retrieving the row in the STOCK table with
+         *   S_I_ID matching the unused item number.
+         * - Examining the strings I_DATA and S_DATA for the unused
+         *   item.
+         * - Inserting a new row into the ORDER-LINE table for the
+         *   unused item.
+         * - Adding the amount for the unused item to the sum of all
+         *   OL_AMOUNT.
+         */
+        /*
+         * [TPC-C 2.4.3.4]
+         * For transactions that are rolled back as a result of an
+         * unused item number (1% of all New-Order transactions), the
+         * emulated terminal must display in the appropriate fields of
+         * the input/output screen the fields: W_ID, D_ID, C_ID, C_LAST,
+         * C_CREDIT, O_ID, and the execution status message
+         * "Item number is not valid".  Note that no execution status
+         * message is required for successfully committed transactions.
+         * However, this field may not display
+         * "Item number is not valid" if the transaction is successful.
+         */
+        return NewOrderOutput.builder()
+            .fromWarehouse(warehouse)
+            .fromDistrict(district)
+            .fromCustomer(customer)
+            .fromOrder(order)
+            .message("Item number is not valid")
+            .build();
+      }
+
       totalOrderLineAmount +=
-          this.createOrderLineAndGetAmount(
+          createOrderLineAndGetAmount(
               ctx,
+              item,
               i_ids[i],
               i_w_ids[i],
               i_qtys[i],
@@ -501,6 +263,7 @@ public final class TPCC implements ContractInterface {
               nextOrderId,
               i,
               itemsDataList);
+    }
 
     /*
      * [TPC-C 2.4.2.2 (9)]
@@ -540,7 +303,7 @@ public final class TPCC implements ContractInterface {
    * @param input The input parameters
    * @return The transaction output
    */
-  private OrderStatusOutput orderStatus(final TPCCContext ctx, final OrderStatusInput input)
+  static OrderStatusOutput orderStatus(final TPCCContext ctx, final OrderStatusInput input)
       throws NotFoundException, EntityNotFoundException, SerializationException {
     /*
      * [TPC-C 2.6.2.2]
@@ -585,7 +348,7 @@ public final class TPCC implements ContractInterface {
      */
     final List<OrderLineData> orderLineDataList = new ArrayList<>();
     for (int i = 1; i <= order.getO_ol_cnt(); ++i) {
-      final OrderLineData orderLineData = this.getOrderLineDataForOrder(ctx, order, i);
+      final OrderLineData orderLineData = getOrderLineDataForOrder(ctx, order, i);
       logger.debug("Created ORDER-LINE data: {}", orderLineData);
       orderLineDataList.add(orderLineData);
     }
@@ -628,7 +391,7 @@ public final class TPCC implements ContractInterface {
    * @param input The input parameters
    * @return The JSON encoded query results according to the specification.
    */
-  private PaymentOutput payment(final TPCCContext ctx, final PaymentInput input)
+  static PaymentOutput payment(final TPCCContext ctx, final PaymentInput input)
       throws EntityNotFoundException,
           EntityExistsException,
           NotFoundException,
@@ -738,8 +501,9 @@ public final class TPCC implements ContractInterface {
        * right side of the C_DATA field. The content of the C_DATA
        * field never exceeds 500 characters.
        */
-      if (customer.getC_data().length() > 500)
+      if (customer.getC_data().length() > 500) {
         customer.setC_data(customer.getC_data().substring(0, 500));
+      }
     }
     /*
      * [TPC-C 2.5.2.2 (6) (continued)]
@@ -792,8 +556,9 @@ public final class TPCC implements ContractInterface {
             .fromDistrict(district)
             .fromHistory(history)
             .build();
-    if (customer.getC_credit().equals("BC"))
+    if (customer.getC_credit().equals("BC")) {
       output.setC_data(customer.getC_data().substring(0, 200));
+    }
     ctx.commit();
     return output;
   }
@@ -805,7 +570,7 @@ public final class TPCC implements ContractInterface {
    * @param input The input parameters
    * @return The transaction output
    */
-  private StockLevelOutput stockLevel(final TPCCContext ctx, final StockLevelInput input)
+  static StockLevelOutput stockLevel(final TPCCContext ctx, final StockLevelInput input)
       throws EntityNotFoundException, NotFoundException, SerializationException {
     /*
      * [TPC-C 2.8.2.2]
@@ -869,6 +634,21 @@ public final class TPCC implements ContractInterface {
   }
 
   /**
+   * Creates some dummy initial entities for testing.
+   *
+   * @param ctx The transaction context
+   */
+  static void init(final TPCCContext ctx) throws EntityExistsException, SerializationException {
+    initWarehouses(ctx);
+    initDistricts(ctx);
+    initCustomers(ctx);
+    initItems(ctx);
+    initStocks(ctx);
+
+    ctx.commit();
+  }
+
+  /**
    * Check whether all elements in <code>arr</code> are equal to the passed <code>value</code>.
    *
    * @param arr The array to check
@@ -876,8 +656,12 @@ public final class TPCC implements ContractInterface {
    * @return <code>true</code> if every element of <code>arr</code> is equal to <code>value</code>,
    *     <code>false</code> otherwise
    */
-  private boolean allMatch(final int[] arr, final int value) {
-    for (final int x : arr) if (x != value) return false;
+  private static boolean allMatch(final int[] arr, final int value) {
+    for (final int x : arr) {
+      if (x != value) {
+        return false;
+      }
+    }
     return true;
   }
 
@@ -889,21 +673,23 @@ public final class TPCC implements ContractInterface {
    * @throws IllegalArgumentException if the info string is already longer than 24 characters
    */
   private static String padDistrictInfo(final String info) {
-    if (info.length() > 24)
+    if (info.length() > 24) {
       throw new IllegalArgumentException("District info is too long (maximum 24 chars)");
+    }
+
     return String.format("%24s", info);
   }
 
   /**
    * Initialize WAREHOUSE entities.
    *
-   * <p><b>NOTE:</b> this code has been factored out of {@link TPCC#init(TPCCContext)} only so that
-   * OpenJML won't choke on the exceedingly long method.
+   * <p><b>NOTE:</b> this code has been factored out of {@link TPCCContractAPI#init(TPCCContext)}
+   * only so that OpenJML won't choke on the exceedingly long method.
    *
    * @param ctx The transaction context
    * @throws EntityExistsException if a warehouse entry already exists on the ledger
    */
-  private void initWarehouses(final ContextWithRegistry ctx)
+  private static void initWarehouses(final ContextWithRegistry ctx)
       throws EntityExistsException, SerializationException {
     final String paramString = methodLogger.generateParamsString(ctx.toString());
     methodLogger.logStart("initWarehouses", paramString);
@@ -929,13 +715,13 @@ public final class TPCC implements ContractInterface {
   /**
    * Initialize DISTRICTS entities.
    *
-   * <p><b>NOTE:</b> this code has been factored out of {@link TPCC#init(TPCCContext)} only so that
-   * OpenJML won't choke on the exceedingly long method.
+   * <p><b>NOTE:</b> this code has been factored out of {@link TPCCContractAPI#init(TPCCContext)}
+   * only so that OpenJML won't choke on the exceedingly long method.
    *
    * @param ctx The transaction context
    * @throws EntityExistsException if a district entry already exists on the ledger
    */
-  private void initDistricts(final ContextWithRegistry ctx)
+  private static void initDistricts(final ContextWithRegistry ctx)
       throws EntityExistsException, SerializationException {
     final String paramString = methodLogger.generateParamsString(ctx.toString());
     methodLogger.logStart("initDistricts", paramString);
@@ -963,13 +749,13 @@ public final class TPCC implements ContractInterface {
   /**
    * Initialize CUSTOMER entities.
    *
-   * <p><b>NOTE:</b> this code has been factored out of {@link TPCC#init(TPCCContext)} only so that
-   * OpenJML won't choke on the exceedingly long method.
+   * <p><b>NOTE:</b> this code has been factored out of {@link TPCCContractAPI#init(TPCCContext)}
+   * only so that OpenJML won't choke on the exceedingly long method.
    *
    * @param ctx The transaction context
    * @throws EntityExistsException if a customer entry already exists on the ledger
    */
-  private void initCustomers(final ContextWithRegistry ctx)
+  private static void initCustomers(final ContextWithRegistry ctx)
       throws EntityExistsException, SerializationException {
     final String paramString = methodLogger.generateParamsString(ctx.toString());
     methodLogger.logStart("initCustomers", paramString);
@@ -1023,7 +809,7 @@ public final class TPCC implements ContractInterface {
             .data("Good credit")
             .build();
 
-    final hu.bme.mit.ftsrg.hypernate.Registry registry = ctx.getRegistry();
+    final Registry registry = ctx.getRegistry();
     registry.create(alice);
     registry.create(peter);
 
@@ -1033,13 +819,13 @@ public final class TPCC implements ContractInterface {
   /**
    * Initialize ITEM entities.
    *
-   * <p><b>NOTE:</b> this code has been factored out of {@link TPCC#init(TPCCContext)} only so that
-   * OpenJML won't choke on the exceedingly long method.
+   * <p><b>NOTE:</b> this code has been factored out of {@link TPCCContractAPI#init(TPCCContext)}
+   * only so that OpenJML won't choke on the exceedingly long method.
    *
    * @param ctx The transaction context
    * @throws EntityExistsException if an item entry already exists on the ledger
    */
-  private void initItems(final ContextWithRegistry ctx)
+  private static void initItems(final ContextWithRegistry ctx)
       throws EntityExistsException, SerializationException {
     final String paramString = methodLogger.generateParamsString(ctx.toString());
     methodLogger.logStart("initItems", paramString);
@@ -1051,7 +837,7 @@ public final class TPCC implements ContractInterface {
     final Item glass =
         Item.builder().id(3).im_id(456).name("Glass").price(78.00).data("GENERIC").build();
 
-    final hu.bme.mit.ftsrg.hypernate.Registry registry = ctx.getRegistry();
+    final Registry registry = ctx.getRegistry();
     registry.create(cup);
     registry.create(plate);
     registry.create(glass);
@@ -1062,13 +848,13 @@ public final class TPCC implements ContractInterface {
   /**
    * Initialize STOCK entities.
    *
-   * <p><b>NOTE:</b> this code has been factored out of {@link TPCC#init(TPCCContext)} only so that
-   * OpenJML won't choke on the exceedingly long method.
+   * <p><b>NOTE:</b> this code has been factored out of {@link TPCCContractAPI#init(TPCCContext)}
+   * only so that OpenJML won't choke on the exceedingly long method.
    *
    * @param ctx The transaction context
    * @throws EntityExistsException if a stock entry already exists on the ledger
    */
-  private void initStocks(final ContextWithRegistry ctx)
+  private static void initStocks(final ContextWithRegistry ctx)
       throws EntityExistsException, SerializationException {
     final String paramString = methodLogger.generateParamsString(ctx.toString());
     methodLogger.logStart("initStocks", paramString);
@@ -1110,7 +896,7 @@ public final class TPCC implements ContractInterface {
             .data("GENERIC")
             .build();
 
-    final hu.bme.mit.ftsrg.hypernate.Registry registry = ctx.getRegistry();
+    final Registry registry = ctx.getRegistry();
     registry.create(stock1);
     registry.create(stock2);
     registry.create(stock3);
@@ -1121,8 +907,8 @@ public final class TPCC implements ContractInterface {
   /**
    * Generate history information as per [TPC-C 2.5.2.2 (6)].
    *
-   * <p><b>NOTE:</b> this code has been factored out of {@link TPCC#payment(TPCCContext, String)}
-   * only so that OpenJML won't choke on the exceedingly long method.
+   * <p><b>NOTE:</b> this code has been factored out of {@link TPCCContractAPI#payment(TPCCContext,
+   * String)} only so that OpenJML won't choke on the exceedingly long method.
    *
    * @param customer The relevant customer entity
    * @param warehouse The relevant warehouse entity
@@ -1130,7 +916,7 @@ public final class TPCC implements ContractInterface {
    * @param h_amount The relevant <code>H_AMOUNT</code> value
    * @return A history information string from the parameters
    */
-  private String generateHistoryInformation(
+  private static String generateHistoryInformation(
       final Customer customer,
       final Warehouse warehouse,
       final District district,
@@ -1148,15 +934,16 @@ public final class TPCC implements ContractInterface {
   /**
    * Builds an {@link OrderLineData} instance from an {@link Order} an order <code>number</code>.
    *
-   * <p><b>NOTE:</b> this code has been factored out of {@link TPCC#orderStatus(TPCCContext,
-   * String)} only so that OpenJML won't choke on the exceedingly long method.
+   * <p><b>NOTE:</b> this code has been factored out of {@link
+   * TPCCContractAPI#orderStatus(TPCCContext, String)} only so that OpenJML won't choke on the
+   * exceedingly long method.
    *
    * @param ctx The transaction context
    * @param order The order entity to build from
    * @param number The order number
    * @return The {@link OrderLineData} built
    */
-  private OrderLineData getOrderLineDataForOrder(
+  private static OrderLineData getOrderLineDataForOrder(
       final ContextWithRegistry ctx, final Order order, final int number)
       throws EntityNotFoundException, SerializationException {
     final String paramString =
@@ -1175,8 +962,8 @@ public final class TPCC implements ContractInterface {
   /**
    * Retrieves the oldest NEW-ORDER entry for a given warehouse and district.
    *
-   * <p><b>NOTE:</b> this code has been factored out of {@link TPCC#delivery(TPCCContext, String)}
-   * only so that OpenJML won't choke on the exceedingly long method.
+   * <p><b>NOTE:</b> this code has been factored out of {@link TPCCContractAPI#delivery(TPCCContext,
+   * String)} only so that OpenJML won't choke on the exceedingly long method.
    *
    * @param ctx The transaction context
    * @param w_id The warehouse's ID
@@ -1185,7 +972,7 @@ public final class TPCC implements ContractInterface {
    * @param ol_delivery_d The delivery date
    * @return The oldest NEW-ORDER entry with matching parameters
    */
-  private DeliveredOrder getOldestNewOrderForDistrict(
+  private static DeliveredOrder deliverOldestNewOrderForDistrict(
       final ContextWithRegistry ctx,
       final int w_id,
       final int d_id,
@@ -1195,9 +982,9 @@ public final class TPCC implements ContractInterface {
     final String paramString =
         methodLogger.generateParamsString(
             methodLogger.generateParamsString(ctx, w_id, d_id, o_carrier_id), ol_delivery_d);
-    methodLogger.logStart("getOldestNewOrderForDistrict", paramString);
+    methodLogger.logStart("deliverOldestNewOrderForDistrict", paramString);
 
-    final hu.bme.mit.ftsrg.hypernate.Registry registry = ctx.getRegistry();
+    final Registry registry = ctx.getRegistry();
 
     /*
      * [TPC-C 2.7.4.2 (3)]
@@ -1230,7 +1017,9 @@ public final class TPCC implements ContractInterface {
     final Iterator<NewOrder> it = matchingNewOrders.iterator();
     while (it.hasNext()) {
       final NewOrder no = it.next();
-      if (no.getNo_w_id() != w_id || no.getNo_d_id() != d_id) it.remove();
+      if (no.getNo_w_id() != w_id || no.getNo_d_id() != d_id) {
+        it.remove();
+      }
     }
     logger.debug("matchingNewOrders={}", matchingNewOrders);
 
@@ -1245,7 +1034,9 @@ public final class TPCC implements ContractInterface {
      * in more than 1%, or in more than one, whichever is greater, of
      * the business transactions, it must be reported. [...]
      */
-    if (matchingNewOrders.isEmpty()) return null;
+    if (matchingNewOrders.isEmpty()) {
+      return null;
+    }
     final NewOrder oldestNewOrder =
         matchingNewOrders.get(0); // after the sorting, the first one is the oldest
     logger.debug("Oldest NEW-ORDER retrieved is: {}", oldestNewOrder);
@@ -1279,9 +1070,10 @@ public final class TPCC implements ContractInterface {
      * selected. [...]
      */
     double orderLineAmountTotal = 0;
-    for (int i = 1; i <= order.getO_ol_cnt(); ++i)
+    for (int i = 1; i <= order.getO_ol_cnt(); ++i) {
       orderLineAmountTotal +=
-          this.getOrderLineAmount(ctx, w_id, d_id, order.getO_id(), i, ol_delivery_d);
+          getOrderLineAmountAndUpdateTime(ctx, w_id, d_id, order.getO_id(), i, ol_delivery_d);
+    }
 
     /*
      * [TPC-C 2.7.4.2 (7)]
@@ -1309,7 +1101,7 @@ public final class TPCC implements ContractInterface {
         DeliveredOrder.builder().d_id(d_id).o_id(order.getO_id()).build();
 
     methodLogger.logEnd(
-        "getOldestNewOrderForDistrict", paramString, JSON.serialize(deliveredOrder));
+        "deliverOldestNewOrderForDistrict", paramString, JSON.serialize(deliveredOrder));
     return deliveredOrder;
   }
 
@@ -1319,9 +1111,10 @@ public final class TPCC implements ContractInterface {
    * <p><b>SIDE EFFECTS:</b> As per [TPC-C 2.7.4.2 (6)], the OL_DELIVERY_D values of the matching
    * records are updated.
    *
-   * <p><b>NOTE:</b> this code has been factored out of {@link TPCC#delivery(TPCCContext, String)}
-   * (and then consequently from {@link TPCC#getOldestNewOrderForDistrict(ContextWithRegistry, int,
-   * int, int, String)}) only so that OpenJML won't choke on the exceedingly long method.
+   * <p><b>NOTE:</b> this code has been factored out of {@link TPCCContractAPI#delivery(TPCCContext,
+   * String)} (and then consequently from {@link
+   * TPCCBusinessAPI#deliverOldestNewOrderForDistrict(ContextWithRegistry, int, int, int, String)})
+   * only so that OpenJML won't choke on the exceedingly long method.
    *
    * @param ctx The transaction context
    * @param w_id The warehouse's ID
@@ -1331,7 +1124,7 @@ public final class TPCC implements ContractInterface {
    * @param ol_delivery_d The delivery date
    * @return The OL_AMOUNT field of the matching ORDER-LINE
    */
-  private double getOrderLineAmount(
+  private static double getOrderLineAmountAndUpdateTime(
       final ContextWithRegistry ctx,
       final int w_id,
       final int d_id,
@@ -1342,7 +1135,7 @@ public final class TPCC implements ContractInterface {
     final String paramString =
         methodLogger.generateParamsString(
             methodLogger.generateParamsString(ctx, w_id, d_id, o_id, number), ol_delivery_d);
-    methodLogger.logStart("getOrderLineAmount", paramString);
+    methodLogger.logStart("getOrderLineAmountAndUpdateTime", paramString);
 
     /*
      * [TPC-C 2.7.4.2 (6)]
@@ -1366,7 +1159,7 @@ public final class TPCC implements ContractInterface {
     ctx.getRegistry().update(orderLine);
 
     methodLogger.logEnd(
-        "getOrderLineAmount", paramString, String.valueOf(orderLine.getOl_amount()));
+        "getOrderLineAmountAndUpdateTime", paramString, String.valueOf(orderLine.getOl_amount()));
     return orderLine.getOl_amount();
   }
 
@@ -1390,8 +1183,8 @@ public final class TPCC implements ContractInterface {
    * </code>. Finally, a new ORDER-LINE entity is created (but this is less of a side effect than
    * the main purpose of this method).
    *
-   * <p><b>NOTE:</b> this code has been factored out of {@link TPCC#newOrder(TPCCContext, String)}
-   * only so that OpenJML won't choke on the exceedingly long method.
+   * <p><b>NOTE:</b> this code has been factored out of {@link TPCCContractAPI#newOrder(TPCCContext,
+   * String)} only so that OpenJML won't choke on the exceedingly long method.
    *
    * @param ctx The transaction context
    * @param i_id The item's ID
@@ -1404,8 +1197,9 @@ public final class TPCC implements ContractInterface {
    * @param itemsDataCollection The {@link ItemsData} collection to add an entry into
    * @return The OL_AMOUNT field of the resulting ORDER-LINE
    */
-  private double createOrderLineAndGetAmount(
+  private static double createOrderLineAndGetAmount(
       final ContextWithRegistry ctx,
+      final Item item,
       final int i_id,
       final int i_w_id,
       final int i_qty,
@@ -1422,19 +1216,7 @@ public final class TPCC implements ContractInterface {
             itemsDataCollection.toString());
     methodLogger.logStart("createOrderLineAndGetAmount", paramString);
 
-    final hu.bme.mit.ftsrg.hypernate.Registry registry = ctx.getRegistry();
-
-    /*
-     * [TPC-C 2.4.2.2 (8.1)]
-     * The row in the ITEM table with matching I_ID (equals OL_I_ID)
-     * is selected and I_PRICE, the price of the item, I_NAME, the
-     * name of the item, and I_DATA are retrieved.  If I_ID has an
-     * unused value (see Clause 2.4.1.5), a "not-found" condition is
-     * signaled, resulting in a rollback of the database transaction
-     * (see Clause 2.4.2.3).
-     */
-    final Item item = Item.builder().id(i_id).build();
-    registry.read(item);
+    final Registry registry = ctx.getRegistry();
 
     /*
      * [TPC-C 2.4.2.2 (8.2)]
@@ -1453,8 +1235,11 @@ public final class TPCC implements ContractInterface {
      * otherwise S_QUANTITY is updated to (S_QUANTITY - OL_QUANTITY)
      * + 91. [...]
      */
-    if (stock.getS_quantity() >= i_qty + 10) stock.decreaseQuantity(i_qty);
-    else stock.setS_quantity(stock.getS_quantity() - i_qty + 91);
+    if (stock.getS_quantity() >= i_qty + 10) {
+      stock.decreaseQuantity(i_qty);
+    } else {
+      stock.setS_quantity(stock.getS_quantity() - i_qty + 91);
+    }
     /*
      * [TPC-C 2.4.2.2 (8.2) (continued)]
      * ... S_YTD is increased by OL_QUANTITY [...]
@@ -1470,7 +1255,9 @@ public final class TPCC implements ContractInterface {
      * ... If the order-line is remote, then S_REMOTE_CNT is
      * incremented by 1.
      */
-    if (i_w_id != w_id) stock.incrementRemoteCount();
+    if (i_w_id != w_id) {
+      stock.incrementRemoteCount();
+    }
     registry.update(stock);
 
     /*
@@ -1499,7 +1286,6 @@ public final class TPCC implements ContractInterface {
      * set to the content of S_DIST_xx, where xx represents the
      * district number (OL_D_ID)
      */
-    final String stockDistrictId = String.format("%02d", d_id);
     final OrderLine orderLine =
         OrderLine.builder()
             .o_id(nextOrderId)
@@ -1511,7 +1297,7 @@ public final class TPCC implements ContractInterface {
             .delivery_d(null)
             .quantity(i_qty)
             .amount(orderLineAmount)
-            .dist_info(padDistrictInfo("s_dist_" + stockDistrictId))
+            .dist_info(padDistrictInfo(stock.getS_dist(d_id)))
             .build();
     registry.create(orderLine);
 
@@ -1563,7 +1349,7 @@ public final class TPCC implements ContractInterface {
    * @throws IllegalArgumentException if neither the customer ID nor the customer last name
    *     parameter is supplied
    */
-  private Customer getCustomerByIDOrLastName(
+  private static Customer getCustomerByIDOrLastName(
       final ContextWithRegistry ctx,
       final int c_w_id,
       final int c_d_id,
@@ -1575,8 +1361,9 @@ public final class TPCC implements ContractInterface {
             methodLogger.generateParamsString(ctx, c_w_id, c_d_id, c_id), c_last);
     methodLogger.logStart("getCustomerByIDOrLastName", paramString);
 
-    if (c_id == null && c_last == null)
+    if (c_id == null && c_last == null) {
       throw new IllegalArgumentException("At least one of c_id and c_last must be specified");
+    }
 
     if (c_id != null) {
       final Customer customer =
@@ -1589,13 +1376,27 @@ public final class TPCC implements ContractInterface {
 
       // Stream-based one-liner replaced with below code to accommodate OpenJML...
       final List<Customer> matchingCustomers = new ArrayList<>();
-      for (final Customer c : allCustomers)
-        if (c.getC_last().equals(c_last)) matchingCustomers.add(c);
-      if (matchingCustomers.isEmpty())
+      for (final Customer c : allCustomers) {
+        if (c.getC_last().equals(c_last)) {
+          matchingCustomers.add(c);
+        }
+      }
+      if (matchingCustomers.isEmpty()) {
         throw new NotFoundException("Customer matching last name '%s' not found".formatted(c_last));
+      }
+
+      matchingCustomers.sort(
+          new Comparator<Customer>() {
+            @Override
+            public int compare(final Customer a, final Customer b) {
+              return a.getC_last().compareTo(b.getC_last());
+            }
+          });
 
       final double N = Math.ceil(matchingCustomers.size() / 2d);
-      if (N > Integer.MAX_VALUE) logger.warn("Size of matching CUSTOMER list is out of range");
+      if (N > Integer.MAX_VALUE) {
+        logger.warn("Size of matching CUSTOMER list is out of range");
+      }
       final int n = (int) N;
 
       final Customer customer = matchingCustomers.get(n);
@@ -1614,22 +1415,29 @@ public final class TPCC implements ContractInterface {
    * @return The order with highest O_ID from the orders matching (O_W_ID, O_D_ID, O_C_ID)
    * @throws NotFoundException if the order is not found
    */
-  private Order getLastOrderOfCustomer(
+  private static Order getLastOrderOfCustomer(
       final ContextWithRegistry ctx, final int o_w_id, final int o_d_id, final int o_c_id)
       throws NotFoundException, SerializationException {
     final String paramString = methodLogger.generateParamsString(ctx, o_w_id, o_d_id, o_c_id);
     methodLogger.logStart("getLastOrderOfCustomer", paramString);
 
-    hu.bme.mit.ftsrg.hypernate.Registry registry = ctx.getRegistry();
+    Registry registry = ctx.getRegistry();
     final List<Order> allOrders =
         registry.readAll(Order.builder().w_id(o_w_id).d_id(o_d_id).build());
-    if (allOrders.isEmpty()) throw new NotFoundException("No orders found");
+    if (allOrders.isEmpty()) {
+      throw new NotFoundException("No orders found");
+    }
 
     // Stream-based one-liner replaced with below code to accommodate OpenJML...
     final List<Order> matchingOrders = new ArrayList<>();
-    for (final Order o : allOrders) if (o.getO_c_id() == o_c_id) matchingOrders.add(o);
-    if (matchingOrders.isEmpty())
+    for (final Order o : allOrders) {
+      if (o.getO_c_id() == o_c_id) {
+        matchingOrders.add(o);
+      }
+    }
+    if (matchingOrders.isEmpty()) {
       throw new NotFoundException("Could not find last order of customer");
+    }
     matchingOrders.sort(
         new Comparator<Order>() {
           @Override
@@ -1653,7 +1461,7 @@ public final class TPCC implements ContractInterface {
    * @param o_id_max The newest/maximum order ID to consider (exclusive)
    * @return The unique IDs of items from the recent orders
    */
-  private List<Integer> getItemIdsOfRecentOrders(
+  private static List<Integer> getItemIdsOfRecentOrders(
       final ContextWithRegistry ctx,
       final int w_id,
       final int d_id,
@@ -1683,16 +1491,12 @@ public final class TPCC implements ContractInterface {
         itemIds.add(orderLine.getOl_i_id());
       }
     }
-    if (itemIds.isEmpty()) throw new NotFoundException("Could not find item IDs of recent ORDERs");
+    if (itemIds.isEmpty()) {
+      throw new NotFoundException("Could not find item IDs of recent ORDERs");
+    }
 
     final List<Integer> itemIdsList = new ArrayList<>(itemIds);
     methodLogger.logEnd("getItemIdsOfRecentOrders", paramString, itemIdsList.toString());
     return itemIdsList;
-  }
-
-  public static final class NotFoundException extends Exception {
-    NotFoundException(String message) {
-      super(message);
-    }
   }
 }

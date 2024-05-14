@@ -1,5 +1,4 @@
 /* SPDX-License-Identifier: Apache-2.0 */
-
 package hu.bme.mit.ftsrg.chaincode.tpcc.data.entity;
 
 import hu.bme.mit.ftsrg.hypernate.entity.Entity;
@@ -218,6 +217,34 @@ public final class Stock implements Entity<Stock> {
 
   public void setS_dist_10(final String s_dist_10) {
     this.s_dist_10 = s_dist_10;
+  }
+
+  public String getS_dist(final int number) {
+    final String padded = String.format("%02d", number);
+    switch (padded) {
+      case "01":
+        return s_dist_01;
+      case "02":
+        return s_dist_02;
+      case "03":
+        return s_dist_03;
+      case "04":
+        return s_dist_04;
+      case "05":
+        return s_dist_05;
+      case "06":
+        return s_dist_06;
+      case "07":
+        return s_dist_07;
+      case "08":
+        return s_dist_08;
+      case "09":
+        return s_dist_09;
+      case "10":
+        return s_dist_10;
+    }
+
+    throw new IllegalArgumentException("Unknown district number");
   }
 
   public int getS_ytd() {

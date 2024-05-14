@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: Apache-2.0 */
 package hu.bme.mit.ftsrg.chaincode;
 
 import hu.bme.mit.ftsrg.hypernate.entity.Entity;
@@ -28,7 +29,9 @@ public final class MethodLogger {
 
   public String generateParamsString(final int... params) {
     final List<String> strings = new ArrayList<>();
-    for (final int i : params) strings.add(String.valueOf(i));
+    for (final int i : params) {
+      strings.add(String.valueOf(i));
+    }
     return generateParamsString(strings.toArray(new String[0]));
   }
 

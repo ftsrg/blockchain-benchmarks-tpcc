@@ -1,14 +1,11 @@
 /* SPDX-License-Identifier: Apache-2.0 */
-
 package hu.bme.mit.ftsrg.chaincode.tpcc.data.output;
 
-import hu.bme.mit.ftsrg.chaincode.tpcc.TPCC;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.entity.Customer;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.entity.District;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.entity.Order;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.entity.Warehouse;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.extra.ItemsData;
-import hu.bme.mit.ftsrg.chaincode.tpcc.middleware.TPCCContext;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;
@@ -48,6 +45,8 @@ public final class NewOrderOutput {
   @Property private double total_amount;
   @Property private List<ItemsData> items;
 
+  @Property private String message;
+
   public NewOrderOutput(
       final int w_id,
       final int d_id,
@@ -62,6 +61,38 @@ public final class NewOrderOutput {
       final String o_entry_d,
       final double total_amount,
       final List<ItemsData> items) {
+    this(
+        w_id,
+        d_id,
+        c_id,
+        c_last,
+        c_credit,
+        c_discount,
+        w_tax,
+        d_tax,
+        o_ol_cnt,
+        o_id,
+        o_entry_d,
+        total_amount,
+        items,
+        null);
+  }
+
+  public NewOrderOutput(
+      final int w_id,
+      final int d_id,
+      final int c_id,
+      final String c_last,
+      final String c_credit,
+      final double c_discount,
+      final double w_tax,
+      final double d_tax,
+      final int o_ol_cnt,
+      final int o_id,
+      final String o_entry_d,
+      final double total_amount,
+      final List<ItemsData> items,
+      final String message) {
     this.w_id = w_id;
     this.d_id = d_id;
     this.c_id = c_id;
@@ -75,6 +106,7 @@ public final class NewOrderOutput {
     this.o_entry_d = o_entry_d;
     this.total_amount = total_amount;
     this.items = items;
+    this.message = message;
   }
 
   public int getW_id() {
@@ -181,6 +213,14 @@ public final class NewOrderOutput {
     this.items = items;
   }
 
+  public String getMessage() {
+    return message;
+  }
+
+  public void setMessage(final String message) {
+    this.message = message;
+  }
+
   public static DoNewOrderOutputBuilder builder() {
     return new DoNewOrderOutputBuilder();
   }
@@ -199,6 +239,7 @@ public final class NewOrderOutput {
     private String o_entry_d;
     private double total_amount;
     private List<ItemsData> items;
+    private String message;
 
     DoNewOrderOutputBuilder() {}
 
@@ -267,6 +308,11 @@ public final class NewOrderOutput {
       return this;
     }
 
+    public DoNewOrderOutputBuilder message(final String message) {
+      this.message = message;
+      return this;
+    }
+
     public DoNewOrderOutputBuilder fromCustomer(final Customer customer) {
       this.c_id = customer.getC_id();
       this.c_last = customer.getC_last();
@@ -308,7 +354,8 @@ public final class NewOrderOutput {
           this.o_id,
           this.o_entry_d,
           this.total_amount,
-          this.items);
+          this.items,
+          this.message);
     }
   }
 }

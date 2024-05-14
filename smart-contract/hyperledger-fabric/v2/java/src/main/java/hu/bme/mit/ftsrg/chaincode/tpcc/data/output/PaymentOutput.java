@@ -1,13 +1,10 @@
 /* SPDX-License-Identifier: Apache-2.0 */
-
 package hu.bme.mit.ftsrg.chaincode.tpcc.data.output;
 
-import hu.bme.mit.ftsrg.chaincode.tpcc.TPCC;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.entity.Customer;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.entity.District;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.entity.History;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.entity.Warehouse;
-import hu.bme.mit.ftsrg.chaincode.tpcc.middleware.TPCCContext;
 import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
