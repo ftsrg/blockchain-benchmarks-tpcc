@@ -2,8 +2,8 @@
 
 package hu.bme.mit.ftsrg.chaincode.tpcc;
 
-import hu.bme.mit.ftsrg.chaincode.dataaccess.exception.EntityExistsException;
-import hu.bme.mit.ftsrg.chaincode.dataaccess.exception.EntityNotFoundException;
+import hu.bme.mit.ftsrg.hypernate.entity.EntityExistsException;
+import hu.bme.mit.ftsrg.hypernate.entity.EntityNotFoundException;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.input.*;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.output.*;
 import hu.bme.mit.ftsrg.chaincode.tpcc.middleware.TPCCContext;

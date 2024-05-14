@@ -2,9 +2,9 @@
 
 package hu.bme.mit.ftsrg.chaincode.tpcc.data.entity;
 
-import hu.bme.mit.ftsrg.chaincode.dataaccess.SerializableEntityBase;
+import hu.bme.mit.ftsrg.hypernate.entity.Entity;
 
-public final class Order extends SerializableEntityBase<Order> {
+public final class Order implements Entity<Order> {
 
   public /*@ pure @*/ int getO_id();
 
