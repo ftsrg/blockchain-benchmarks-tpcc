@@ -2,9 +2,9 @@
 
 package hu.bme.mit.ftsrg.chaincode.tpcc.data.entity;
 
-import hu.bme.mit.ftsrg.chaincode.dataaccess.SerializableEntityBase;
+import hu.bme.mit.ftsrg.hypernate.entity.Entity;
 
-public final class Stock extends SerializableEntityBase<Stock> {
+public final class Stock implements Entity<Stock> {
 
   public /*@ pure @*/ int getS_i_id();
 

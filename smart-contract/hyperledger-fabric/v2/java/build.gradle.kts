@@ -3,7 +3,6 @@
 import com.diffplug.gradle.spotless.SpotlessExtension
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import hu.bme.mit.ftsrg.openjmlhelper.*
-import java.io.File
 
 val openJMLDir = layout.projectDirectory.dir(".openjml")
 val openJMLJavaHomeDir = openJMLDir.dir("jdk")
@@ -21,7 +20,7 @@ plugins {
   id("com.diffplug.spotless") version "6.19.0"
 }
 
-group = "hu.bme.mit.ftsrg.tpcc"
+group = "hu.bme.mit.ftsrg.chaincode.tpcc"
 
 version = "0.1.0"
 
@@ -31,7 +30,9 @@ repositories {
 }
 
 dependencies {
-  implementation("ch.qos.logback:logback-classic:1.4.8")
+  implementation("ch.qos.logback:logback-core:1.5.6")
+  implementation("ch.qos.logback:logback-classic:1.5.6")
+  implementation("org.slf4j:slf4j-api:2.0.13")
   implementation("com.google.code.gson:gson:2.10.1")
   implementation("com.jcabi:jcabi-aspects:0.25.1")
   implementation("org.aspectj:aspectjrt:1.9.19")
@@ -40,6 +41,7 @@ dependencies {
   implementation("org.hyperledger.fabric:fabric-protos:0.3.0")
   implementation("org.json:json:20230227")
   implementation("org.projectlombok:lombok:1.18.28")
+  implementation(files("libs/hypernate-0.1.0.jar"))
   // Included also as implementation dependency so shadow will package it
   implementation(files("$openJMLDir/jmlruntime.jar"))
 
@@ -60,9 +62,7 @@ tasks.named<ShadowJar>("shadowJar") {
 tasks.named<Test>("test") { useJUnitPlatform() }
 
 if (!noOpenJML) {
-  tasks.named<ShadowJar>("shadowJar") {
-    dependsOn(tasks.named("initOpenJML"))
-  }
+  tasks.named<ShadowJar>("shadowJar") { dependsOn(tasks.named("initOpenJML")) }
 
   tasks.test {
     java {
@@ -76,14 +76,20 @@ if (!noOpenJML) {
     // Only when not compiling because of Spotless
     if (!gradle.startParameter.taskNames.any { it.contains("spotlessApply") }) {
       val mode =
-        when (System.getenv("JML_MODE")) {
-          "esc" -> "esc"
-          else -> "rac"
-        }
+          when (System.getenv("JML_MODE")) {
+            "esc" -> "esc"
+            else -> "rac"
+          }
       options.isFork = true
       options.compilerArgs.addAll(
-        listOf(
-          "-jml", "-$mode", "-timeout", "30", "--nullable-by-default", "--specs-path", "specs/"))
+          listOf(
+              "-jml",
+              "-$mode",
+              "-timeout",
+              "30",
+              "--nullable-by-default",
+              "--specs-path",
+              "specs/"))
       options.forkOptions.javaHome = openJMLJavaHomeDir.asFile
     }
   }
@@ -120,4 +126,3 @@ if (!noOpenJML) {
     logger.lifecycle("✅ OpenJML successfully initialized in $openJMLDir")
   }
 }
-

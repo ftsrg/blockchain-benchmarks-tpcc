@@ -2,8 +2,8 @@
 
 package hu.bme.mit.ftsrg.chaincode.tpcc.data.entity;
 
-import hu.bme.mit.ftsrg.chaincode.dataaccess.KeyPart;
-import hu.bme.mit.ftsrg.chaincode.dataaccess.SerializableEntityBase;
+import hu.bme.mit.ftsrg.hypernate.entity.Entity;
+import hu.bme.mit.ftsrg.hypernate.entity.KeyPart;
 import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
@@ -11,7 +11,7 @@ import org.hyperledger.fabric.contract.annotation.Property;
 /** Essentially, the ORDER-LINE table. */
 @EqualsAndHashCode
 @DataType
-public final class OrderLine extends SerializableEntityBase<OrderLine> {
+public final class OrderLine implements Entity<OrderLine> {
 
   /** The order ID associated with the order line. Primary key. */
   @KeyPart
