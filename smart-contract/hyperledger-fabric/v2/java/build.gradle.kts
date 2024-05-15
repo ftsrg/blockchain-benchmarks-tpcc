@@ -43,7 +43,7 @@ dependencies {
   implementation("org.hyperledger.fabric:fabric-protos:0.3.0")
   implementation("org.json:json:20230227")
   implementation("org.projectlombok:lombok:1.18.28")
-  implementation(files("libs/hypernate-0.1.0.jar"))
+  implementation(files("libs/hypernate-0.1.0-alpha.jar"))
   // Included also as implementation dependency so shadow will package it
   implementation(files("$openJMLDir/jmlruntime.jar"))
 

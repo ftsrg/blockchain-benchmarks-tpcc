@@ -43,7 +43,7 @@ public final class MethodLogger {
     return "%s,%s".formatted(ctx.toString(), generateParamsString(params));
   }
 
-  public <Type extends Entity<Type>> String generateParamsString(
+  public <Type extends Entity> String generateParamsString(
       final Context ctx, final Type obj) {
     return "%s,%s".formatted(ctx.toString(), obj.toString());
   }

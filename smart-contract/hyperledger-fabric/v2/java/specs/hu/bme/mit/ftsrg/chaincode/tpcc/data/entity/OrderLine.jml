@@ -4,7 +4,7 @@ package hu.bme.mit.ftsrg.chaincode.tpcc.data.entity;
 
 import hu.bme.mit.ftsrg.hypernate.entity.Entity;
 
-public final class OrderLine implements Entity<OrderLine> {
+public final class OrderLine implements Entity {
 
   public /*@ pure @*/ int getOl_o_id();
 

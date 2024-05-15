@@ -4,7 +4,7 @@ package hu.bme.mit.ftsrg.chaincode.tpcc.data.entity;
 
 import hu.bme.mit.ftsrg.hypernate.entity.Entity;
 
-public final class District implements Entity<District> {
+public final class District implements Entity {
 
   public /*@ pure @*/ int getD_id();
 

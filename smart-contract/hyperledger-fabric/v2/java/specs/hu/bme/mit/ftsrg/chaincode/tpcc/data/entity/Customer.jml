@@ -4,7 +4,7 @@ package hu.bme.mit.ftsrg.chaincode.tpcc.data.entity;
 
 import hu.bme.mit.ftsrg.hypernate.entity.Entity;
 
-public class Customer implements Entity<Customer> {
+public class Customer implements Entity {
 
   public /*@ pure @*/ int getC_id();
 

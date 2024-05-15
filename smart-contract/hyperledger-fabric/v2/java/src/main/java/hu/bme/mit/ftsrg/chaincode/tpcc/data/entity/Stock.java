@@ -10,7 +10,7 @@ import org.hyperledger.fabric.contract.annotation.Property;
 /** Essentially, the STOCK table. */
 @EqualsAndHashCode
 @DataType
-public final class Stock implements Entity<Stock> {
+public final class Stock implements Entity {
 
   /** The ID of the item associated with the stock. Primary key. */
   @KeyPart

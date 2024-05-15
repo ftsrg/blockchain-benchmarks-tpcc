@@ -10,7 +10,7 @@ import org.hyperledger.fabric.contract.annotation.Property;
 /** Essentially, the ITEM table. */
 @EqualsAndHashCode
 @DataType
-public final class Item implements Entity<Item> {
+public final class Item implements Entity {
 
   /** The ID of the item. Primary key. */
   @KeyPart

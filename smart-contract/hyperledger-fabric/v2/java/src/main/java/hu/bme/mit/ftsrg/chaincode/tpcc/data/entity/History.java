@@ -10,7 +10,7 @@ import org.hyperledger.fabric.contract.annotation.Property;
 /** Essentially, the HISTORY table. */
 @EqualsAndHashCode
 @DataType
-public final class History implements Entity<History> {
+public final class History implements Entity {
 
   /** The customer ID. Primary key. */
   @KeyPart

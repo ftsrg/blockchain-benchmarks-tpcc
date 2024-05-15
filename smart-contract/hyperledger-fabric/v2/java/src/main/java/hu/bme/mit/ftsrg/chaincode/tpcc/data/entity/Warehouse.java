@@ -10,7 +10,7 @@ import org.hyperledger.fabric.contract.annotation.Property;
 /** Essentially, the WAREHOUSE table. */
 @EqualsAndHashCode
 @DataType
-public class Warehouse implements Entity<Warehouse> {
+public class Warehouse implements Entity {
 
   /** The warehouse ID. Primary key. */
   @KeyPart

@@ -4,7 +4,7 @@ package hu.bme.mit.ftsrg.chaincode.tpcc.data.entity;
 
 import hu.bme.mit.ftsrg.hypernate.entity.Entity;
 
-public final class History implements Entity<History> {
+public final class History implements Entity {
 
   public /*@ pure @*/ int getH_c_id();
 

@@ -4,7 +4,7 @@ package hu.bme.mit.ftsrg.chaincode.tpcc.data.entity;
 
 import hu.bme.mit.ftsrg.hypernate.entity.Entity;
 
-public final class NewOrder implements Entity<NewOrder> {
+public final class NewOrder implements Entity {
 
   public /*@ pure @*/ int getNo_o_id();
 

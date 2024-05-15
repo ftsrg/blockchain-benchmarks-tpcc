@@ -10,7 +10,7 @@ import org.hyperledger.fabric.contract.annotation.Property;
 /** Essentially, the ORDER table. */
 @EqualsAndHashCode
 @DataType
-public final class Order implements Entity<Order> {
+public final class Order implements Entity {
 
   /** The order ID. Primary key. */
   @KeyPart

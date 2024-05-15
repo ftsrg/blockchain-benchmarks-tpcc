@@ -10,7 +10,7 @@ import org.hyperledger.fabric.contract.annotation.Property;
 /** Essentially, the DISTRICT table. */
 @EqualsAndHashCode
 @DataType()
-public final class District implements Entity<District> {
+public final class District implements Entity {
 
   /** The district ID. Primary key. */
   @KeyPart
