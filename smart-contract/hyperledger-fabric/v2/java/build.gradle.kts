@@ -20,7 +20,7 @@ plugins {
   id("com.diffplug.spotless") version "6.19.0"
 }
 
-// java { toolchain { languageVersion.set(JavaLanguageVersion.of(17) } }
+// java { toolchain { languageVersion.set(JavaLanguageVersion.of(17)) } }
 
 group = "hu.bme.mit.ftsrg.chaincode.tpcc"
 

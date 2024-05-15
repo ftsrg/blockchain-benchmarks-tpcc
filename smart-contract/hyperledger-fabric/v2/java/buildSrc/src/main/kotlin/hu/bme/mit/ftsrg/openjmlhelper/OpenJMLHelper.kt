@@ -17,7 +17,7 @@ import org.gradle.api.logging.Logger
  *
  * Originally based on https://github.com/mingyang91/openjml-template
  */
-val originalExecutableSuffix = ".orig"
+const val originalExecutableSuffix = ".orig"
 
 // NOTE: ${'$'} is just an escaped $ inside a Kotlin string literal
 val scriptPrefix =

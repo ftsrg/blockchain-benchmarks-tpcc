@@ -1,4 +1,4 @@
-@startuml "Specificaton"
+@startuml "Specification"
 skinparam groupInheritance 2
 Contract <|-- BusinessContract
 BusinessContract ..> EnhancedContext

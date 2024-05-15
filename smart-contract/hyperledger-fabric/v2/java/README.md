@@ -28,4 +28,4 @@ withoutOpenJML = "true"
 
 ## License
 
-The project uses the Apache License Version 2.0. For more information see [NOTICES.md](./../../NOTICES.md), [CONTRIBUTORS.md](./../../CONTRIBUTORS.md), and [LICENSE](./../../LICENSE).
+The project uses the Apache License Version 2.0. For more information see [NOTICES.md](../../../../NOTICES.md), [CONTRIBUTORS.md](../../../../CONTRIBUTORS.md), and [LICENSE](../../../../LICENSE).

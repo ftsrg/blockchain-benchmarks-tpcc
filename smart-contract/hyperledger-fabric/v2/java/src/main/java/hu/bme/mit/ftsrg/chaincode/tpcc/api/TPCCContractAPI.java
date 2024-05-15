@@ -217,7 +217,7 @@ public final class TPCCContractAPI implements ContractInterface {
    *
    * @param ctx The transaction context
    * @param i_id The I_ID of the item
-   * @return The item with matchign I_ID
+   * @return The item with matching I_ID
    */
   @Transaction(intent = Transaction.TYPE.EVALUATE)
   public String readItem(final TPCCContext ctx, final int i_id) throws EntityNotFoundException, SerializationException {

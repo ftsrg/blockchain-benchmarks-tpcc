@@ -1,11 +1,11 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 package hu.bme.mit.ftsrg.chaincode.tpcc.data.input;
 
+import hu.bme.mit.ftsrg.chaincode.tpcc.middleware.TPCCContext;
 import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
-/** Input parameters to {@link TPCC#doDelivery(TPCCContext, String)}. */
 @EqualsAndHashCode
 @DataType
 public final class DeliveryInput {
