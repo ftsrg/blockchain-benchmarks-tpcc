@@ -33,9 +33,8 @@ repositories {
 }
 
 dependencies {
-  implementation("ch.qos.logback:logback-core:1.5.6")
-  implementation("ch.qos.logback:logback-classic:1.5.6")
   implementation("org.slf4j:slf4j-api:2.0.13")
+  implementation("org.slf4j:slf4j-simple:2.0.13")
   implementation("com.google.code.gson:gson:2.10.1")
   implementation("com.jcabi:jcabi-aspects:0.25.1")
   implementation("org.aspectj:aspectjrt:1.9.19")
