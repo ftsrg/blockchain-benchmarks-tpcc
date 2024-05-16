@@ -3,7 +3,6 @@ package hu.bme.mit.ftsrg.chaincode.tpcc.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jcabi.aspects.Loggable;
-import hu.bme.mit.ftsrg.chaincode.MethodLogger;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.entity.*;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.input.*;
 import hu.bme.mit.ftsrg.chaincode.tpcc.middleware.TPCCContext;
@@ -20,8 +19,6 @@ import org.hyperledger.fabric.contract.annotation.Info;
 import org.hyperledger.fabric.contract.annotation.License;
 import org.hyperledger.fabric.contract.annotation.Transaction;
 import org.hyperledger.fabric.shim.ChaincodeStub;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Contract(
     name = "TPCC",
@@ -39,12 +36,10 @@ import org.slf4j.LoggerFactory;
  * the business logic implemented in {@link TPCCBusinessAPI}.
  */
 @Default
-@Loggable(Loggable.DEBUG) // FIXME how to configure AspectJ with OpenJML and Gradle?
+@Loggable(Loggable.DEBUG)
 public final class TPCCContractAPI implements ContractInterface {
 
-  private static final Logger logger = LoggerFactory.getLogger(TPCCContractAPI.class);
-
-  private static final MethodLogger methodLogger = new MethodLogger(logger, "TPCCContractAPI");
+  private final TPCCBusinessAPI api = new TPCCBusinessAPI();
 
   @Override
   public Context createContext(final ChaincodeStub stub) {
@@ -62,13 +57,7 @@ public final class TPCCContractAPI implements ContractInterface {
   @Transaction(intent = Transaction.TYPE.SUBMIT)
   public String delivery(final TPCCContext ctx, final String parameters)
       throws EntityNotFoundException, SerializationException, JsonProcessingException {
-    final String paramString = methodLogger.generateParamsString(ctx, parameters);
-    methodLogger.logStart("delivery", paramString);
-    final String json =
-        JSON.serialize(
-            TPCCBusinessAPI.delivery(ctx, JSON.deserialize(parameters, DeliveryInput.class)));
-    methodLogger.logEnd("delivery", paramString, json);
-    return json;
+    return JSON.serialize(api.delivery(ctx, JSON.deserialize(parameters, DeliveryInput.class)));
   }
 
   /**
@@ -83,13 +72,7 @@ public final class TPCCContractAPI implements ContractInterface {
   @Transaction(intent = Transaction.TYPE.SUBMIT)
   public String newOrder(final TPCCContext ctx, final String parameters)
       throws EntityNotFoundException, EntityExistsException, SerializationException, JsonProcessingException {
-    final String paramString = methodLogger.generateParamsString(ctx, parameters);
-    methodLogger.logStart("newOrder", paramString);
-    final String json =
-        JSON.serialize(
-            TPCCBusinessAPI.newOrder(ctx, JSON.deserialize(parameters, NewOrderInput.class)));
-    methodLogger.logEnd("newOrder", paramString, json);
-    return json;
+    return JSON.serialize(api.newOrder(ctx, JSON.deserialize(parameters, NewOrderInput.class)));
   }
 
   /**
@@ -102,13 +85,7 @@ public final class TPCCContractAPI implements ContractInterface {
   @Transaction(intent = Transaction.TYPE.EVALUATE)
   public String orderStatus(final TPCCContext ctx, final String parameters)
       throws NotFoundException, EntityNotFoundException, SerializationException, JsonProcessingException {
-    final String paramString = methodLogger.generateParamsString(ctx, parameters);
-    methodLogger.logStart("orderStatus", paramString);
-    final String json =
-        JSON.serialize(
-            TPCCBusinessAPI.orderStatus(ctx, JSON.deserialize(parameters, OrderStatusInput.class)));
-    methodLogger.logEnd("orderStatus", paramString, json);
-    return json;
+    return JSON.serialize(api.orderStatus(ctx, JSON.deserialize(parameters, OrderStatusInput.class)));
   }
 
   /**
@@ -124,13 +101,7 @@ public final class TPCCContractAPI implements ContractInterface {
   @Transaction(intent = Transaction.TYPE.SUBMIT)
   public String payment(final TPCCContext ctx, final String parameters)
       throws EntityNotFoundException, EntityExistsException, NotFoundException, SerializationException, JsonProcessingException {
-    final String paramString = methodLogger.generateParamsString(ctx, parameters);
-    methodLogger.logStart("payment", paramString);
-    final String json =
-        JSON.serialize(
-            TPCCBusinessAPI.payment(ctx, JSON.deserialize(parameters, PaymentInput.class)));
-    methodLogger.logEnd("payment", paramString, json);
-    return json;
+    return JSON.serialize(api.payment(ctx, JSON.deserialize(parameters, PaymentInput.class)));
   }
 
   /**
@@ -145,13 +116,7 @@ public final class TPCCContractAPI implements ContractInterface {
   @Transaction(intent = Transaction.TYPE.EVALUATE)
   public String stockLevel(final TPCCContext ctx, final String parameters)
       throws EntityNotFoundException, NotFoundException, SerializationException, JsonProcessingException {
-    final String paramString = methodLogger.generateParamsString(ctx, parameters);
-    methodLogger.logStart("stockLevel", paramString);
-    final String json =
-        JSON.serialize(
-            TPCCBusinessAPI.stockLevel(ctx, JSON.deserialize(parameters, StockLevelInput.class)));
-    methodLogger.logEnd("init", paramString, "<void>");
-    return json;
+    return JSON.serialize(api.stockLevel(ctx, JSON.deserialize(parameters, StockLevelInput.class)));
   }
 
   /**
@@ -161,10 +126,7 @@ public final class TPCCContractAPI implements ContractInterface {
    */
   @Transaction(intent = Transaction.TYPE.SUBMIT)
   public void init(final TPCCContext ctx) throws EntityExistsException, SerializationException {
-    final String paramString = methodLogger.generateParamsString(ctx.toString());
-    methodLogger.logStart("init", paramString);
-    TPCCBusinessAPI.init(ctx);
-    methodLogger.logEnd("init", paramString, "<void>");
+    api.init(ctx);
   }
 
   /**
@@ -177,16 +139,10 @@ public final class TPCCContractAPI implements ContractInterface {
   @Transaction(intent = Transaction.TYPE.EVALUATE)
   public String readWarehouse(final TPCCContext ctx, final int w_id)
       throws EntityNotFoundException, SerializationException, JsonProcessingException {
-    final String paramString = methodLogger.generateParamsString(ctx, w_id);
-    methodLogger.logStart("readWarehouse", paramString);
-
     final Warehouse warehouse = Warehouse.builder().id(w_id).build();
     ctx.getRegistry().read(warehouse);
-
     ctx.commit();
-    final String json = JSON.serialize(warehouse);
-    methodLogger.logEnd("readWarehouse", paramString, json);
-    return json;
+    return JSON.serialize(warehouse);
   }
 
   /**
@@ -201,16 +157,10 @@ public final class TPCCContractAPI implements ContractInterface {
   @Transaction(intent = Transaction.TYPE.EVALUATE)
   public String readOrder(final TPCCContext ctx, final int w_id, final int d_id, final int o_id)
       throws EntityNotFoundException, SerializationException, JsonProcessingException {
-    final String paramString = methodLogger.generateParamsString(ctx, w_id, d_id, o_id);
-    methodLogger.logStart("readOrder", paramString);
-
     final Order order = Order.builder().w_id(w_id).d_id(d_id).id(o_id).build();
     ctx.getRegistry().read(order);
-
     ctx.commit();
-    final String json = JSON.serialize(order);
-    methodLogger.logEnd("readOrder", paramString, json);
-    return json;
+    return JSON.serialize(order);
   }
 
   /**
@@ -222,16 +172,10 @@ public final class TPCCContractAPI implements ContractInterface {
    */
   @Transaction(intent = Transaction.TYPE.EVALUATE)
   public String readItem(final TPCCContext ctx, final int i_id) throws EntityNotFoundException, SerializationException, JsonProcessingException {
-    final String paramString = methodLogger.generateParamsString(ctx, i_id);
-    methodLogger.logStart("readItem", paramString);
-
     final Item item = Item.builder().id(i_id).build();
     ctx.getRegistry().read(item);
-
     ctx.commit();
-    final String json = JSON.serialize(item);
-    methodLogger.logEnd("readItem", paramString, json);
-    return json;
+    return JSON.serialize(item);
   }
 
   /**
@@ -246,16 +190,10 @@ public final class TPCCContractAPI implements ContractInterface {
   @Transaction(intent = Transaction.TYPE.EVALUATE)
   public String readNewOrder(final TPCCContext ctx, final int w_id, final int d_id, final int o_id)
       throws EntityNotFoundException, SerializationException, JsonProcessingException {
-    final String paramString = methodLogger.generateParamsString(ctx, w_id, d_id, o_id);
-    methodLogger.logStart("readNewOrder", paramString);
-
     final NewOrder newOrder = NewOrder.builder().w_id(w_id).d_id(d_id).o_id(o_id).build();
     ctx.getRegistry().read(newOrder);
-
     ctx.commit();
-    final String json = JSON.serialize(newOrder);
-    methodLogger.logEnd("readNewOrder", paramString, json);
-    return json;
+    return JSON.serialize(newOrder);
   }
 
   /**
@@ -267,13 +205,8 @@ public final class TPCCContractAPI implements ContractInterface {
   @SuppressWarnings("SameReturnValue")
   @Transaction(intent = Transaction.TYPE.EVALUATE)
   public String ping(final TPCCContext ctx) {
-    final String paramString = methodLogger.generateParamsString(ctx.toString());
-    methodLogger.logStart("ping", paramString);
-
     ctx.commit();
-    final String pong = "pong";
-    methodLogger.logEnd("ping", paramString, pong);
-    return pong;
+    return "pong";
   }
 
   /**
@@ -296,14 +229,8 @@ public final class TPCCContractAPI implements ContractInterface {
   @Transaction(intent = Transaction.TYPE.EVALUATE)
   public String OJMLTEST__getCustomer(
       final TPCCContext ctx, final int c_w_id, final int c_d_id, final int c_id) throws JsonProcessingException {
-    final String paramString = methodLogger.generateParamsString(ctx, c_w_id, c_d_id, c_id);
-    methodLogger.logStart("OJMLTEST__getCustomer", paramString);
-
     final Customer customer = Customer.builder().w_id(c_w_id).d_id(c_d_id).id(c_id).build();
-
     ctx.commit();
-    final String json = JSON.serialize(customer);
-    methodLogger.logEnd("OJMLTEST__getCustomer", paramString, json);
-    return json;
+    return JSON.serialize(customer);
   }
 }

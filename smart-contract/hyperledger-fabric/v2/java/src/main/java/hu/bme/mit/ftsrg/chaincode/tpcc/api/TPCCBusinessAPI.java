@@ -3,13 +3,11 @@ package hu.bme.mit.ftsrg.chaincode.tpcc.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jcabi.aspects.Loggable;
-import hu.bme.mit.ftsrg.chaincode.MethodLogger;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.entity.*;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.extra.*;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.input.*;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.output.*;
 import hu.bme.mit.ftsrg.chaincode.tpcc.middleware.TPCCContext;
-import hu.bme.mit.ftsrg.chaincode.tpcc.util.JSON;
 import hu.bme.mit.ftsrg.hypernate.Registry;
 import hu.bme.mit.ftsrg.hypernate.context.ContextWithRegistry;
 import hu.bme.mit.ftsrg.hypernate.entity.EntityExistsException;
@@ -23,12 +21,10 @@ import org.slf4j.LoggerFactory;
  * The implementation of the TPC-C benchmark smart contract according to the specification version
  * v5.11.0.
  */
-@Loggable(Loggable.DEBUG) // FIXME how to configure AspectJ with OpenJML and Gradle?
+@Loggable(Loggable.DEBUG)
 class TPCCBusinessAPI {
 
-  private static final Logger logger = LoggerFactory.getLogger(TPCCBusinessAPI.class);
-
-  private static final MethodLogger methodLogger = new MethodLogger(logger, "TPCCBusinessAPI");
+  private final Logger logger = LoggerFactory.getLogger(TPCCBusinessAPI.class);
 
   private static final int DISTRICT_COUNT = 10;
 
@@ -39,7 +35,7 @@ class TPCCBusinessAPI {
    * @param input The input parameters
    * @return The transaction output
    */
-  static DeliveryOutput delivery(final TPCCContext ctx, final DeliveryInput input)
+  DeliveryOutput delivery(final TPCCContext ctx, final DeliveryInput input)
       throws EntityNotFoundException, SerializationException, JsonProcessingException {
 
     /*
@@ -101,7 +97,7 @@ class TPCCBusinessAPI {
    * @param input The input parameters
    * @return The transaction output
    */
-  static NewOrderOutput newOrder(final TPCCContext ctx, final NewOrderInput input)
+  NewOrderOutput newOrder(final TPCCContext ctx, final NewOrderInput input)
       throws EntityNotFoundException, EntityExistsException, SerializationException {
     /*
      * [TPC-C 2.4.2.2]
@@ -304,7 +300,7 @@ class TPCCBusinessAPI {
    * @param input The input parameters
    * @return The transaction output
    */
-  static OrderStatusOutput orderStatus(final TPCCContext ctx, final OrderStatusInput input)
+  OrderStatusOutput orderStatus(final TPCCContext ctx, final OrderStatusInput input)
       throws NotFoundException, EntityNotFoundException, SerializationException, JsonProcessingException {
     /*
      * [TPC-C 2.6.2.2]
@@ -392,7 +388,7 @@ class TPCCBusinessAPI {
    * @param input The input parameters
    * @return The JSON encoded query results according to the specification.
    */
-  static PaymentOutput payment(final TPCCContext ctx, final PaymentInput input)
+  PaymentOutput payment(final TPCCContext ctx, final PaymentInput input)
       throws EntityNotFoundException,
       EntityExistsException,
       NotFoundException,
@@ -571,7 +567,7 @@ class TPCCBusinessAPI {
    * @param input The input parameters
    * @return The transaction output
    */
-  static StockLevelOutput stockLevel(final TPCCContext ctx, final StockLevelInput input)
+  StockLevelOutput stockLevel(final TPCCContext ctx, final StockLevelInput input)
       throws EntityNotFoundException, NotFoundException, SerializationException {
     /*
      * [TPC-C 2.8.2.2]
@@ -639,7 +635,7 @@ class TPCCBusinessAPI {
    *
    * @param ctx The transaction context
    */
-  static void init(final TPCCContext ctx) throws EntityExistsException, SerializationException {
+  void init(final TPCCContext ctx) throws EntityExistsException, SerializationException {
     initWarehouses(ctx);
     initDistricts(ctx);
     initCustomers(ctx);
@@ -690,11 +686,9 @@ class TPCCBusinessAPI {
    * @param ctx The transaction context
    * @throws EntityExistsException if a warehouse entry already exists on the ledger
    */
-  private static void initWarehouses(final ContextWithRegistry ctx)
+  @Loggable(Loggable.DEBUG)
+  private void initWarehouses(final ContextWithRegistry ctx)
       throws EntityExistsException, SerializationException {
-    final String paramString = methodLogger.generateParamsString(ctx.toString());
-    methodLogger.logStart("initWarehouses", paramString);
-
     final Warehouse warehouse =
         Warehouse.builder()
             .id(1)
@@ -709,8 +703,6 @@ class TPCCBusinessAPI {
             .build();
 
     ctx.getRegistry().create(warehouse);
-
-    methodLogger.logEnd("initWarehouses", paramString, "<void>");
   }
 
   /**
@@ -722,11 +714,9 @@ class TPCCBusinessAPI {
    * @param ctx The transaction context
    * @throws EntityExistsException if a district entry already exists on the ledger
    */
-  private static void initDistricts(final ContextWithRegistry ctx)
+  @Loggable(Loggable.DEBUG)
+  private void initDistricts(final ContextWithRegistry ctx)
       throws EntityExistsException, SerializationException {
-    final String paramString = methodLogger.generateParamsString(ctx.toString());
-    methodLogger.logStart("initDistricts", paramString);
-
     final District district =
         District.builder()
             .id(1)
@@ -743,8 +733,6 @@ class TPCCBusinessAPI {
             .build();
 
     ctx.getRegistry().create(district);
-
-    methodLogger.logEnd("initDistricts", paramString, "<void>");
   }
 
   /**
@@ -756,11 +744,9 @@ class TPCCBusinessAPI {
    * @param ctx The transaction context
    * @throws EntityExistsException if a customer entry already exists on the ledger
    */
-  private static void initCustomers(final ContextWithRegistry ctx)
+  @Loggable(Loggable.DEBUG)
+  private void initCustomers(final ContextWithRegistry ctx)
       throws EntityExistsException, SerializationException {
-    final String paramString = methodLogger.generateParamsString(ctx.toString());
-    methodLogger.logStart("initCustomers", paramString);
-
     final Customer alice =
         Customer.builder()
             .id(1)
@@ -813,8 +799,6 @@ class TPCCBusinessAPI {
     final Registry registry = ctx.getRegistry();
     registry.create(alice);
     registry.create(peter);
-
-    methodLogger.logEnd("initDistricts", paramString, "<void>");
   }
 
   /**
@@ -826,11 +810,9 @@ class TPCCBusinessAPI {
    * @param ctx The transaction context
    * @throws EntityExistsException if an item entry already exists on the ledger
    */
-  private static void initItems(final ContextWithRegistry ctx)
+  @Loggable(Loggable.DEBUG)
+  private void initItems(final ContextWithRegistry ctx)
       throws EntityExistsException, SerializationException {
-    final String paramString = methodLogger.generateParamsString(ctx.toString());
-    methodLogger.logStart("initItems", paramString);
-
     final Item cup =
         Item.builder().id(1).im_id(123).name("Cup").price(99.50).data("ORIGINAL").build();
     final Item plate =
@@ -842,8 +824,6 @@ class TPCCBusinessAPI {
     registry.create(cup);
     registry.create(plate);
     registry.create(glass);
-
-    methodLogger.logEnd("initItems", paramString, "<void>");
   }
 
   /**
@@ -855,11 +835,9 @@ class TPCCBusinessAPI {
    * @param ctx The transaction context
    * @throws EntityExistsException if a stock entry already exists on the ledger
    */
-  private static void initStocks(final ContextWithRegistry ctx)
+  @Loggable(Loggable.DEBUG)
+  private void initStocks(final ContextWithRegistry ctx)
       throws EntityExistsException, SerializationException {
-    final String paramString = methodLogger.generateParamsString(ctx.toString());
-    methodLogger.logStart("initStocks", paramString);
-
     final Stock stock1 =
         Stock.builder()
             .i_id(1)
@@ -901,8 +879,6 @@ class TPCCBusinessAPI {
     registry.create(stock1);
     registry.create(stock2);
     registry.create(stock3);
-
-    methodLogger.logEnd("initStocks", paramString, "<void>");
   }
 
   /**
@@ -917,6 +893,7 @@ class TPCCBusinessAPI {
    * @param h_amount The relevant <code>H_AMOUNT</code> value
    * @return A history information string from the parameters
    */
+  @Loggable(Loggable.DEBUG)
   private static String generateHistoryInformation(
       final Customer customer,
       final Warehouse warehouse,
@@ -944,20 +921,14 @@ class TPCCBusinessAPI {
    * @param number The order number
    * @return The {@link OrderLineData} built
    */
-  private static OrderLineData getOrderLineDataForOrder(
+  @Loggable(Loggable.DEBUG)
+  private OrderLineData getOrderLineDataForOrder(
       final ContextWithRegistry ctx, final Order order, final int number)
       throws EntityNotFoundException, SerializationException, JsonProcessingException {
-    final String paramString =
-        methodLogger.generateParamsString(ctx.toString(), order.toString(), String.valueOf(number));
-    methodLogger.logStart("getOrderLineDataForOrder", paramString);
-
     final OrderLine orderLine = OrderLine.builder().fromOrder(order).number(number).build();
     ctx.getRegistry().read(orderLine);
 
-    final OrderLineData orderLineData = OrderLineData.builder().fromOrderLine(orderLine).build();
-
-    methodLogger.logEnd("getOrderLineDataForOrder", paramString, JSON.serialize(orderLineData));
-    return orderLineData;
+    return OrderLineData.builder().fromOrderLine(orderLine).build();
   }
 
   /**
@@ -973,18 +944,14 @@ class TPCCBusinessAPI {
    * @param ol_delivery_d The delivery date
    * @return The oldest NEW-ORDER entry with matching parameters
    */
-  private static DeliveredOrder deliverOldestNewOrderForDistrict(
+  @Loggable(Loggable.DEBUG)
+  private DeliveredOrder deliverOldestNewOrderForDistrict(
       final ContextWithRegistry ctx,
       final int w_id,
       final int d_id,
       final int o_carrier_id,
       final String ol_delivery_d)
       throws EntityNotFoundException, SerializationException, JsonProcessingException {
-    final String paramString =
-        methodLogger.generateParamsString(
-            methodLogger.generateParamsString(ctx, w_id, d_id, o_carrier_id), ol_delivery_d);
-    methodLogger.logStart("deliverOldestNewOrderForDistrict", paramString);
-
     final Registry registry = ctx.getRegistry();
 
     /*
@@ -1006,13 +973,7 @@ class TPCCBusinessAPI {
                   }
                 })
             */
-            .sortedBy(
-                new Comparator<NewOrder>() {
-                  @Override
-                  public int compare(final NewOrder a, final NewOrder b) {
-                    return a.getNo_o_id() - b.getNo_o_id();
-                  }
-                })
+            .sortedBy(new NewOrderComparator())
             .get();
     /* Manually remove non-matching NewOrders, see above... */
     final Iterator<NewOrder> it = matchingNewOrders.iterator();
@@ -1098,12 +1059,7 @@ class TPCCBusinessAPI {
     customer.incrementDeliveryCount();
     registry.update(customer);
 
-    final DeliveredOrder deliveredOrder =
-        DeliveredOrder.builder().d_id(d_id).o_id(order.getO_id()).build();
-
-    methodLogger.logEnd(
-        "deliverOldestNewOrderForDistrict", paramString, JSON.serialize(deliveredOrder));
-    return deliveredOrder;
+    return DeliveredOrder.builder().d_id(d_id).o_id(order.getO_id()).build();
   }
 
   /**
@@ -1125,7 +1081,8 @@ class TPCCBusinessAPI {
    * @param ol_delivery_d The delivery date
    * @return The OL_AMOUNT field of the matching ORDER-LINE
    */
-  private static double getOrderLineAmountAndUpdateTime(
+  @Loggable(Loggable.DEBUG)
+  private double getOrderLineAmountAndUpdateTime(
       final ContextWithRegistry ctx,
       final int w_id,
       final int d_id,
@@ -1133,11 +1090,6 @@ class TPCCBusinessAPI {
       final int number,
       final String ol_delivery_d)
       throws EntityNotFoundException, SerializationException {
-    final String paramString =
-        methodLogger.generateParamsString(
-            methodLogger.generateParamsString(ctx, w_id, d_id, o_id, number), ol_delivery_d);
-    methodLogger.logStart("getOrderLineAmountAndUpdateTime", paramString);
-
     /*
      * [TPC-C 2.7.4.2 (6)]
      * All rows in the ORDER-LINE table with matching OL_W_ID (equals
@@ -1159,8 +1111,6 @@ class TPCCBusinessAPI {
      */
     ctx.getRegistry().update(orderLine);
 
-    methodLogger.logEnd(
-        "getOrderLineAmountAndUpdateTime", paramString, String.valueOf(orderLine.getOl_amount()));
     return orderLine.getOl_amount();
   }
 
@@ -1198,7 +1148,8 @@ class TPCCBusinessAPI {
    * @param itemsDataCollection The {@link ItemsData} collection to add an entry into
    * @return The OL_AMOUNT field of the resulting ORDER-LINE
    */
-  private static double createOrderLineAndGetAmount(
+  @Loggable(Loggable.DEBUG)
+  private double createOrderLineAndGetAmount(
       final ContextWithRegistry ctx,
       final Item item,
       final int i_id,
@@ -1210,13 +1161,6 @@ class TPCCBusinessAPI {
       final int number,
       final Collection<ItemsData> itemsDataCollection)
       throws EntityNotFoundException, EntityExistsException, SerializationException {
-    final String paramString =
-        methodLogger.generateParamsString(
-            methodLogger.generateParamsString(
-                ctx, i_id, i_w_id, i_qty, w_id, d_id, nextOrderId, number),
-            itemsDataCollection.toString());
-    methodLogger.logStart("createOrderLineAndGetAmount", paramString);
-
     final Registry registry = ctx.getRegistry();
 
     /*
@@ -1330,8 +1274,6 @@ class TPCCBusinessAPI {
     itemsDataCollection.add(itemsData);
     logger.debug("Created ItemsData: {}", itemsData);
 
-    methodLogger.logEnd(
-        "createOrderLineAndGetAmount", paramString, String.valueOf(orderLineAmount));
     return orderLineAmount;
   }
 
@@ -1350,18 +1292,14 @@ class TPCCBusinessAPI {
    * @throws IllegalArgumentException if neither the customer ID nor the customer last name
    *     parameter is supplied
    */
-  private static Customer getCustomerByIDOrLastName(
+  @Loggable(Loggable.DEBUG)
+  private Customer getCustomerByIDOrLastName(
       final ContextWithRegistry ctx,
       final int c_w_id,
       final int c_d_id,
       final Integer c_id,
       final String c_last)
       throws EntityNotFoundException, NotFoundException, SerializationException, JsonProcessingException {
-    final String paramString =
-        methodLogger.generateParamsString(
-            methodLogger.generateParamsString(ctx, c_w_id, c_d_id, c_id), c_last);
-    methodLogger.logStart("getCustomerByIDOrLastName", paramString);
-
     if (c_id == null && c_last == null) {
       throw new IllegalArgumentException("At least one of c_id and c_last must be specified");
     }
@@ -1369,7 +1307,6 @@ class TPCCBusinessAPI {
     if (c_id != null) {
       final Customer customer =
           ctx.getRegistry().read(Customer.builder().w_id(c_w_id).d_id(c_d_id).id(c_id).build());
-      methodLogger.logEnd("getCustomerByIDOrLastName", paramString, JSON.serialize(customer));
       return customer;
     } else {
       final List<Customer> allCustomers =
@@ -1385,14 +1322,7 @@ class TPCCBusinessAPI {
       if (matchingCustomers.isEmpty()) {
         throw new NotFoundException("Customer matching last name '%s' not found".formatted(c_last));
       }
-
-      matchingCustomers.sort(
-          new Comparator<Customer>() {
-            @Override
-            public int compare(final Customer a, final Customer b) {
-              return a.getC_last().compareTo(b.getC_last());
-            }
-          });
+      matchingCustomers.sort(new CustomerComparator());
 
       final double N = Math.ceil(matchingCustomers.size() / 2d);
       if (N > Integer.MAX_VALUE) {
@@ -1400,9 +1330,7 @@ class TPCCBusinessAPI {
       }
       final int n = (int) N;
 
-      final Customer customer = matchingCustomers.get(n);
-      methodLogger.logEnd("getCustomerByIDOrLastName", paramString, JSON.serialize(customer));
-      return customer;
+      return matchingCustomers.get(n);
     }
   }
 
@@ -1416,12 +1344,10 @@ class TPCCBusinessAPI {
    * @return The order with highest O_ID from the orders matching (O_W_ID, O_D_ID, O_C_ID)
    * @throws NotFoundException if the order is not found
    */
-  private static Order getLastOrderOfCustomer(
+  @Loggable(Loggable.DEBUG)
+  private Order getLastOrderOfCustomer(
       final ContextWithRegistry ctx, final int o_w_id, final int o_d_id, final int o_c_id)
       throws NotFoundException, SerializationException, JsonProcessingException {
-    final String paramString = methodLogger.generateParamsString(ctx, o_w_id, o_d_id, o_c_id);
-    methodLogger.logStart("getLastOrderOfCustomer", paramString);
-
     Registry registry = ctx.getRegistry();
     final List<Order> allOrders =
         registry.readAll(Order.builder().w_id(o_w_id).d_id(o_d_id).build());
@@ -1439,17 +1365,9 @@ class TPCCBusinessAPI {
     if (matchingOrders.isEmpty()) {
       throw new NotFoundException("Could not find last order of customer");
     }
-    matchingOrders.sort(
-        new Comparator<Order>() {
-          @Override
-          public int compare(final Order a, final Order b) {
-            return b.getO_id() - a.getO_id();
-          }
-        });
+    matchingOrders.sort(new OrderComparator());
 
-    final Order order = matchingOrders.get(0);
-    methodLogger.logEnd("getLastOrderOfCustomer", paramString, JSON.serialize(order));
-    return order;
+    return matchingOrders.get(0);
   }
 
   /**
@@ -1462,17 +1380,14 @@ class TPCCBusinessAPI {
    * @param o_id_max The newest/maximum order ID to consider (exclusive)
    * @return The unique IDs of items from the recent orders
    */
-  private static List<Integer> getItemIdsOfRecentOrders(
+  @Loggable(Loggable.DEBUG)
+  private List<Integer> getItemIdsOfRecentOrders(
       final ContextWithRegistry ctx,
       final int w_id,
       final int d_id,
       final int o_id_min,
       final int o_id_max)
       throws EntityNotFoundException, NotFoundException, SerializationException {
-    final String paramString =
-        methodLogger.generateParamsString(ctx, w_id, d_id, o_id_min, o_id_max);
-    methodLogger.logStart("getItemIdsOfRecentOrders", paramString);
-
     final Set<Integer> itemIds = new HashSet<>();
     for (int current_o_id = o_id_min; current_o_id < o_id_max; current_o_id++) {
       final Order order = Order.builder().w_id(w_id).d_id(d_id).id(current_o_id).build();
@@ -1496,8 +1411,33 @@ class TPCCBusinessAPI {
       throw new NotFoundException("Could not find item IDs of recent ORDERs");
     }
 
-    final List<Integer> itemIdsList = new ArrayList<>(itemIds);
-    methodLogger.logEnd("getItemIdsOfRecentOrders", paramString, itemIdsList.toString());
-    return itemIdsList;
+    return new ArrayList<>(itemIds);
+  }
+
+  @Loggable(Loggable.DEBUG)
+  private static final class NewOrderComparator implements Comparator<NewOrder> {
+
+    @Override
+    public int compare(final NewOrder a, final NewOrder b) {
+      return a.getNo_o_id() - b.getNo_o_id();
+    }
+  }
+
+  @Loggable(Loggable.DEBUG)
+  private static final class CustomerComparator implements Comparator<Customer> {
+
+    @Override
+    public int compare(final Customer a, final Customer b) {
+      return a.getC_last().compareTo(b.getC_last());
+    }
+  }
+
+  @Loggable(Loggable.DEBUG)
+  private static final class OrderComparator implements Comparator<Order> {
+
+    @Override
+    public int compare(final Order a, final Order b) {
+      return a.getO_id() - b.getO_id();
+    }
   }
 }

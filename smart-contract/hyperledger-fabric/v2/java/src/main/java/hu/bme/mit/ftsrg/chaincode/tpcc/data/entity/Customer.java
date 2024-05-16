@@ -10,7 +10,7 @@ import org.hyperledger.fabric.contract.annotation.Property;
 /** Essentially, the CUSTOMER table. */
 @EqualsAndHashCode
 @DataType()
-public class Customer implements Entity {
+public final class Customer implements Entity {
 
   /** The customer ID. Primary key. */
   @KeyPart
