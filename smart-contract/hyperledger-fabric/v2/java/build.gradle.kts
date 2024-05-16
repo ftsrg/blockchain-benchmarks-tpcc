@@ -35,13 +35,12 @@ repositories {
 dependencies {
   implementation("org.slf4j:slf4j-api:2.0.13")
   implementation("org.slf4j:slf4j-simple:2.0.13")
-  implementation("com.google.code.gson:gson:2.10.1")
+  implementation("com.fasterxml.jackson.core:jackson-databind:2.15.2")
   implementation("com.jcabi:jcabi-aspects:0.25.1")
   implementation("org.aspectj:aspectjrt:1.9.19")
   implementation("org.aspectj:aspectjweaver:1.9.19")
   implementation("org.hyperledger.fabric-chaincode-java:fabric-chaincode-shim:2.5.0")
   implementation("org.hyperledger.fabric:fabric-protos:0.3.0")
-  implementation("org.json:json:20230227")
   implementation("org.projectlombok:lombok:1.18.28")
   implementation(files("libs/hypernate-0.1.0-alpha.jar"))
   // Included also as implementation dependency so shadow will package it

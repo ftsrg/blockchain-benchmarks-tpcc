@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 package hu.bme.mit.ftsrg.chaincode.tpcc.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jcabi.aspects.Loggable;
 import hu.bme.mit.ftsrg.chaincode.MethodLogger;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.entity.*;
@@ -38,7 +39,7 @@ class TPCCBusinessAPI {
    * @return The transaction output
    */
   static DeliveryOutput delivery(final TPCCContext ctx, final DeliveryInput input)
-      throws EntityNotFoundException, SerializationException {
+      throws EntityNotFoundException, SerializationException, JsonProcessingException {
 
     /*
      * [TPC-C 2.7.4.2]
@@ -303,7 +304,7 @@ class TPCCBusinessAPI {
    * @return The transaction output
    */
   static OrderStatusOutput orderStatus(final TPCCContext ctx, final OrderStatusInput input)
-      throws NotFoundException, EntityNotFoundException, SerializationException {
+      throws NotFoundException, EntityNotFoundException, SerializationException, JsonProcessingException {
     /*
      * [TPC-C 2.6.2.2]
      * For a given customer number (C_W_ID, C_D_ID, C_ID): ...
@@ -392,9 +393,9 @@ class TPCCBusinessAPI {
    */
   static PaymentOutput payment(final TPCCContext ctx, final PaymentInput input)
       throws EntityNotFoundException,
-          EntityExistsException,
-          NotFoundException,
-          SerializationException {
+      EntityExistsException,
+      NotFoundException,
+      SerializationException, JsonProcessingException {
     /*
      * [TPC-C 2.5.2.2]
      * For a given warehouse number (W_ID), district number (D_W_ID,
@@ -944,7 +945,7 @@ class TPCCBusinessAPI {
    */
   private static OrderLineData getOrderLineDataForOrder(
       final ContextWithRegistry ctx, final Order order, final int number)
-      throws EntityNotFoundException, SerializationException {
+      throws EntityNotFoundException, SerializationException, JsonProcessingException {
     final String paramString =
         methodLogger.generateParamsString(ctx.toString(), order.toString(), String.valueOf(number));
     methodLogger.logStart("getOrderLineDataForOrder", paramString);
@@ -977,7 +978,7 @@ class TPCCBusinessAPI {
       final int d_id,
       final int o_carrier_id,
       final String ol_delivery_d)
-      throws EntityNotFoundException, SerializationException {
+      throws EntityNotFoundException, SerializationException, JsonProcessingException {
     final String paramString =
         methodLogger.generateParamsString(
             methodLogger.generateParamsString(ctx, w_id, d_id, o_carrier_id), ol_delivery_d);
@@ -1354,7 +1355,7 @@ class TPCCBusinessAPI {
       final int c_d_id,
       final Integer c_id,
       final String c_last)
-      throws EntityNotFoundException, NotFoundException, SerializationException {
+      throws EntityNotFoundException, NotFoundException, SerializationException, JsonProcessingException {
     final String paramString =
         methodLogger.generateParamsString(
             methodLogger.generateParamsString(ctx, c_w_id, c_d_id, c_id), c_last);
@@ -1416,7 +1417,7 @@ class TPCCBusinessAPI {
    */
   private static Order getLastOrderOfCustomer(
       final ContextWithRegistry ctx, final int o_w_id, final int o_d_id, final int o_c_id)
-      throws NotFoundException, SerializationException {
+      throws NotFoundException, SerializationException, JsonProcessingException {
     final String paramString = methodLogger.generateParamsString(ctx, o_w_id, o_d_id, o_c_id);
     methodLogger.logStart("getLastOrderOfCustomer", paramString);
 
