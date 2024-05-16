@@ -8,8 +8,8 @@ import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
 /** Essentially, the WAREHOUSE table. */
-@DataType
 @EqualsAndHashCode
+@DataType
 public class Warehouse implements Entity {
 
   /** The warehouse ID. Primary key. */

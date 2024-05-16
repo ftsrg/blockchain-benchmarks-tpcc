@@ -8,8 +8,8 @@ import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
 /** Essentially, the NEW-ORDER table. */
-@DataType
 @EqualsAndHashCode
+@DataType
 public final class NewOrder implements Entity {
 
   /** The order ID. Primary key. */

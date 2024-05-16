@@ -6,8 +6,8 @@ import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
-@DataType
 @EqualsAndHashCode
+@DataType
 public final class StockLevelOutput {
 
   @Property(schema = {"minimum", "0"})

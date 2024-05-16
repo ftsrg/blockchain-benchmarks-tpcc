@@ -7,8 +7,8 @@ import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
-@DataType
 @EqualsAndHashCode
+@DataType
 public final class DeliveryOutput {
 
   @Property(schema = {"minimum", "0"})

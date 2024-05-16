@@ -1,14 +1,11 @@
 /* SPDX-License-Identifier: Apache-2.0 */
-package hu.bme.mit.ftsrg.chaincode.tpcc.api;
+package hu.bme.mit.ftsrg.chaincode.tpcc.middleware;
 
 import hu.bme.mit.ftsrg.hypernate.context.ContextWithRegistry;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
-
-import hu.bme.mit.ftsrg.hypernate.middleware.LoggingStubMiddleware;
-import hu.bme.mit.ftsrg.hypernate.middleware.WriteBackCachedChaincodeStubMiddleware;
 import org.hyperledger.fabric.shim.ChaincodeStub;
 
 /** Context specialized for the TPC-C chaincode implementation. */

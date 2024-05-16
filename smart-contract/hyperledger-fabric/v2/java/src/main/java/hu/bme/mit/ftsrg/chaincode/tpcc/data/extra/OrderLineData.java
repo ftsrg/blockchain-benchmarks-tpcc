@@ -10,8 +10,8 @@ import org.hyperledger.fabric.contract.annotation.Property;
 /**
  * Class to encapsulate the <code>order_lines</code> field's data of a {@link OrderStatusOutput}.
  */
-@DataType
 @EqualsAndHashCode
+@DataType
 public final class OrderLineData {
 
   @Property(schema = {"minimum", "0"})

@@ -7,8 +7,8 @@ import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
 /** Class to encapsulate the <code>items</code> field's data of a {@link NewOrderOutput}. */
-@DataType
 @EqualsAndHashCode
+@DataType
 public final class ItemsData {
 
   @Property(schema = {"minimum", "0"})

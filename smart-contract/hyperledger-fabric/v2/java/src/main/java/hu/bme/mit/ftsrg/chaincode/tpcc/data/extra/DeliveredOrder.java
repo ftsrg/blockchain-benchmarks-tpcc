@@ -7,8 +7,8 @@ import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
 /** Class to encapsulate the <code>delivered</code> field's data of a {@link DeliveryOutput}. */
-@DataType
 @EqualsAndHashCode
+@DataType
 public final class DeliveredOrder {
 
   @Property(schema = {"minimum", "0"})

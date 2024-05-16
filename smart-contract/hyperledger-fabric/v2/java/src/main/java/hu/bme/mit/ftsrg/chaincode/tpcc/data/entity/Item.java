@@ -8,8 +8,8 @@ import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
 /** Essentially, the ITEM table. */
-@DataType
 @EqualsAndHashCode
+@DataType
 public final class Item implements Entity {
 
   /** The ID of the item. Primary key. */
