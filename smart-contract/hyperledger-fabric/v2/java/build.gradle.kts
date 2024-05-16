@@ -42,7 +42,6 @@ dependencies {
   implementation("org.hyperledger.fabric-chaincode-java:fabric-chaincode-shim:2.5.0")
   implementation("org.hyperledger.fabric:fabric-protos:0.3.0")
   implementation(files("libs/hypernate-0.1.0-alpha.jar"))
-  // Included also as implementation dependency so shadow will package it
   implementation(files("$openJMLDir/jmlruntime.jar"))
 
   testImplementation("org.assertj:assertj-core:3.11.1")
