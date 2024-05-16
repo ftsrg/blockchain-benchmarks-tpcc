@@ -41,7 +41,6 @@ dependencies {
   implementation("org.aspectj:aspectjweaver:1.9.19")
   implementation("org.hyperledger.fabric-chaincode-java:fabric-chaincode-shim:2.5.0")
   implementation("org.hyperledger.fabric:fabric-protos:0.3.0")
-  implementation("org.projectlombok:lombok:1.18.28")
   implementation(files("libs/hypernate-0.1.0-alpha.jar"))
   // Included also as implementation dependency so shadow will package it
   implementation(files("$openJMLDir/jmlruntime.jar"))
