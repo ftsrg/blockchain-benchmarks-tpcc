@@ -8,8 +8,8 @@ import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
 /** Essentially, the DISTRICT table. */
+@DataType
 @EqualsAndHashCode
-@DataType()
 public final class District implements Entity {
 
   /** The district ID. Primary key. */

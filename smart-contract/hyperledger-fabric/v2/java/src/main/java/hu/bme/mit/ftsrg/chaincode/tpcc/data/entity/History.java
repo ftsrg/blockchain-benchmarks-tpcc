@@ -8,8 +8,8 @@ import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
 /** Essentially, the HISTORY table. */
-@EqualsAndHashCode
 @DataType
+@EqualsAndHashCode
 public final class History implements Entity {
 
   /** The customer ID. Primary key. */

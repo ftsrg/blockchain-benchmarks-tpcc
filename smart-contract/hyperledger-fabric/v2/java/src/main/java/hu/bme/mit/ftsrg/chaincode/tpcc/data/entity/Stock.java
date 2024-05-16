@@ -8,8 +8,8 @@ import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
 /** Essentially, the STOCK table. */
-@EqualsAndHashCode
 @DataType
+@EqualsAndHashCode
 public final class Stock implements Entity {
 
   /** The ID of the item associated with the stock. Primary key. */

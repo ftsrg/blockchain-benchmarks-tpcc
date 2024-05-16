@@ -7,7 +7,6 @@ import hu.bme.mit.ftsrg.chaincode.tpcc.data.entity.*;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.extra.*;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.input.*;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.output.*;
-import hu.bme.mit.ftsrg.chaincode.tpcc.middleware.TPCCContext;
 import hu.bme.mit.ftsrg.chaincode.tpcc.util.JSON;
 import hu.bme.mit.ftsrg.hypernate.Registry;
 import hu.bme.mit.ftsrg.hypernate.context.ContextWithRegistry;

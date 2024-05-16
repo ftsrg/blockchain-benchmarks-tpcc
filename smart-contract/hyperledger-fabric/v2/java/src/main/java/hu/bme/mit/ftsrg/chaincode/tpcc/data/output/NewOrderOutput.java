@@ -11,8 +11,8 @@ import lombok.EqualsAndHashCode;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
-@EqualsAndHashCode
 @DataType
+@EqualsAndHashCode
 public final class NewOrderOutput {
 
   @Property(schema = {"minimum", "0"})
