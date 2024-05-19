@@ -1,0 +1,27 @@
+= TPC-C Chaincode Benchmark using Artillery
+
+To run the benchmark, just execute
+
+[source,console]
+----
+$ pnpm start
+----
+
+(Or `npm start` or `yarn start`, depending on which package manager you prefer).
+
+
+== Benchmark configuration
+
+The benchmark is configured in `tpcc-load-test.yml` using https://www.artillery.io/[Artillery’s] constructs.
+
+.Some comments
+* TPC-C chaincode transactions may take a long time to execute.
+While Artillery is mainly designed to fire a lot of requests at high frequency (a stress test), we must ensure there is sufficient time between the requests.
+For example, for a _phase_ of _duration_ 30, setting _arrivalCount_ to 15 and _arrivalRate_ to 1 ensures a request every 2 seconds.
+
+
+== Results of benchmark runs
+
+You can find results of benchmark runs in `logs`.
+Normally, docker logs are collected and latency data is extracted into CSV files.
+The log files are not included in the repo as they are rather large.

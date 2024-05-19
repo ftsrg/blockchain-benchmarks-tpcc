@@ -1,0 +1,16 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+print "timestamp_ms_relative,transaction,time_ms\n";
+
+while (<>) {
+    print "$1,$2,$3\n" if ($_ =~ /
+	^(\d+)
+	.*
+        \#(newOrder|payment|orderStatus|delivery|stockLevel)
+	.*
+	in\ (\d+(?:\.\d+)?)ms
+    /x);
+}

@@ -1,0 +1,129 @@
+config:
+
+  target: 'http://localhost:8801'
+
+  # if arrivalCount = duration / 2, artillery sends requests every 2s
+  phases:
+    - duration: 30
+      arrivalRate: 1
+      arrivalCount: 15
+      name: Warm up phase
+    - duration: 120
+      arrivalRate: 1
+      arrivalCount: 60
+      name: Load phase
+
+  http:
+    defaults:
+      timeout: 60
+
+
+before:
+  flow:
+    - log: Get bearer token
+    - post:
+        url: /user/enroll
+        json:
+          id: admin
+          secret: adminpw
+        capture:
+          - json: $.token
+            as: token
+
+    - log: Initialize ledger
+    - post:
+        url: /invoke/my-channel1/tpcc
+        headers:
+          Authorization: 'Bearer {{ token }}'
+        json:
+          method: init
+          args: []
+
+
+scenarios:
+  - flow:
+
+      - log: New-Order
+      - post:
+          url: /invoke/my-channel1/tpcc
+          headers:
+            Authorization: 'Bearer {{ token }}'
+          json:
+            method: newOrder
+            args: 
+              - |-
+                {
+                  "w_id": 1,
+                  "d_id": 1,
+                  "c_id": 1,
+                  "o_entry_d": "20110101T081500Z",
+                  "i_ids": [1, 2],
+                  "i_w_ids": [1, 1],
+                  "i_qtys": [1, 1]
+                }
+
+      - log: Payment
+      - post:
+          url: /invoke/my-channel1/tpcc
+          headers:
+            Authorization: 'Bearer {{ token }}'
+          json:
+            method: payment
+            args: 
+              - |-
+                {
+                  "w_id": 1,
+                  "d_id": 1,
+                  "h_amount": 100,
+                  "c_w_id": 1,
+                  "c_d_id": 1,
+                  "c_id": 1,
+                  "c_last": "YONG",
+                  "h_date": "12-01-2=23"
+                }
+
+      - log: Delivery
+      - post:
+          url: /invoke/my-channel1/tpcc
+          headers:
+            Authorization: 'Bearer {{ token }}'
+          json:
+            method: delivery
+            args:
+              - |-
+                {
+                  "w_id": 1,
+                  "o_carrier_id": 1,
+                  "ol_delivery_d": "12-12-2022"
+                }
+
+      - log: Order-Status
+      - post:
+          url: /invoke/my-channel1/tpcc
+          headers:
+            Authorization: 'Bearer {{ token }}'
+          json:
+            method: orderStatus
+            args:
+              - |-
+                {
+                  "w_id": 1,
+                  "d_id": 1,
+                  "c_id": 1,
+                  "c_last": "Yong"
+                }
+
+      - log: Stock-Level
+      - post:
+          url: /invoke/my-channel1/tpcc
+          headers:
+            Authorization: 'Bearer {{ token }}'
+          json:
+            method: stockLevel
+            args:
+              - |-
+                {
+                  "w_id": 1,
+                  "d_id": 1,
+                  "threshold": 5
+              }

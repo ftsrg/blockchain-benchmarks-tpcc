@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "start": "artillery run tpcc-load-test.yml"
+  },
+  "dependencies": {
+    "artillery": "^2.0.12"
+  }
+}

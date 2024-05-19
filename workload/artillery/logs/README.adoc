@@ -1,0 +1,2 @@
+You can use the generate_csv script to extract data from docker logs.
+You need Perl to run it.
