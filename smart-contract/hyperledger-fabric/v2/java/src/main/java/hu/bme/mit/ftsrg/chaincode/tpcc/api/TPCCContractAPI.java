@@ -71,7 +71,10 @@ public final class TPCCContractAPI implements ContractInterface {
    */
   @Transaction(intent = Transaction.TYPE.SUBMIT)
   public String newOrder(final TPCCContext ctx, final String parameters)
-      throws EntityNotFoundException, EntityExistsException, SerializationException, JsonProcessingException {
+      throws EntityNotFoundException,
+          EntityExistsException,
+          SerializationException,
+          JsonProcessingException {
     return JSON.serialize(api.newOrder(ctx, JSON.deserialize(parameters, NewOrderInput.class)));
   }
 
@@ -84,8 +87,12 @@ public final class TPCCContractAPI implements ContractInterface {
    */
   @Transaction(intent = Transaction.TYPE.EVALUATE)
   public String orderStatus(final TPCCContext ctx, final String parameters)
-      throws NotFoundException, EntityNotFoundException, SerializationException, JsonProcessingException {
-    return JSON.serialize(api.orderStatus(ctx, JSON.deserialize(parameters, OrderStatusInput.class)));
+      throws NotFoundException,
+          EntityNotFoundException,
+          SerializationException,
+          JsonProcessingException {
+    return JSON.serialize(
+        api.orderStatus(ctx, JSON.deserialize(parameters, OrderStatusInput.class)));
   }
 
   /**
@@ -100,7 +107,11 @@ public final class TPCCContractAPI implements ContractInterface {
    */
   @Transaction(intent = Transaction.TYPE.SUBMIT)
   public String payment(final TPCCContext ctx, final String parameters)
-      throws EntityNotFoundException, EntityExistsException, NotFoundException, SerializationException, JsonProcessingException {
+      throws EntityNotFoundException,
+          EntityExistsException,
+          NotFoundException,
+          SerializationException,
+          JsonProcessingException {
     return JSON.serialize(api.payment(ctx, JSON.deserialize(parameters, PaymentInput.class)));
   }
 
@@ -115,7 +126,10 @@ public final class TPCCContractAPI implements ContractInterface {
    */
   @Transaction(intent = Transaction.TYPE.EVALUATE)
   public String stockLevel(final TPCCContext ctx, final String parameters)
-      throws EntityNotFoundException, NotFoundException, SerializationException, JsonProcessingException {
+      throws EntityNotFoundException,
+          NotFoundException,
+          SerializationException,
+          JsonProcessingException {
     return JSON.serialize(api.stockLevel(ctx, JSON.deserialize(parameters, StockLevelInput.class)));
   }
 
@@ -171,7 +185,8 @@ public final class TPCCContractAPI implements ContractInterface {
    * @return The item with matching I_ID
    */
   @Transaction(intent = Transaction.TYPE.EVALUATE)
-  public String readItem(final TPCCContext ctx, final int i_id) throws EntityNotFoundException, SerializationException, JsonProcessingException {
+  public String readItem(final TPCCContext ctx, final int i_id)
+      throws EntityNotFoundException, SerializationException, JsonProcessingException {
     final Item item = Item.builder().id(i_id).build();
     ctx.getRegistry().read(item);
     ctx.commit();
@@ -228,7 +243,8 @@ public final class TPCCContractAPI implements ContractInterface {
   // spotless:on
   @Transaction(intent = Transaction.TYPE.EVALUATE)
   public String OJMLTEST__getCustomer(
-      final TPCCContext ctx, final int c_w_id, final int c_d_id, final int c_id) throws JsonProcessingException {
+      final TPCCContext ctx, final int c_w_id, final int c_d_id, final int c_id)
+      throws JsonProcessingException {
     final Customer customer = Customer.builder().w_id(c_w_id).d_id(c_d_id).id(c_id).build();
     ctx.commit();
     return JSON.serialize(customer);
