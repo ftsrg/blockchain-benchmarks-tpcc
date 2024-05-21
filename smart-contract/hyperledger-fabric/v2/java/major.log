@@ -1,0 +1,10 @@
+[05/24 22:23:00] [INFO   ] org.mutationtesting.major.plugin.MajorPluginTaskListener.<init>:
+    Created MajorPluginTaskListener with options: [export.mutants, mml:tpcc.mml.bin]
+[05/24 22:23:04] [INFO   ] org.mutationtesting.major.mutation.Mutator.initOperatorSymbols:
+    Initializing operator symbols for opcode mapping
+[05/24 22:23:04] [INFO   ] org.mutationtesting.major.mutation.Mutator.mutateTree:
+    Mutating tree: Env[AttrContext[Scope[super, this]],outer=Env[AttrContext[Scope[hu.bme.mit.ftsrg.chaincode.tpcc.api.NotFoundException]]]]
+[05/24 22:23:04] [INFO   ] org.mutationtesting.major.mutation.Mutator.visitClassDef:
+    CLASS: hu.bme.mit.ftsrg.chaincode.tpcc.api.NotFoundException
+[05/24 22:23:04] [INFO   ] org.mutationtesting.major.mutation.Mutator.visitMethodDef:
+    METHOD: <init>([String message])null
