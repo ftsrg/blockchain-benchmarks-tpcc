@@ -494,7 +494,7 @@ class TPCCBusinessAPI {
        */
       final String historyInfo =
           generateHistoryInformation(customer, warehouse, district, input.getH_amount());
-      customer.setC_data("%s|%s".formatted(historyInfo, customer.getC_data()));
+      customer.setC_data(String.format("%s|%s", historyInfo, customer.getC_data()));
       logger.debug("HISTORY information: '{}' inserted at the left of the C_DATA", historyInfo);
       /*
        * [TPC-C 2.5.2.2 (6) (continued)]
@@ -518,7 +518,7 @@ class TPCCBusinessAPI {
      * 4 spaces.
      */
     final String h_data =
-        "%s%s%s".formatted(warehouse.getW_name(), " ".repeat(4), district.getD_name());
+        String.format("%s%s%s", warehouse.getW_name(), "    ", district.getD_name());
 
     /*
      * [TPC-C 2.5.2.2 (8)]
@@ -903,8 +903,7 @@ class TPCCBusinessAPI {
       final Warehouse warehouse,
       final District district,
       final double h_amount) {
-    return "%d %d %d %d %d %g"
-        .formatted(
+    return String.format("%d %d %d %d %d %g",
             customer.getC_id(),
             customer.getC_d_id(),
             customer.getC_w_id(),
@@ -1327,7 +1326,7 @@ class TPCCBusinessAPI {
         }
       }
       if (matchingCustomers.isEmpty()) {
-        throw new NotFoundException("Customer matching last name '%s' not found".formatted(c_last));
+        throw new NotFoundException(String.format("Customer matching last name '%s' not found", c_last));
       }
       matchingCustomers.sort(new CustomerComparator());
 

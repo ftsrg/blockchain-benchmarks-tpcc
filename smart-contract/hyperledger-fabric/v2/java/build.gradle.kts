@@ -8,6 +8,7 @@ plugins {
   id("io.freefair.lombok") version "8.6"
   id("io.freefair.aspectj.post-compile-weaving") version "8.6"
   id("hu.bme.mit.ftsrg.gradle.openjml.openjml")
+  id("hu.bme.mit.ftsrg.gradle.major.major")
 }
 
 java { toolchain { languageVersion.set(JavaLanguageVersion.of(17)) } }
@@ -28,7 +29,7 @@ dependencies {
   implementation("com.jcabi:jcabi-aspects:0.26.0")
   implementation("org.hyperledger.fabric-chaincode-java:fabric-chaincode-shim:2.5.0")
   implementation("org.hyperledger.fabric:fabric-protos:0.3.0")
-  implementation(files("libs/hypernate-0.1.0-alpha.jar"))
+  implementation(files("libs/hypernate-0.1.0-alpha-java8.jar"))
 
   aspect("com.jcabi:jcabi-aspects:0.26.0")
 
