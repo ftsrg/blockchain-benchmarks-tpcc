@@ -1,0 +1,35 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+package hu.bme.mit.ftsrg.chaincode.tpcc.api;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.jcabi.aspects.Loggable;
+import hu.bme.mit.ftsrg.chaincode.tpcc.middleware.TPCCContext;
+import org.hyperledger.fabric.contract.ContractInterface;
+import org.hyperledger.fabric.contract.annotation.Contact;
+import org.hyperledger.fabric.contract.annotation.Contract;
+import org.hyperledger.fabric.contract.annotation.Default;
+import org.hyperledger.fabric.contract.annotation.Info;
+import org.hyperledger.fabric.contract.annotation.License;
+import org.hyperledger.fabric.contract.annotation.Transaction;
+
+@Contract(
+    name = "TPCC",
+    info =
+    @Info(
+        title = "tpcc contract",
+        description = "My Smart Contract",
+        version = "0.0.1",
+        license = @License(name = "Apache-2.0"),
+        contact =
+        @Contact(email = "tnnopcc@example.com", name = "tpcc", url = "http://tpcc.me")))
+
+@Default
+@Loggable(Loggable.DEBUG)
+public final class TPCCContractAPI implements ContractInterface {
+
+  /*@
+    @ requires c_id < 2;
+    @*/
+  @Transaction(intent = Transaction.TYPE.EVALUATE)
+  public String OJMLTEST__getCustomer(final TPCCContext ctx, final int c_w_id, final int c_d_id, final int c_id) throws JsonProcessingException;
+}
