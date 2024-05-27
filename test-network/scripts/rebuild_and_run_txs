@@ -1,5 +1,0 @@
-#!/bin/sh -euC
-
-scripts_dir=$(dirname "$(readlink -f "$0")")
-"$scripts_dir/../fabric-docker.sh" reset -b
-"$scripts_dir/init_and_run_txs"

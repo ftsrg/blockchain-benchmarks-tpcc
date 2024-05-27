@@ -1,0 +1,67 @@
+#!/bin/sh
+
+SC_DIR="${SC_DIR:-../smart-contract/hyperledger-fabric/v2/java}"
+LOG_DIR="${LOG_DIR:-logs}"
+ENDPOINT="${ENDPOINT:-http://localhost:8801}"
+
+token=
+
+get_token()
+{
+	curl -sv \
+	    --url "$ENDPOINT/user/enroll" \
+	    --json '{ "id": "admin", "secret": "adminpw" }' \
+	| jq -r .token
+}
+
+invoke()
+{
+	method=$1
+	args=$2
+
+	[ -n "$token" ] || token=$(get_token)
+	curl -sv \
+	    --url "$ENDPOINT/invoke/my-channel1/tpcc" \
+	    --header "Authorization: Bearer $token" \
+	    --json @- <<EOF
+{ "method": "$method", "args": ["$(echo "$args" | sed 's/"/\\"/g')"] }
+EOF
+	printf '\n\n'
+}
+
+print_banner()
+{
+	printf '>>>>>>>>>>>>>>>>[ %s ]>>>>>>>>>>>>>>>>n' "$1"
+}
+
+test_invocations()
+{
+	print_banner INIT
+	invoke init
+
+	print_banner NEW-ORDER
+	invoke newOrder '{ "w_id": 1, "d_id": 1, "c_id": 1, "o_entry_d": "20110101T081500Z", "i_ids": [1, 2], "i_w_ids": [1, 1], "i_qtys": [1, 1] }'
+
+	print_banner PAYMENT
+	invoke payment '{ "w_id": 1, "d_id": 1, "h_amount": 100, "c_w_id": 1, "c_d_id": 1, "c_id": 1, "c_last": "YONG", "h_date": "20240525T12:00:00Z" }'
+
+	print_banner DELIVERY
+	invoke delivery '{ "w_id": 1, "o_carrier_id": 1, "ol_delivery_d": "2024-05-25" }'
+
+	print_banner ORDER-STATUS
+	invoke orderStatus '{ "w_id": 1, "d_id": 1, "c_id": 1, "c_last": "Yong" }'
+
+	print_banner STOCK-LEVEL
+	invoke stockLevel '{ "w_id": 1, "d_id": 1, "threshold": 5 }'
+}
+
+
+mkdir -pv "$LOG_DIR/"
+for mutant in "$SC_DIR"/mutants/*; do
+	print_banner "TRYING MUTANT $mutant"
+	mkdir -pv "$LOG_DIR/$mutant"
+	cp -Rv "$mutant/hu/" "$SC_DIR/src/main/java/"
+	./fabric-docker.sh reset --build 2>&1 | tee "$LOG_DIR/$mutant/build.log"
+	test_invocations 2>&1 | tee "$LOG_DIR/$mutant/invocations.log"
+	docker logs tpcc >"$LOG_DIR/$mutant/tpcc.log" 2>&1
+done
