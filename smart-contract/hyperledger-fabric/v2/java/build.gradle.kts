@@ -70,3 +70,9 @@ spotless {
   }
   kotlinGradle { ktfmt() }
 }
+
+tasks.named<JavaExec>("run") {
+  doFirst {
+    args = listOf("-a", "127.0.0.1:8541", "-i", "tpcc:0.1.0")
+  }
+}
