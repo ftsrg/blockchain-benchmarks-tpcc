@@ -1,15 +1,23 @@
 /* SPDX-License-Identifier: Apache-2.0 */
+package hu.bme.mit.ftsrg.chaincode.tpcc.api;
 
-package hu.bme.mit.ftsrg.chaincode.tpcc;
-
-import hu.bme.mit.ftsrg.hypernate.entity.EntityExistsException;
-import hu.bme.mit.ftsrg.hypernate.entity.EntityNotFoundException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.jcabi.aspects.Loggable;
+import hu.bme.mit.ftsrg.chaincode.tpcc.data.entity.*;
+import hu.bme.mit.ftsrg.chaincode.tpcc.data.extra.*;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.input.*;
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.output.*;
 import hu.bme.mit.ftsrg.chaincode.tpcc.middleware.TPCCContext;
-import org.hyperledger.fabric.contract.ContractInterface;
+import hu.bme.mit.ftsrg.hypernate.Registry;
+import hu.bme.mit.ftsrg.hypernate.context.ContextWithRegistry;
+import hu.bme.mit.ftsrg.hypernate.entity.EntityExistsException;
+import hu.bme.mit.ftsrg.hypernate.entity.EntityNotFoundException;
+import hu.bme.mit.ftsrg.hypernate.entity.SerializationException;
+import java.util.*;
+import org.slf4j.Logger;
 
-public final class TPCC implements ContractInterface {
+@Loggable(Loggable.DEBUG)
+class TPCCBusinessAPI {
 
   /*@
     @ ensures \result.getW_id() == input.getW_id(); // C.TXIO:DELIVERY:EQ_W_ID
@@ -18,8 +26,8 @@ public final class TPCC implements ContractInterface {
     @ ensures \result.getSkipped() >= 0 & \result.getSkipped() <= 10; // C.TXIO:DELIVERY:LIM_SKIPPED
     @ ensures \result.getSkipped() == 10 - \result.getDelivered().size(); // C.TXIO:DELIVERY:FORM_SKIPPED
     @*/
-  private DeliveryOutput delivery(final TPCCContext ctx, final DeliveryInput input)
-      throws EntityNotFoundException;
+  DeliveryOutput delivery(final TPCCContext ctx, final DeliveryInput input)
+      throws EntityNotFoundException, SerializationException, JsonProcessingException;
 
   /*@
     @ ensures \result.getW_id() == input.getW_id(); // C.TXIO:NEWORDER:EQ_W_ID
@@ -28,16 +36,16 @@ public final class TPCC implements ContractInterface {
     @ ensures \result.getO_ol_cnt() == input.getI_ids().length; // C.TXIO:NEWORDER:SIZE_OL_CNT
     @ ensures \result.getItems().size() == input.getI_ids().length; // C.TXIO:NEWORDER:SIZE_ITEMS
     @*/
-  private NewOrderOutput newOrder(final TPCCContext ctx, final NewOrderInput input)
-      throws EntityNotFoundException, EntityExistsException;
+  NewOrderOutput newOrder(final TPCCContext ctx, final NewOrderInput input)
+      throws EntityNotFoundException, EntityExistsException, SerializationException;
 
   /*@
     @ ensures \result.getW_id() == input.getW_id(); // C.TXIO:ORDERSTATUS:EQ_W_ID
     @ ensures \result.getD_id() == input.getD_id(); // C.TXIO:ORDERSTATUS:EQ_D_ID
     @ ensures \result.getC_id() == input.getC_id(); // C.TXIO:ORDERSTATUS:EQ_D_ID
     @*/
-  private OrderStatusOutput orderStatus(final TPCCContext ctx, final OrderStatusInput input)
-      throws NotFoundException, EntityNotFoundException;
+  OrderStatusOutput orderStatus(final TPCCContext ctx, final OrderStatusInput input)
+      throws NotFoundException, EntityNotFoundException, SerializationException, JsonProcessingException;
 
   /*@
     @ ensures \result.getW_id() == input.getW_id(); // C.TXIO:PAYMENT:EQ_W_ID
@@ -46,8 +54,8 @@ public final class TPCC implements ContractInterface {
     @ ensures \result.getH_amount() == input.getH_amount(); // C.TXIO:PAYMENT:EQ_H_AMOUNT
     @ ensures \result.getH_date() == input.getH_date(); // C.TXIO:PAYMENT:EQ_H_DATE
     @*/
-  private PaymentOutput payment(final TPCCContext ctx, final PaymentInput input)
-      throws EntityNotFoundException, EntityExistsException, NotFoundException;
+  PaymentOutput payment(final TPCCContext ctx, final PaymentInput input)
+      throws EntityNotFoundException, EntityExistsException, NotFoundException, SerializationException, JsonProcessingException;
 
   /*@
     @ ensures \result.getW_id() == input.getW_id(); // C.TXIO:STOCKLEVEL:EQ_W_ID
@@ -55,11 +63,8 @@ public final class TPCC implements ContractInterface {
     @ ensures \result.getThreshold() == input.getThreshold(); // C.TXIO:STOCKLEVEL:EQ_THRESHOLD
     @ ensures \result.getLow_stock() >= 0; // C.TXIO:STOCKLEVEL:LIM_LOW_STOCK
     @*/
-  private StockLevelOutput stockLevel(final TPCCContext ctx, final StockLevelInput input)
-      throws EntityNotFoundException, NotFoundException;
+  StockLevelOutput stockLevel(final TPCCContext ctx, final StockLevelInput input)
+      throws EntityNotFoundException, NotFoundException, SerializationException;
 
-  /*@
-    @ requires c_id < 2;
-    @*/
-  public String OJMLTEST__getCustomer(final TPCCContext ctx, final int c_w_id, final int c_d_id, final int c_id);
+  void init(final TPCCContext ctx) throws EntityExistsException;
 }
