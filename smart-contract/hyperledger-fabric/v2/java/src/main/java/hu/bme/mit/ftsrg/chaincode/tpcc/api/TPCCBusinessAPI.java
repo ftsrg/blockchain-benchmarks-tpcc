@@ -301,7 +301,10 @@ class TPCCBusinessAPI {
    * @return The transaction output
    */
   OrderStatusOutput orderStatus(final TPCCContext ctx, final OrderStatusInput input)
-      throws NotFoundException, EntityNotFoundException, SerializationException, JsonProcessingException {
+      throws NotFoundException,
+          EntityNotFoundException,
+          SerializationException,
+          JsonProcessingException {
     /*
      * [TPC-C 2.6.2.2]
      * For a given customer number (C_W_ID, C_D_ID, C_ID): ...
@@ -390,9 +393,10 @@ class TPCCBusinessAPI {
    */
   PaymentOutput payment(final TPCCContext ctx, final PaymentInput input)
       throws EntityNotFoundException,
-      EntityExistsException,
-      NotFoundException,
-      SerializationException, JsonProcessingException {
+          EntityExistsException,
+          NotFoundException,
+          SerializationException,
+          JsonProcessingException {
     /*
      * [TPC-C 2.5.2.2]
      * For a given warehouse number (W_ID), district number (D_W_ID,
@@ -1299,7 +1303,10 @@ class TPCCBusinessAPI {
       final int c_d_id,
       final Integer c_id,
       final String c_last)
-      throws EntityNotFoundException, NotFoundException, SerializationException, JsonProcessingException {
+      throws EntityNotFoundException,
+          NotFoundException,
+          SerializationException,
+          JsonProcessingException {
     if (c_id == null && c_last == null) {
       throw new IllegalArgumentException("At least one of c_id and c_last must be specified");
     }

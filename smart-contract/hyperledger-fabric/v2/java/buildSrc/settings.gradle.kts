@@ -1,8 +1,10 @@
 pluginManagement {
-    repositories {
-        gradlePluginPortal()
-        mavenCentral()
-    }
+  repositories {
+    gradlePluginPortal()
+    mavenCentral()
+  }
 }
 
-rootProject.name = "toolkit"
+plugins {
+  id("org.gradle.toolchains.foojay-resolver-convention") version "0.7.0"
+}

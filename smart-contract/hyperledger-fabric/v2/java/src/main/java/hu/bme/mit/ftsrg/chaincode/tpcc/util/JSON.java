@@ -11,7 +11,8 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public final class JSON {
 
-  private static final ObjectMapper mapper = JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
+  private static final ObjectMapper mapper =
+      JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
 
   /**
    * Serialize an object to a JSON string.
@@ -30,7 +31,8 @@ public final class JSON {
    * @param clazz The type of the object to interpret the JSON as
    * @return The resulting object
    */
-  public static <T> T deserialize(final String json, final Class<T> clazz) throws JsonProcessingException {
+  public static <T> T deserialize(final String json, final Class<T> clazz)
+      throws JsonProcessingException {
     return mapper.readValue(json, clazz);
   }
 }
