@@ -33,9 +33,10 @@ dependencies {
 
   aspect("com.jcabi:jcabi-aspects:0.26.0")
 
-  testImplementation("org.assertj:assertj-core:3.11.1")
-  testImplementation("org.junit.jupiter:junit-jupiter:5.4.2")
-  testImplementation("org.mockito:mockito-core:2.28.2")
+  testImplementation("org.assertj:assertj-core:3.26.0")
+  testImplementation("org.junit.jupiter:junit-jupiter:5.11.0-M2")
+  testImplementation("org.mockito:mockito-core:5.12.0")
+  testImplementation("org.mockito:mockito-junit-jupiter:5.12.0")
 }
 
 application { mainClass.set("org.hyperledger.fabric.contract.ContractRouter") }
@@ -51,6 +52,10 @@ tasks.test {
   testLogging {
     showExceptions = true
     events = setOf(TestLogEvent.FAILED, TestLogEvent.PASSED, TestLogEvent.SKIPPED)
+  }
+
+  doFirst {
+    jvmArgs = listOf("-Dorg.jmlspecs.openjml.rac=exception")
   }
 }
 
@@ -73,6 +78,7 @@ spotless {
 
 tasks.named<JavaExec>("run") {
   doFirst {
+    jvmArgs = listOf("-Dorg.jmlspecs.openjml.rac=exception")
     args = listOf("-a", "127.0.0.1:8541", "-i", "tpcc:0.1.0")
   }
 }

@@ -9,6 +9,12 @@ import org.hyperledger.fabric.contract.annotation.Property;
 @DataType
 public final class DeliveryInput {
 
+  public DeliveryInput(final int w_id, final int o_carrier_id, final String ol_delivery_d) {
+    this.w_id = w_id;
+    this.o_carrier_id = o_carrier_id;
+    this.ol_delivery_d = ol_delivery_d;
+  }
+
   /** The warehouse ID. */
   @Property(schema = {"minimum", "0"})
   private int w_id;

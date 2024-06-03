@@ -1,0 +1,532 @@
+>>>>>>>>>>>>>>>>[ INIT ]>>>>>>>>>>>>>>>>
+Token missing; requesting one...
+== Info: processing: http://localhost:8801/invoke/my-channel1/tpcc
+== Info:   Trying [::1]:8801...
+== Info: Connected to localhost (::1) port 8801
+=> Send header, 232 bytes (0xe8)
+0000: POST /invoke/my-channel1/tpcc HTTP/1.1
+0028: Host: localhost:8801
+003e: User-Agent: curl/8.2.1
+0056: Authorization: Bearer 7fc32bc0-1e0d-11ef-8a89-a13b04c78ceb-admin
+0098: Content-Type: application/json
+00b8: Accept: application/json
+00d2: Content-Length: 35
+00e6: 
+=> Send data, 35 bytes (0x23)
+0000: { "method": "init", "args": [""] }.
+<= Recv header, 26 bytes (0x1a)
+0000: HTTP/1.1 400 Bad Request
+<= Recv header, 23 bytes (0x17)
+0000: X-Powered-By: Express
+<= Recv header, 32 bytes (0x20)
+0000: Access-Control-Allow-Origin: *
+<= Recv header, 25 bytes (0x19)
+0000: Cache-Control: no-store
+<= Recv header, 47 bytes (0x2f)
+0000: Content-Type: application/json; charset=utf-8
+<= Recv header, 21 bytes (0x15)
+0000: Content-Length: 107
+<= Recv header, 42 bytes (0x2a)
+0000: ETag: W/"6b-Ybo87XZYi9Lw8gEyuo4vgPxWICA"
+<= Recv header, 37 bytes (0x25)
+0000: Date: Wed, 29 May 2024 22:48:00 GMT
+<= Recv header, 24 bytes (0x18)
+0000: Connection: keep-alive
+<= Recv header, 23 bytes (0x17)
+0000: Keep-Alive: timeout=5
+<= Recv header, 2 bytes (0x2)
+0000: 
+<= Recv data, 107 bytes (0x6b)
+0000: {"message":"DiscoveryService: tpcc error: failed constructing de
+0040: scriptor for chaincodes:<name:\"tpcc\" > "}
+{"message":"DiscoveryService: tpcc error: failed constructing descriptor for chaincodes:<name:\"tpcc\" > "}== Info: Connection #0 to host localhost left intact
+
+
+== Info: processing: http://localhost:8801/invoke/my-channel1/tpcc
+== Info:   Trying [::1]:8801...
+== Info: Connected to localhost (::1) port 8801
+=> Send header, 232 bytes (0xe8)
+0000: POST /invoke/my-channel1/tpcc HTTP/1.1
+0028: Host: localhost:8801
+003e: User-Agent: curl/8.2.1
+0056: Authorization: Bearer 7fc32bc0-1e0d-11ef-8a89-a13b04c78ceb-admin
+0098: Content-Type: application/json
+00b8: Accept: application/json
+00d2: Content-Length: 35
+00e6: 
+=> Send data, 35 bytes (0x23)
+0000: { "method": "init", "args": [""] }.
+<= Recv header, 17 bytes (0x11)
+0000: HTTP/1.1 200 OK
+<= Recv header, 23 bytes (0x17)
+0000: X-Powered-By: Express
+<= Recv header, 32 bytes (0x20)
+0000: Access-Control-Allow-Origin: *
+<= Recv header, 25 bytes (0x19)
+0000: Cache-Control: no-store
+<= Recv header, 47 bytes (0x2f)
+0000: Content-Type: application/json; charset=utf-8
+<= Recv header, 20 bytes (0x14)
+0000: Content-Length: 15
+<= Recv header, 41 bytes (0x29)
+0000: ETag: W/"f-Es7y69MQcDoZ21Nuo6dIN0WD6fY"
+<= Recv header, 37 bytes (0x25)
+0000: Date: Wed, 29 May 2024 22:48:11 GMT
+<= Recv header, 24 bytes (0x18)
+0000: Connection: keep-alive
+<= Recv header, 23 bytes (0x17)
+0000: Keep-Alive: timeout=5
+<= Recv header, 2 bytes (0x2)
+0000: 
+<= Recv data, 15 bytes (0xf)
+0000: {"response":""}
+{"response":""}== Info: Connection #0 to host localhost left intact
+
+
+>>>>>>>>>>>>>>>>[ NEW-ORDER ]>>>>>>>>>>>>>>>>
+== Info: processing: http://localhost:8801/invoke/my-channel1/tpcc
+== Info:   Trying [::1]:8801...
+== Info: Connected to localhost (::1) port 8801
+=> Send header, 233 bytes (0xe9)
+0000: POST /invoke/my-channel1/tpcc HTTP/1.1
+0028: Host: localhost:8801
+003e: User-Agent: curl/8.2.1
+0056: Authorization: Bearer 7fc32bc0-1e0d-11ef-8a89-a13b04c78ceb-admin
+0098: Content-Type: application/json
+00b8: Accept: application/json
+00d2: Content-Length: 177
+00e7: 
+=> Send data, 177 bytes (0xb1)
+0000: { "method": "newOrder", "args": ["{ \"w_id\": 1, \"d_id\": 1, \"
+0040: c_id\": 1, \"o_entry_d\": \"20110101T081500Z\", \"i_ids\": [1, 2
+0080: ], \"i_w_ids\": [1, 1], \"i_qtys\": [1, 1] }"] }.
+<= Recv header, 26 bytes (0x1a)
+0000: HTTP/1.1 400 Bad Request
+<= Recv header, 23 bytes (0x17)
+0000: X-Powered-By: Express
+<= Recv header, 32 bytes (0x20)
+0000: Access-Control-Allow-Origin: *
+<= Recv header, 25 bytes (0x19)
+0000: Cache-Control: no-store
+<= Recv header, 47 bytes (0x2f)
+0000: Content-Type: application/json; charset=utf-8
+<= Recv header, 21 bytes (0x15)
+0000: Content-Length: 154
+<= Recv header, 42 bytes (0x2a)
+0000: ETag: W/"9a-HN0uJO6jj4XShhrao4QU2PF6N78"
+<= Recv header, 37 bytes (0x25)
+0000: Date: Wed, 29 May 2024 22:48:12 GMT
+<= Recv header, 24 bytes (0x18)
+0000: Connection: keep-alive
+<= Recv header, 23 bytes (0x17)
+0000: Keep-Alive: timeout=5
+<= Recv header, 2 bytes (0x2)
+0000: 
+<= Recv data, 154 bytes (0x9a)
+0000: {"message":"No valid responses from any peers. Errors:\n    peer
+0040: =peer0.org1.example.com:7041, status=500, message=Error during c
+0080: ontract method execution"}
+{"message":"No valid responses from any peers. Errors:\n    peer=peer0.org1.example.com:7041, status=500, message=Error during contract method execution"}== Info: Connection #0 to host localhost left intact
+
+
+== Info: processing: http://localhost:8801/invoke/my-channel1/tpcc
+== Info:   Trying [::1]:8801...
+== Info: Connected to localhost (::1) port 8801
+=> Send header, 233 bytes (0xe9)
+0000: POST /invoke/my-channel1/tpcc HTTP/1.1
+0028: Host: localhost:8801
+003e: User-Agent: curl/8.2.1
+0056: Authorization: Bearer 7fc32bc0-1e0d-11ef-8a89-a13b04c78ceb-admin
+0098: Content-Type: application/json
+00b8: Accept: application/json
+00d2: Content-Length: 177
+00e7: 
+=> Send data, 177 bytes (0xb1)
+0000: { "method": "newOrder", "args": ["{ \"w_id\": 1, \"d_id\": 1, \"
+0040: c_id\": 1, \"o_entry_d\": \"20110101T081500Z\", \"i_ids\": [1, 2
+0080: ], \"i_w_ids\": [1, 1], \"i_qtys\": [1, 1] }"] }.
+<= Recv header, 26 bytes (0x1a)
+0000: HTTP/1.1 400 Bad Request
+<= Recv header, 23 bytes (0x17)
+0000: X-Powered-By: Express
+<= Recv header, 32 bytes (0x20)
+0000: Access-Control-Allow-Origin: *
+<= Recv header, 25 bytes (0x19)
+0000: Cache-Control: no-store
+<= Recv header, 47 bytes (0x2f)
+0000: Content-Type: application/json; charset=utf-8
+<= Recv header, 21 bytes (0x15)
+0000: Content-Length: 154
+<= Recv header, 42 bytes (0x2a)
+0000: ETag: W/"9a-HN0uJO6jj4XShhrao4QU2PF6N78"
+<= Recv header, 37 bytes (0x25)
+0000: Date: Wed, 29 May 2024 22:48:12 GMT
+<= Recv header, 24 bytes (0x18)
+0000: Connection: keep-alive
+<= Recv header, 23 bytes (0x17)
+0000: Keep-Alive: timeout=5
+<= Recv header, 2 bytes (0x2)
+0000: 
+<= Recv data, 154 bytes (0x9a)
+0000: {"message":"No valid responses from any peers. Errors:\n    peer
+0040: =peer0.org1.example.com:7041, status=500, message=Error during c
+0080: ontract method execution"}
+{"message":"No valid responses from any peers. Errors:\n    peer=peer0.org1.example.com:7041, status=500, message=Error during contract method execution"}== Info: Connection #0 to host localhost left intact
+
+
+>>>>>>>>>>>>>>>>[ PAYMENT ]>>>>>>>>>>>>>>>>
+== Info: processing: http://localhost:8801/invoke/my-channel1/tpcc
+== Info:   Trying [::1]:8801...
+== Info: Connected to localhost (::1) port 8801
+=> Send header, 233 bytes (0xe9)
+0000: POST /invoke/my-channel1/tpcc HTTP/1.1
+0028: Host: localhost:8801
+003e: User-Agent: curl/8.2.1
+0056: Authorization: Bearer 7fc32bc0-1e0d-11ef-8a89-a13b04c78ceb-admin
+0098: Content-Type: application/json
+00b8: Accept: application/json
+00d2: Content-Length: 186
+00e7: 
+=> Send data, 186 bytes (0xba)
+0000: { "method": "payment", "args": ["{ \"w_id\": 1, \"d_id\": 1, \"h
+0040: _amount\": 100, \"c_w_id\": 1, \"c_d_id\": 1, \"c_id\": 1, \"c_l
+0080: ast\": \"YONG\", \"h_date\": \"20240525T12:00:00Z\" }"] }.
+<= Recv header, 26 bytes (0x1a)
+0000: HTTP/1.1 400 Bad Request
+<= Recv header, 23 bytes (0x17)
+0000: X-Powered-By: Express
+<= Recv header, 32 bytes (0x20)
+0000: Access-Control-Allow-Origin: *
+<= Recv header, 25 bytes (0x19)
+0000: Cache-Control: no-store
+<= Recv header, 47 bytes (0x2f)
+0000: Content-Type: application/json; charset=utf-8
+<= Recv header, 21 bytes (0x15)
+0000: Content-Length: 154
+<= Recv header, 42 bytes (0x2a)
+0000: ETag: W/"9a-HN0uJO6jj4XShhrao4QU2PF6N78"
+<= Recv header, 37 bytes (0x25)
+0000: Date: Wed, 29 May 2024 22:48:12 GMT
+<= Recv header, 24 bytes (0x18)
+0000: Connection: keep-alive
+<= Recv header, 23 bytes (0x17)
+0000: Keep-Alive: timeout=5
+<= Recv header, 2 bytes (0x2)
+0000: 
+<= Recv data, 154 bytes (0x9a)
+0000: {"message":"No valid responses from any peers. Errors:\n    peer
+0040: =peer0.org1.example.com:7041, status=500, message=Error during c
+0080: ontract method execution"}
+{"message":"No valid responses from any peers. Errors:\n    peer=peer0.org1.example.com:7041, status=500, message=Error during contract method execution"}== Info: Connection #0 to host localhost left intact
+
+
+== Info: processing: http://localhost:8801/invoke/my-channel1/tpcc
+== Info:   Trying [::1]:8801...
+== Info: Connected to localhost (::1) port 8801
+=> Send header, 233 bytes (0xe9)
+0000: POST /invoke/my-channel1/tpcc HTTP/1.1
+0028: Host: localhost:8801
+003e: User-Agent: curl/8.2.1
+0056: Authorization: Bearer 7fc32bc0-1e0d-11ef-8a89-a13b04c78ceb-admin
+0098: Content-Type: application/json
+00b8: Accept: application/json
+00d2: Content-Length: 186
+00e7: 
+=> Send data, 186 bytes (0xba)
+0000: { "method": "payment", "args": ["{ \"w_id\": 1, \"d_id\": 1, \"h
+0040: _amount\": 100, \"c_w_id\": 1, \"c_d_id\": 1, \"c_id\": 1, \"c_l
+0080: ast\": \"YONG\", \"h_date\": \"20240525T12:00:00Z\" }"] }.
+<= Recv header, 26 bytes (0x1a)
+0000: HTTP/1.1 400 Bad Request
+<= Recv header, 23 bytes (0x17)
+0000: X-Powered-By: Express
+<= Recv header, 32 bytes (0x20)
+0000: Access-Control-Allow-Origin: *
+<= Recv header, 25 bytes (0x19)
+0000: Cache-Control: no-store
+<= Recv header, 47 bytes (0x2f)
+0000: Content-Type: application/json; charset=utf-8
+<= Recv header, 21 bytes (0x15)
+0000: Content-Length: 154
+<= Recv header, 42 bytes (0x2a)
+0000: ETag: W/"9a-HN0uJO6jj4XShhrao4QU2PF6N78"
+<= Recv header, 37 bytes (0x25)
+0000: Date: Wed, 29 May 2024 22:48:12 GMT
+<= Recv header, 24 bytes (0x18)
+0000: Connection: keep-alive
+<= Recv header, 23 bytes (0x17)
+0000: Keep-Alive: timeout=5
+<= Recv header, 2 bytes (0x2)
+0000: 
+<= Recv data, 154 bytes (0x9a)
+0000: {"message":"No valid responses from any peers. Errors:\n    peer
+0040: =peer0.org1.example.com:7041, status=500, message=Error during c
+0080: ontract method execution"}
+{"message":"No valid responses from any peers. Errors:\n    peer=peer0.org1.example.com:7041, status=500, message=Error during contract method execution"}== Info: Connection #0 to host localhost left intact
+
+
+>>>>>>>>>>>>>>>>[ DELIVERY ]>>>>>>>>>>>>>>>>
+== Info: processing: http://localhost:8801/invoke/my-channel1/tpcc
+== Info:   Trying [::1]:8801...
+== Info: Connected to localhost (::1) port 8801
+=> Send header, 233 bytes (0xe9)
+0000: POST /invoke/my-channel1/tpcc HTTP/1.1
+0028: Host: localhost:8801
+003e: User-Agent: curl/8.2.1
+0056: Authorization: Bearer 7fc32bc0-1e0d-11ef-8a89-a13b04c78ceb-admin
+0098: Content-Type: application/json
+00b8: Accept: application/json
+00d2: Content-Length: 110
+00e7: 
+=> Send data, 110 bytes (0x6e)
+0000: { "method": "delivery", "args": ["{ \"w_id\": 1, \"o_carrier_id\
+0040: ": 1, \"ol_delivery_d\": \"2024-05-25\" }"] }.
+<= Recv header, 17 bytes (0x11)
+0000: HTTP/1.1 200 OK
+<= Recv header, 23 bytes (0x17)
+0000: X-Powered-By: Express
+<= Recv header, 32 bytes (0x20)
+0000: Access-Control-Allow-Origin: *
+<= Recv header, 25 bytes (0x19)
+0000: Cache-Control: no-store
+<= Recv header, 47 bytes (0x2f)
+0000: Content-Type: application/json; charset=utf-8
+<= Recv header, 20 bytes (0x14)
+0000: Content-Length: 68
+<= Recv header, 42 bytes (0x2a)
+0000: ETag: W/"44-7GbLMMSrekJS00wHFYkiojcIFiU"
+<= Recv header, 37 bytes (0x25)
+0000: Date: Wed, 29 May 2024 22:48:15 GMT
+<= Recv header, 24 bytes (0x18)
+0000: Connection: keep-alive
+<= Recv header, 23 bytes (0x17)
+0000: Keep-Alive: timeout=5
+<= Recv header, 2 bytes (0x2)
+0000: 
+<= Recv data, 68 bytes (0x44)
+0000: {"response":{"delivered":[],"o_carrier_id":1,"skipped":10,"w_id"
+0040: :1}}
+{"response":{"delivered":[],"o_carrier_id":1,"skipped":10,"w_id":1}}== Info: Connection #0 to host localhost left intact
+
+
+== Info: processing: http://localhost:8801/invoke/my-channel1/tpcc
+== Info:   Trying [::1]:8801...
+== Info: Connected to localhost (::1) port 8801
+=> Send header, 233 bytes (0xe9)
+0000: POST /invoke/my-channel1/tpcc HTTP/1.1
+0028: Host: localhost:8801
+003e: User-Agent: curl/8.2.1
+0056: Authorization: Bearer 7fc32bc0-1e0d-11ef-8a89-a13b04c78ceb-admin
+0098: Content-Type: application/json
+00b8: Accept: application/json
+00d2: Content-Length: 110
+00e7: 
+=> Send data, 110 bytes (0x6e)
+0000: { "method": "delivery", "args": ["{ \"w_id\": 1, \"o_carrier_id\
+0040: ": 1, \"ol_delivery_d\": \"2024-05-25\" }"] }.
+<= Recv header, 17 bytes (0x11)
+0000: HTTP/1.1 200 OK
+<= Recv header, 23 bytes (0x17)
+0000: X-Powered-By: Express
+<= Recv header, 32 bytes (0x20)
+0000: Access-Control-Allow-Origin: *
+<= Recv header, 25 bytes (0x19)
+0000: Cache-Control: no-store
+<= Recv header, 47 bytes (0x2f)
+0000: Content-Type: application/json; charset=utf-8
+<= Recv header, 20 bytes (0x14)
+0000: Content-Length: 68
+<= Recv header, 42 bytes (0x2a)
+0000: ETag: W/"44-7GbLMMSrekJS00wHFYkiojcIFiU"
+<= Recv header, 37 bytes (0x25)
+0000: Date: Wed, 29 May 2024 22:48:17 GMT
+<= Recv header, 24 bytes (0x18)
+0000: Connection: keep-alive
+<= Recv header, 23 bytes (0x17)
+0000: Keep-Alive: timeout=5
+<= Recv header, 2 bytes (0x2)
+0000: 
+<= Recv data, 68 bytes (0x44)
+0000: {"response":{"delivered":[],"o_carrier_id":1,"skipped":10,"w_id"
+0040: :1}}
+{"response":{"delivered":[],"o_carrier_id":1,"skipped":10,"w_id":1}}== Info: Connection #0 to host localhost left intact
+
+
+>>>>>>>>>>>>>>>>[ ORDER-STATUS ]>>>>>>>>>>>>>>>>
+== Info: processing: http://localhost:8801/invoke/my-channel1/tpcc
+== Info:   Trying [::1]:8801...
+== Info: Connected to localhost (::1) port 8801
+=> Send header, 233 bytes (0xe9)
+0000: POST /invoke/my-channel1/tpcc HTTP/1.1
+0028: Host: localhost:8801
+003e: User-Agent: curl/8.2.1
+0056: Authorization: Bearer 7fc32bc0-1e0d-11ef-8a89-a13b04c78ceb-admin
+0098: Content-Type: application/json
+00b8: Accept: application/json
+00d2: Content-Length: 105
+00e7: 
+=> Send data, 105 bytes (0x69)
+0000: { "method": "orderStatus", "args": ["{ \"w_id\": 1, \"d_id\": 1,
+0040:  \"c_id\": 1, \"c_last\": \"Yong\" }"] }.
+<= Recv header, 26 bytes (0x1a)
+0000: HTTP/1.1 400 Bad Request
+<= Recv header, 23 bytes (0x17)
+0000: X-Powered-By: Express
+<= Recv header, 32 bytes (0x20)
+0000: Access-Control-Allow-Origin: *
+<= Recv header, 25 bytes (0x19)
+0000: Cache-Control: no-store
+<= Recv header, 47 bytes (0x2f)
+0000: Content-Type: application/json; charset=utf-8
+<= Recv header, 21 bytes (0x15)
+0000: Content-Length: 154
+<= Recv header, 42 bytes (0x2a)
+0000: ETag: W/"9a-HN0uJO6jj4XShhrao4QU2PF6N78"
+<= Recv header, 37 bytes (0x25)
+0000: Date: Wed, 29 May 2024 22:48:17 GMT
+<= Recv header, 24 bytes (0x18)
+0000: Connection: keep-alive
+<= Recv header, 23 bytes (0x17)
+0000: Keep-Alive: timeout=5
+<= Recv header, 2 bytes (0x2)
+0000: 
+<= Recv data, 154 bytes (0x9a)
+0000: {"message":"No valid responses from any peers. Errors:\n    peer
+0040: =peer0.org1.example.com:7041, status=500, message=Error during c
+0080: ontract method execution"}
+{"message":"No valid responses from any peers. Errors:\n    peer=peer0.org1.example.com:7041, status=500, message=Error during contract method execution"}== Info: Connection #0 to host localhost left intact
+
+
+== Info: processing: http://localhost:8801/invoke/my-channel1/tpcc
+== Info:   Trying [::1]:8801...
+== Info: Connected to localhost (::1) port 8801
+=> Send header, 233 bytes (0xe9)
+0000: POST /invoke/my-channel1/tpcc HTTP/1.1
+0028: Host: localhost:8801
+003e: User-Agent: curl/8.2.1
+0056: Authorization: Bearer 7fc32bc0-1e0d-11ef-8a89-a13b04c78ceb-admin
+0098: Content-Type: application/json
+00b8: Accept: application/json
+00d2: Content-Length: 105
+00e7: 
+=> Send data, 105 bytes (0x69)
+0000: { "method": "orderStatus", "args": ["{ \"w_id\": 1, \"d_id\": 1,
+0040:  \"c_id\": 1, \"c_last\": \"Yong\" }"] }.
+<= Recv header, 26 bytes (0x1a)
+0000: HTTP/1.1 400 Bad Request
+<= Recv header, 23 bytes (0x17)
+0000: X-Powered-By: Express
+<= Recv header, 32 bytes (0x20)
+0000: Access-Control-Allow-Origin: *
+<= Recv header, 25 bytes (0x19)
+0000: Cache-Control: no-store
+<= Recv header, 47 bytes (0x2f)
+0000: Content-Type: application/json; charset=utf-8
+<= Recv header, 21 bytes (0x15)
+0000: Content-Length: 154
+<= Recv header, 42 bytes (0x2a)
+0000: ETag: W/"9a-HN0uJO6jj4XShhrao4QU2PF6N78"
+<= Recv header, 37 bytes (0x25)
+0000: Date: Wed, 29 May 2024 22:48:17 GMT
+<= Recv header, 24 bytes (0x18)
+0000: Connection: keep-alive
+<= Recv header, 23 bytes (0x17)
+0000: Keep-Alive: timeout=5
+<= Recv header, 2 bytes (0x2)
+0000: 
+<= Recv data, 154 bytes (0x9a)
+0000: {"message":"No valid responses from any peers. Errors:\n    peer
+0040: =peer0.org1.example.com:7041, status=500, message=Error during c
+0080: ontract method execution"}
+{"message":"No valid responses from any peers. Errors:\n    peer=peer0.org1.example.com:7041, status=500, message=Error during contract method execution"}== Info: Connection #0 to host localhost left intact
+
+
+>>>>>>>>>>>>>>>>[ STOCK-LEVEL ]>>>>>>>>>>>>>>>>
+== Info: processing: http://localhost:8801/invoke/my-channel1/tpcc
+== Info:   Trying [::1]:8801...
+== Info: Connected to localhost (::1) port 8801
+=> Send header, 232 bytes (0xe8)
+0000: POST /invoke/my-channel1/tpcc HTTP/1.1
+0028: Host: localhost:8801
+003e: User-Agent: curl/8.2.1
+0056: Authorization: Bearer 7fc32bc0-1e0d-11ef-8a89-a13b04c78ceb-admin
+0098: Content-Type: application/json
+00b8: Accept: application/json
+00d2: Content-Length: 87
+00e6: 
+=> Send data, 87 bytes (0x57)
+0000: { "method": "stockLevel", "args": ["{ \"w_id\": 1, \"d_id\": 1, 
+0040: \"threshold\": 5 }"] }.
+<= Recv header, 26 bytes (0x1a)
+0000: HTTP/1.1 400 Bad Request
+<= Recv header, 23 bytes (0x17)
+0000: X-Powered-By: Express
+<= Recv header, 32 bytes (0x20)
+0000: Access-Control-Allow-Origin: *
+<= Recv header, 25 bytes (0x19)
+0000: Cache-Control: no-store
+<= Recv header, 47 bytes (0x2f)
+0000: Content-Type: application/json; charset=utf-8
+<= Recv header, 21 bytes (0x15)
+0000: Content-Length: 154
+<= Recv header, 42 bytes (0x2a)
+0000: ETag: W/"9a-HN0uJO6jj4XShhrao4QU2PF6N78"
+<= Recv header, 37 bytes (0x25)
+0000: Date: Wed, 29 May 2024 22:48:17 GMT
+<= Recv header, 24 bytes (0x18)
+0000: Connection: keep-alive
+<= Recv header, 23 bytes (0x17)
+0000: Keep-Alive: timeout=5
+<= Recv header, 2 bytes (0x2)
+0000: 
+<= Recv data, 154 bytes (0x9a)
+0000: {"message":"No valid responses from any peers. Errors:\n    peer
+0040: =peer0.org1.example.com:7041, status=500, message=Error during c
+0080: ontract method execution"}
+{"message":"No valid responses from any peers. Errors:\n    peer=peer0.org1.example.com:7041, status=500, message=Error during contract method execution"}== Info: Connection #0 to host localhost left intact
+
+
+== Info: processing: http://localhost:8801/invoke/my-channel1/tpcc
+== Info:   Trying [::1]:8801...
+== Info: Connected to localhost (::1) port 8801
+=> Send header, 232 bytes (0xe8)
+0000: POST /invoke/my-channel1/tpcc HTTP/1.1
+0028: Host: localhost:8801
+003e: User-Agent: curl/8.2.1
+0056: Authorization: Bearer 7fc32bc0-1e0d-11ef-8a89-a13b04c78ceb-admin
+0098: Content-Type: application/json
+00b8: Accept: application/json
+00d2: Content-Length: 87
+00e6: 
+=> Send data, 87 bytes (0x57)
+0000: { "method": "stockLevel", "args": ["{ \"w_id\": 1, \"d_id\": 1, 
+0040: \"threshold\": 5 }"] }.
+<= Recv header, 26 bytes (0x1a)
+0000: HTTP/1.1 400 Bad Request
+<= Recv header, 23 bytes (0x17)
+0000: X-Powered-By: Express
+<= Recv header, 32 bytes (0x20)
+0000: Access-Control-Allow-Origin: *
+<= Recv header, 25 bytes (0x19)
+0000: Cache-Control: no-store
+<= Recv header, 47 bytes (0x2f)
+0000: Content-Type: application/json; charset=utf-8
+<= Recv header, 21 bytes (0x15)
+0000: Content-Length: 154
+<= Recv header, 42 bytes (0x2a)
+0000: ETag: W/"9a-HN0uJO6jj4XShhrao4QU2PF6N78"
+<= Recv header, 37 bytes (0x25)
+0000: Date: Wed, 29 May 2024 22:48:17 GMT
+<= Recv header, 24 bytes (0x18)
+0000: Connection: keep-alive
+<= Recv header, 23 bytes (0x17)
+0000: Keep-Alive: timeout=5
+<= Recv header, 2 bytes (0x2)
+0000: 
+<= Recv data, 154 bytes (0x9a)
+0000: {"message":"No valid responses from any peers. Errors:\n    peer
+0040: =peer0.org1.example.com:7041, status=500, message=Error during c
+0080: ontract method execution"}
+{"message":"No valid responses from any peers. Errors:\n    peer=peer0.org1.example.com:7041, status=500, message=Error during contract method execution"}== Info: Connection #0 to host localhost left intact
+
+

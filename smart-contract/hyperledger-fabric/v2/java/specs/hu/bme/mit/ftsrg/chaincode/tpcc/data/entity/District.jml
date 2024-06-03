@@ -2,12 +2,39 @@
 package hu.bme.mit.ftsrg.chaincode.tpcc.data.entity;
 
 import hu.bme.mit.ftsrg.hypernate.entity.Entity;
-import lombok.EqualsAndHashCode;
-import org.hyperledger.fabric.contract.annotation.DataType;
 
-@EqualsAndHashCode
-@DataType
 public final class District implements Entity {
+
+  /*@ spec_public @*/
+  private double d_ytd;
+
+  /*@ spec_public @*/
+  private int d_next_o_id;
+
+  /*@
+    @ public normal_behavior
+    @   requires id >= 0;
+    @   requires w_id >= 0;
+    @   requires name == null || name.length() <= 10;
+    @   requires street_1 == null || street_1.length() <= 20;
+    @   requires street_2 == null || street_2.length() <= 20;
+    @   requires city == null || city.length() <= 20;
+    @   requires state == null || state.length() == 2;
+    @   requires zip == null || zip.length() == 9;
+    @ pure
+    @*/
+  public District(
+      final int id,
+      final int w_id,
+      final String name,
+      final String street_1,
+      final String street_2,
+      final String city,
+      final String state,
+      final double tax,
+      final String zip,
+      final int next_o_id,
+      final double ytd);
 
   public /*@ pure @*/ int getD_id();
 
@@ -66,6 +93,18 @@ public final class District implements Entity {
   public /*@ pure @*/ double getD_ytd();
 
   public /*@ pure @*/ int getD_next_o_id();
+
+  /*@
+    @ requires d_ytd < Double.MAX_VALUE;
+    @ ensures d_ytd == \old(d_ytd) + amount;
+    @*/
+  public void increaseYTD(final double amount);
+
+  /*@
+    @ requires d_next_o_id < Integer.MAX_VALUE;
+    @ ensures d_next_o_id == \old(d_next_o_id) + 1;
+    @*/
+  public void incrementNextOrderID();
 
 
   public static final class DistrictBuilder {

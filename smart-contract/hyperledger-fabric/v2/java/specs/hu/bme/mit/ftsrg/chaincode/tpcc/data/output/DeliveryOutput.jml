@@ -3,11 +3,7 @@ package hu.bme.mit.ftsrg.chaincode.tpcc.data.output;
 
 import hu.bme.mit.ftsrg.chaincode.tpcc.data.extra.DeliveredOrder;
 import java.util.List;
-import lombok.EqualsAndHashCode;
-import org.hyperledger.fabric.contract.annotation.DataType;
 
-@EqualsAndHashCode
-@DataType
 public final class DeliveryOutput {
 
   public /*@ pure @*/ int getW_id();

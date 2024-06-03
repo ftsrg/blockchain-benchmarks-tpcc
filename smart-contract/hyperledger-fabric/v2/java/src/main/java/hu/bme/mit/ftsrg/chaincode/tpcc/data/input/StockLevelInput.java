@@ -9,6 +9,12 @@ import org.hyperledger.fabric.contract.annotation.Property;
 @DataType
 public final class StockLevelInput {
 
+  public StockLevelInput(final int w_id, final int d_id, final int threshold) {
+    this.w_id = w_id;
+    this.d_id = d_id;
+    this.threshold = threshold;
+  }
+
   /** The warehouse ID. */
   @Property(schema = {"minimum", "0"})
   private int w_id;

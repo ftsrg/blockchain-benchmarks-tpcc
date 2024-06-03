@@ -2,12 +2,28 @@
 package hu.bme.mit.ftsrg.chaincode.tpcc.data.entity;
 
 import hu.bme.mit.ftsrg.hypernate.entity.Entity;
-import lombok.EqualsAndHashCode;
-import org.hyperledger.fabric.contract.annotation.DataType;
 
-@EqualsAndHashCode
-@DataType
 public final class Order implements Entity {
+
+  /*@
+    @ public normal_behavior
+    @   requires id >= 0;
+    @   requires d_id >= 0;
+    @   requires w_id >= 0;
+    @   requires c_id >= 0;
+    @   requires ol_cnt >= 0;
+    @   requires all_local >= 0;
+    @ pure
+    @*/
+  public Order(
+      final int id,
+      final int d_id,
+      final int w_id,
+      final int c_id,
+      final String entry_d,
+      final int carrier_id,
+      final int ol_cnt,
+      final int all_local);
 
   public /*@ pure @*/ int getO_id();
 

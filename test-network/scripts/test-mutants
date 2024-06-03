@@ -8,7 +8,7 @@ token=
 
 get_token()
 {
-	curl -sv \
+	curl -s \
 	    --url "$ENDPOINT/user/enroll" \
 	    --json '{ "id": "admin", "secret": "adminpw" }' \
 	| jq -r .token
@@ -19,8 +19,13 @@ invoke()
 	method=$1
 	args=$2
 
-	[ -n "$token" ] || token=$(get_token)
+	[ -n "$token" ] || {
+		echo 'Token missing; requesting one...'
+		token=$(get_token)
+	}
+
 	curl -sv \
+	    --trace-ascii - \
 	    --url "$ENDPOINT/invoke/my-channel1/tpcc" \
 	    --header "Authorization: Bearer $token" \
 	    --json @- <<EOF
@@ -31,37 +36,55 @@ EOF
 
 print_banner()
 {
-	printf '>>>>>>>>>>>>>>>>[ %s ]>>>>>>>>>>>>>>>>n' "$1"
+	printf '>>>>>>>>>>>>>>>>[ %s ]>>>>>>>>>>>>>>>>\n' "$1"
 }
 
 test_invocations()
 {
 	print_banner INIT
 	invoke init
+	invoke init
 
 	print_banner NEW-ORDER
+	invoke newOrder '{ "w_id": 1, "d_id": 1, "c_id": 1, "o_entry_d": "20110101T081500Z", "i_ids": [1, 2], "i_w_ids": [1, 1], "i_qtys": [1, 1] }'
 	invoke newOrder '{ "w_id": 1, "d_id": 1, "c_id": 1, "o_entry_d": "20110101T081500Z", "i_ids": [1, 2], "i_w_ids": [1, 1], "i_qtys": [1, 1] }'
 
 	print_banner PAYMENT
 	invoke payment '{ "w_id": 1, "d_id": 1, "h_amount": 100, "c_w_id": 1, "c_d_id": 1, "c_id": 1, "c_last": "YONG", "h_date": "20240525T12:00:00Z" }'
+	invoke payment '{ "w_id": 1, "d_id": 1, "h_amount": 100, "c_w_id": 1, "c_d_id": 1, "c_id": 1, "c_last": "YONG", "h_date": "20240525T12:00:00Z" }'
 
 	print_banner DELIVERY
+	invoke delivery '{ "w_id": 1, "o_carrier_id": 1, "ol_delivery_d": "2024-05-25" }'
 	invoke delivery '{ "w_id": 1, "o_carrier_id": 1, "ol_delivery_d": "2024-05-25" }'
 
 	print_banner ORDER-STATUS
 	invoke orderStatus '{ "w_id": 1, "d_id": 1, "c_id": 1, "c_last": "Yong" }'
+	invoke orderStatus '{ "w_id": 1, "d_id": 1, "c_id": 1, "c_last": "Yong" }'
 
 	print_banner STOCK-LEVEL
+	invoke stockLevel '{ "w_id": 1, "d_id": 1, "threshold": 5 }'
 	invoke stockLevel '{ "w_id": 1, "d_id": 1, "threshold": 5 }'
 }
 
 
 mkdir -pv "$LOG_DIR/"
-for mutant in "$SC_DIR"/mutants/*; do
-	print_banner "TRYING MUTANT $mutant"
-	mkdir -pv "$LOG_DIR/$mutant"
+
+find "$SC_DIR/mutants/" -mindepth 1 -maxdepth 1 -type d \
+| sort -V \
+| while read -r mutant; do
+	num="$(basename "$mutant")"
+	print_banner "TRYING MUTANT $num"
+	mkdir -pv "$LOG_DIR/$num"
 	cp -Rv "$mutant/hu/" "$SC_DIR/src/main/java/"
-	./fabric-docker.sh reset --build 2>&1 | tee "$LOG_DIR/$mutant/build.log"
-	test_invocations 2>&1 | tee "$LOG_DIR/$mutant/invocations.log"
-	docker logs tpcc >"$LOG_DIR/$mutant/tpcc.log" 2>&1
+	./fablo reset </dev/null
+	# (cd "$SC_DIR/" && ./gradlew run --console plain) 2>&1 | tee "$LOG_DIR/$num/tpcc.log" &
+	(cd "$SC_DIR/" && ./gradlew run --console plain) >"$LOG_DIR/$num/tpcc.log" 2>&1 &
+	tpcc_pid=$!
+	echo 'Giving 300s for chaincode to spin up...'
+	sleep 500
+	echo 'Enough, running invocations'
+	test_invocations 2>&1 | tee "$LOG_DIR/$num/invocations.log"
+	# test_invocations >"$LOG_DIR/$num/invocations.log" 2>&1
+	kill $tpcc_pid
+	sleep 2
 done

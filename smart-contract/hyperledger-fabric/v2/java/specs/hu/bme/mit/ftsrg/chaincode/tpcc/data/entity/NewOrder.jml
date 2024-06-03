@@ -2,12 +2,17 @@
 package hu.bme.mit.ftsrg.chaincode.tpcc.data.entity;
 
 import hu.bme.mit.ftsrg.hypernate.entity.Entity;
-import lombok.EqualsAndHashCode;
-import org.hyperledger.fabric.contract.annotation.DataType;
 
-@EqualsAndHashCode
-@DataType
 public final class NewOrder implements Entity {
+
+  /*@
+    @ public normal_behavior
+    @   requires o_id >= 0;
+    @   requires d_id >= 0;
+    @   requires w_id >= 0;
+    @ pure
+    @*/
+  public NewOrder(final int o_id, final int d_id, final int w_id);
 
   public /*@ pure @*/ int getNo_o_id();
 

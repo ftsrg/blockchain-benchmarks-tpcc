@@ -2,12 +2,63 @@
 package hu.bme.mit.ftsrg.chaincode.tpcc.data.entity;
 
 import hu.bme.mit.ftsrg.hypernate.entity.Entity;
-import lombok.EqualsAndHashCode;
-import org.hyperledger.fabric.contract.annotation.DataType;
 
-@EqualsAndHashCode
-@DataType
 public final class Customer implements Entity {
+
+  /*@ spec_public @*/
+  private double c_balance;
+
+  /*@ spec_public @*/
+  private double c_ytd_payment;
+
+  /*@ spec_public @*/
+  private int c_payment_cnt;
+
+  /*@ spec_public @*/
+  private int c_delivery_cnt;
+
+  /*@
+    @ public normal_behavior
+    @   requires id >= 0;
+    @   requires d_id >= 0;
+    @   requires w_id >= 0;
+    @   requires first == null || first.length() <= 16;
+    @   requires middle == null || middle.length() == 2;
+    @   requires last == null || last.length() <= 16;
+    @   requires street_1 == null || street_1.length() <= 20;
+    @   requires street_2 == null || street_2.length() <= 20;
+    @   requires city == null || city.length() <= 20;
+    @   requires state == null || state.length() == 2;
+    @   requires zip == null || zip.length() == 9;
+    @   requires phone == null || phone.length() == 16;
+    @   requires credit == null || credit.length() == 2;
+    @   requires payment_cnt >= 0;
+    @   requires delivery_cnt >= 0;
+    @   requires data == null || data.length() <= 500;
+    @ pure
+   */
+  public Customer(
+      final int id,
+      final int d_id,
+      final int w_id,
+      final String first,
+      final String middle,
+      final String last,
+      final String street_1,
+      final String street_2,
+      final String city,
+      final String state,
+      final String zip,
+      final String phone,
+      final String since,
+      final String credit,
+      final int credit_lim,
+      final double discount,
+      final double balance,
+      final double ytd_payment,
+      final int payment_cnt,
+      final int delivery_cnt,
+      final String data);
 
   public /*@ pure @*/ int getC_id();
 
@@ -128,6 +179,31 @@ public final class Customer implements Entity {
     @ requires c_data.length() <= 500;
     @*/
   public void setC_data(final String c_data);
+
+
+  /*@
+    @ requires c_balance < Double.MAX_VALUE;
+    @ ensures c_balance == \old(c_balance) + amount;
+    @*/
+  public void increaseBalance(final double amount);
+
+  /*@
+    @ requires c_ytd_payment < Double.MAX_VALUE;
+    @ ensures c_ytd_payment == \old(c_ytd_payment) + amount;
+    @*/
+  public void increaseYTDPayment(final double amount);
+
+  /*@
+    @ requires c_delivery_cnt < Integer.MAX_VALUE;
+    @ ensures c_delivery_cnt == \old(c_delivery_cnt) + 1;
+    @*/
+  public void incrementDeliveryCount();
+
+  /*@
+    @ requires c_payment_cnt < Integer.MAX_VALUE;
+    @ ensures c_payment_cnt == \old(c_payment_cnt) + 1;
+    @*/
+  public void incrementPaymentCount();
 
 
   public static final class CustomerBuilder {

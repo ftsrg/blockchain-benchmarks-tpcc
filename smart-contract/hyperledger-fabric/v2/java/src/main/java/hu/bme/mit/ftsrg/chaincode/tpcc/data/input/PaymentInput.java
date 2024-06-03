@@ -9,6 +9,17 @@ import org.hyperledger.fabric.contract.annotation.Property;
 @DataType
 public final class PaymentInput {
 
+  public PaymentInput(final int w_id, final int d_id, final double h_amount, final int c_w_id, final int c_d_id, final int c_id, final String c_last, final String h_date) {
+    this.w_id = w_id;
+    this.d_id = d_id;
+    this.h_amount = h_amount;
+    this.c_w_id = c_w_id;
+    this.c_d_id = c_d_id;
+    this.c_id = c_id;
+    this.c_last = c_last;
+    this.h_date = h_date;
+  }
+
   /** The warehouse ID. */
   @Property(schema = {"minimum", "0"})
   private int w_id;

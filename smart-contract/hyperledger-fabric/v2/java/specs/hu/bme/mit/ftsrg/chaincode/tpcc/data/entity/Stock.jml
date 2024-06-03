@@ -2,12 +2,59 @@
 package hu.bme.mit.ftsrg.chaincode.tpcc.data.entity;
 
 import hu.bme.mit.ftsrg.hypernate.entity.Entity;
-import lombok.EqualsAndHashCode;
-import org.hyperledger.fabric.contract.annotation.DataType;
 
-@EqualsAndHashCode
-@DataType
 public final class Stock implements Entity {
+
+  /*@ spec_public @*/
+  private int s_quantity;
+
+  /*@ spec_public @*/
+  private int s_ytd;
+
+  /*@ spec_public @*/
+  private int s_order_cnt;
+
+  /*@ spec_public @*/
+  private int s_remote_cnt;
+
+  /*@
+    @ public normal_behavior
+    @   requires i_id >= 0;
+    @   requires w_id >= 0;
+    @   requires dist_01 == null || dist_01.length() == 24;
+    @   requires dist_02 == null || dist_02.length() == 24;
+    @   requires dist_03 == null || dist_03.length() == 24;
+    @   requires dist_04 == null || dist_04.length() == 24;
+    @   requires dist_05 == null || dist_05.length() == 24;
+    @   requires dist_06 == null || dist_06.length() == 24;
+    @   requires dist_07 == null || dist_07.length() == 24;
+    @   requires dist_08 == null || dist_08.length() == 24;
+    @   requires dist_09 == null || dist_09.length() == 24;
+    @   requires dist_10 == null || dist_10.length() == 24;
+    @   requires ytd >= 0;
+    @   requires order_cnt >= 0;
+    @   requires remote_cnt >= 0;
+    @   requires data == null || data.length() <= 50;
+    @ pure
+    @*/
+  public Stock(
+      int i_id,
+      int w_id,
+      int quantity,
+      String dist_01,
+      String dist_02,
+      String dist_03,
+      String dist_04,
+      String dist_05,
+      String dist_06,
+      String dist_07,
+      String dist_08,
+      String dist_09,
+      String dist_10,
+      int ytd,
+      int order_cnt,
+      int remote_cnt,
+      String data);
 
   public /*@ pure @*/ int getS_i_id();
 
@@ -95,6 +142,12 @@ public final class Stock implements Entity {
     @*/
   public void setS_dist_10(final String s_dist_10);
 
+  /*@
+    @ requires number >= 0 && number <= 10;
+    @ pure
+    @*/
+  public String getS_dist(final int number);
+
   public /*@ pure @*/ int getS_ytd();
 
   /*@
@@ -126,6 +179,30 @@ public final class Stock implements Entity {
     @ requires s_data.length() <= 50;
     @*/
   public void setS_data(final String s_data);
+
+  /*@
+    @ requires s_quantity > Integer.MIN_VALUE;
+    @ ensures s_quantity == \old(s_quantity) - amount;
+   */
+  public void decreaseQuantity(final int amount);
+
+  /*@
+    @ requires s_ytd < Integer.MAX_VALUE;
+    @ ensures s_ytd == \old(s_ytd) + amount;
+   */
+  public void increaseYTD(final int amount);
+
+  /*@
+    @ requires s_order_cnt < Integer.MAX_VALUE;
+    @ ensures s_order_cnt == \old(s_order_cnt) + 1;
+   */
+  public void incrementOrderCount();
+
+  /*@
+    @ requires s_remote_cnt < Integer.MAX_VALUE;
+    @ ensures s_remote_cnt == \old(s_remote_cnt) + 1;
+   */
+  public void incrementRemoteCount();
 
 
   public static final class StockBuilder {

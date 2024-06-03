@@ -1,5 +1,7 @@
 package hu.bme.mit.ftsrg.gradle.openjml
 
+import gradle.kotlin.dsl.accessors._8c47cae829ea3d03260d5ff13fb2398e.java
+import gradle.kotlin.dsl.accessors._8c47cae829ea3d03260d5ff13fb2398e.test
 import hu.bme.mit.ftsrg.gradle.util.downloadUnlessExists
 import hu.bme.mit.ftsrg.gradle.util.extractUnlessExists
 import hu.bme.mit.ftsrg.gradle.util.replaceWith
@@ -55,12 +57,12 @@ if (!noOpenJML) {
     tasks.withType<Jar> { dependsOn(tasks.named("initOpenJML")) }
     tasks.withType<JavaCompile> { dependsOn(tasks.named("initOpenJML")) }
 
-    //tasks.test {
-    //    java {
-    //        executable = "$openJMLDir/bin/jmlava"
-    //        jvmArgs = listOf("-Dorg.jmlspecs.openjml.rac=exception")
-    //    }
-    //}
+    tasks.test {
+        java {
+            executable = "$openJMLJavaHomeDir/bin/java"
+            jvmArgs = listOf("-Dorg.jmlspecs.openjml.rac=exception")
+        }
+    }
 
     tasks.withType<JavaCompile>().configureEach {
         dependsOn(tasks.named("initOpenJML"))
@@ -77,7 +79,9 @@ if (!noOpenJML) {
                     "--$mode",
                     "--nullable-by-default",
                     "--specs-path",
-                    "specs/"
+                    "specs/",
+                    //"--specs-path",
+                    //"$openJMLDir/specs"
                 )
             )
             options.forkOptions.javaHome = openJMLJavaHomeDir.asFile

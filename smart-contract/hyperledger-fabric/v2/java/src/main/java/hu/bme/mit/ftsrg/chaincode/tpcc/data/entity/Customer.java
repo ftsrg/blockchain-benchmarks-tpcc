@@ -306,7 +306,10 @@ public final class Customer implements Entity {
   }
 
   public void decreaseBalance(final double amount) {
+    System.out.println("DECREASE BALANCE BALANCE BEFORE: " + c_balance);
+    System.out.println("DECREASE BALANCE AMOUNT: " + amount);
     this.c_balance -= amount;
+    System.out.println("DECREASE BALANCE BALANCE AFTER : " + c_balance);
   }
 
   public void increaseYTDPayment(final double amount) {

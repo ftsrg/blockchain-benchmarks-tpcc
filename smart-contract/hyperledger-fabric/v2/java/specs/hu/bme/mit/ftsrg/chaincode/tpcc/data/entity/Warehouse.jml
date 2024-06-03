@@ -2,12 +2,33 @@
 package hu.bme.mit.ftsrg.chaincode.tpcc.data.entity;
 
 import hu.bme.mit.ftsrg.hypernate.entity.Entity;
-import lombok.EqualsAndHashCode;
-import org.hyperledger.fabric.contract.annotation.DataType;
 
-@EqualsAndHashCode
-@DataType
 public class Warehouse implements Entity {
+
+  /*pec_public @*/
+  //private double w_ytd;
+
+  /*@
+    @ public normal_behavior
+    @   requires id >= 0;
+    @   requires name == null || name.length() <= 10;
+    @   requires street_1 == null || street_1.length() <= 20;
+    @   requires street_2 == null || street_2.length() <= 20;
+    @   requires city == null || city.length() <= 20;
+    @   requires state == null || state.length() == 2;
+    @   requires zip == null || zip.length() == 9;
+    @ pure
+    @*/
+  public Warehouse(
+      final int id,
+      final String name,
+      final String street_1,
+      final String street_2,
+      final String city,
+      final String state,
+      String zip,
+      final double tax,
+      final double ytd);
 
   public /*@ pure @*/ int getW_id();
 
@@ -62,6 +83,12 @@ public class Warehouse implements Entity {
   public /*@ pure @*/ double getW_tax();
 
   public /*@ pure @*/ double getW_ytd();
+
+  ///*x@
+  //  x@ requires w_ytd < Double.MAX_VALUE;
+  //  x@ ensures w_ytd == \old(w_ytd) + amount;
+  //  x@*/
+  //public void increaseYTD(final double amount);
 
 
   public static final class WarehouseBuilder {

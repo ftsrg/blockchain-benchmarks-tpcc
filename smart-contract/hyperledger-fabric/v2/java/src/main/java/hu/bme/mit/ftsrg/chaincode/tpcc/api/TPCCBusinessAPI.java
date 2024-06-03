@@ -964,21 +964,24 @@ class TPCCBusinessAPI {
      * value is selected.  This is the oldest undelivered order of
      * that district.  NO_O_ID, the order number, is retrieved. [...]
      */
-    final List<NewOrder> matchingNewOrders =
-        registry
-            .select(new NewOrder())
-            /* TODO this code causes a StackOverflowError for some reason
-            .matching(
-                new Registry.Matcher<NewOrder>() {
-                  @Override
-                  public boolean match(NewOrder entity) {
-                    return entity.getNo_w_id() == w_id && entity.getNo_d_id() == d_id;
-                  }
-                })
-            */
-            .sortedBy(new NewOrderComparator())
-            .get();
+    final List<NewOrder> matchingNewOrders = registry.readAll(new NewOrder());
+    matchingNewOrders.sort(new NewOrderComparator());
+    //final List<NewOrder> matchingNewOrders =
+    //    registry
+    //        .select(new NewOrder())
+    //        /* TODO this code causes a StackOverflowError for some reason
+    //        .matching(
+    //            new Registry.Matcher<NewOrder>() {
+    //              @Override
+    //              public boolean match(NewOrder entity) {
+    //                return entity.getNo_w_id() == w_id && entity.getNo_d_id() == d_id;
+    //              }
+    //            })
+    //        */
+    //        .sortedBy(new NewOrderComparator())
+    //        .get();
     /* Manually remove non-matching NewOrders, see above... */
+    //final Iterator<NewOrder> it = matchingNewOrders.iterator();
     final Iterator<NewOrder> it = matchingNewOrders.iterator();
     while (it.hasNext()) {
       final NewOrder no = it.next();

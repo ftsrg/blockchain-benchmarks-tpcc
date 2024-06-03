@@ -20,6 +20,8 @@ import org.hyperledger.fabric.contract.annotation.License;
 import org.hyperledger.fabric.contract.annotation.Transaction;
 import org.hyperledger.fabric.shim.ChaincodeStub;
 
+import java.util.Arrays;
+
 @Contract(
     name = "TPCC",
     info =
@@ -248,5 +250,13 @@ public final class TPCCContractAPI implements ContractInterface {
     final Customer customer = Customer.builder().w_id(c_w_id).d_id(c_d_id).id(c_id).build();
     ctx.commit();
     return JSON.serialize(customer);
+  }
+
+  @Transaction(intent = Transaction.TYPE.EVALUATE)
+  public String GIVE_ME_THE_CREATOR(final TPCCContext ctx) {
+    System.out.println("---------------->>>>> " + Arrays.toString(ctx.getStub().getCreator()) + "<<<<<<<<<<<-----------------");
+    System.out.println("---------------->>>>> " + ctx.getStub().getCreator() + "<<<<<<<<<<<-----------------");
+    ctx.commit();
+    return "YOU GOT IT IN THE LOG";
   }
 }

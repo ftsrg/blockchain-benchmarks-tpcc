@@ -2,12 +2,24 @@
 package hu.bme.mit.ftsrg.chaincode.tpcc.data.entity;
 
 import hu.bme.mit.ftsrg.hypernate.entity.Entity;
-import lombok.EqualsAndHashCode;
-import org.hyperledger.fabric.contract.annotation.DataType;
 
-@EqualsAndHashCode
-@DataType
 public final class Item implements Entity {
+
+  /*@
+    @ public normal_behavior
+    @   requires id >= 0;
+    @   requires im_id >= 0;
+    @   requires name == null || name.length() <= 24;
+    @   requires price >= 0;
+    @   requires data == null || data.length() <= 50;
+    @ pure
+    @*/
+  public Item(
+      final int id,
+      final int im_id,
+      final String name,
+      final double price,
+      final String data);
 
   public /*@ pure @*/ int getI_id();
 
