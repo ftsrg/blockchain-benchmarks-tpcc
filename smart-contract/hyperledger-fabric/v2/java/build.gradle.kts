@@ -61,19 +61,22 @@ tasks.named<ShadowJar>("shadowJar") {
 
 tasks.register("initOpenJML") {
   val openJMLVersion: String by project
+  outputs.dir(openJMLDir)
 
-  val zipFile: File = downloadDir.get().file("openjml.zip").asFile
-  downloadOpenJML(openJMLVersion, zipFile, logger)
-  extractOpenJML(zipFile, openJMLDir, logger)
+  doLast {
+    val zipFile: File = downloadDir.get().file("openjml.zip").asFile
+    downloadOpenJML(openJMLVersion, zipFile, logger)
+    extractOpenJML(zipFile, openJMLDir, logger)
 
-  // `jmlavac' is what we call `javac' that is actually
-  // OpenJML's javac; likewise, `jmlava' is a wrapper for `java' with
-  // OpenJML already in the classpath
-  generateJmlavac(jmlavac.asFile, openJMLJavaHomeDir, logger)
-  replaceJavac(openJMLJavaHomeDir, jmlavac.asFile, logger)
-  generateJmlava(jmlava.asFile, openJMLJavaHomeDir, logger)
-  replaceJava(openJMLJavaHomeDir, jmlava.asFile, logger)
-  logger.lifecycle("✅ OpenJML successfully initialized in $openJMLDir")
+    // `jmlavac' is what we call `javac' that is actually
+    // OpenJML's javac; likewise, `jmlava' is a wrapper for `java' with
+    // OpenJML already in the classpath
+    generateJmlavac(jmlavac.asFile, openJMLJavaHomeDir, logger)
+    replaceJavac(openJMLJavaHomeDir, jmlavac.asFile, logger)
+    generateJmlava(jmlava.asFile, openJMLJavaHomeDir, logger)
+    replaceJava(openJMLJavaHomeDir, jmlava.asFile, logger)
+    logger.lifecycle("✅ OpenJML successfully initialized in $openJMLDir")
+  }
 }
 
 if (!noOpenJML) {
@@ -90,22 +93,25 @@ if (!noOpenJML) {
     dependsOn(tasks.named("initOpenJML"))
     // Only when not compiling because of Spotless
     if (!gradle.startParameter.taskNames.any { it.contains("spotlessApply") }) {
-      val mode =
+      options.isFork = true
+
+      doFirst {
+        val mode =
           when (System.getenv("JML_MODE")) {
             "esc" -> "esc"
             else -> "rac"
           }
-      options.isFork = true
-      options.compilerArgs.addAll(
+        options.compilerArgs.addAll(
           listOf(
-              "-jml",
-              "-$mode",
-              "-timeout",
-              "30",
-              "--nullable-by-default",
-              "--specs-path",
-              "specs/"))
-      options.forkOptions.javaHome = openJMLJavaHomeDir.asFile
+            "-jml",
+            "-$mode",
+            "-timeout",
+            "30",
+            "--nullable-by-default",
+            "--specs-path",
+            "specs/"))
+        options.forkOptions.javaHome = openJMLJavaHomeDir.asFile
+      }
     }
   }
 }
