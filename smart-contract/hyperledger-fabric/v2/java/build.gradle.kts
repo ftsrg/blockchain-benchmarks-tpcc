@@ -16,10 +16,10 @@ val noOpenJML: Boolean = withoutOpenJML != null && withoutOpenJML.toBoolean()
 
 plugins {
   application
-  id("com.github.johnrengelman.shadow") version "7.1.2"
-  id("com.diffplug.spotless") version "6.19.0"
-  id("io.freefair.lombok") version "8.6"
-  id("io.freefair.aspectj.post-compile-weaving") version "8.6"
+  id("com.gradleup.shadow") version "9.4.0"
+  id("com.diffplug.spotless") version "8.4.0"
+  id("io.freefair.lombok") version "9.2.0"
+  id("io.freefair.aspectj.post-compile-weaving") version "9.2.0"
 }
 
 // java { toolchain { languageVersion.set(JavaLanguageVersion.of(17)) } }
@@ -34,20 +34,20 @@ repositories {
 }
 
 dependencies {
-  implementation("org.slf4j:slf4j-api:2.0.13")
-  implementation("org.slf4j:slf4j-simple:2.0.13")
-  implementation("com.fasterxml.jackson.core:jackson-databind:2.15.2")
+  implementation("org.slf4j:slf4j-api:2.0.17")
+  implementation("org.slf4j:slf4j-simple:2.0.17")
+  implementation("com.fasterxml.jackson.core:jackson-databind:2.21.2")
   implementation("com.jcabi:jcabi-aspects:0.26.0")
-  implementation("org.hyperledger.fabric-chaincode-java:fabric-chaincode-shim:2.5.0")
-  implementation("org.hyperledger.fabric:fabric-protos:0.3.0")
+  implementation("org.hyperledger.fabric-chaincode-java:fabric-chaincode-shim:2.5.8")
+  implementation("org.hyperledger.fabric:fabric-protos:0.3.7")
   implementation(files("libs/hypernate-0.1.0-alpha.jar"))
   implementation(files("$openJMLDir/jmlruntime.jar"))
 
   aspect("com.jcabi:jcabi-aspects:0.26.0")
 
-  testImplementation("org.assertj:assertj-core:3.11.1")
-  testImplementation("org.junit.jupiter:junit-jupiter:5.4.2")
-  testImplementation("org.mockito:mockito-core:2.28.2")
+  testImplementation("org.assertj:assertj-core:4.0.0-M1")
+  testImplementation("org.junit.jupiter:junit-jupiter:6.1.0-M1")
+  testImplementation("org.mockito:mockito-core:5.23.0")
   testImplementation(files("$openJMLDir/jmlruntime.jar"))
 }
 
